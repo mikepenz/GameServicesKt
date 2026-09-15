@@ -37,4 +37,5 @@ include(
     ":game-services-saved-games",
     ":game-services-social",
     ":sample",
+    ":local-maven-consumer",
 )

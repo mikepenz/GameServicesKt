@@ -15,15 +15,45 @@ implementation("com.mikepenz:game-services-social:0.1.0-SNAPSHOT")
 Every module compiles for Android API 30+, iOS, JVM, and Wasm. The core runtime uses Google Play
 Games on Android and Game Center on iOS. JVM and Wasm factories return a client whose support
 provider is `None`, whose `isSupported` is false, and whose operations fail with
-`GameServicesException.UnsupportedTarget`.
+`GameServicesException.UnsupportedTarget`. Check `services.support.isSupported` before showing
+game-services controls.
 
 Wire the platform client at the app edge, then pass `GameServices` and feature clients into shared
 code. Do not treat `PlayerId` as an in-game account ID; it is scoped to the provider.
 
 ```kotlin
-suspend fun signIn(services: GameServices): String = services.authenticate()
-    .fold(onSuccess = { it.displayName }, onFailure = { "Unavailable: ${it.message}" })
+import com.mikepenz.gameservices.GameServices
+import com.mikepenz.gameservices.GameServicesException
+import com.mikepenz.gameservices.achievements.AchievementsClient
+import com.mikepenz.gameservices.leaderboards.LeaderboardId
+import com.mikepenz.gameservices.leaderboards.LeaderboardsClient
+
+class GameServicesScreen(
+    private val services: GameServices,
+    private val achievements: AchievementsClient,
+    private val leaderboards: LeaderboardsClient,
+) {
+    suspend fun signInAndShowAchievements(): String {
+        if (!services.support.isSupported) return "Game services are unavailable on this platform"
+        return services.authenticate().fold(
+            onSuccess = { player ->
+                achievements.showAchievements()
+                    .onFailure { return "Could not open achievements: ${it.message}" }
+                "Signed in as ${player.displayName}"
+            },
+            onFailure = { "Could not sign in: ${it.message}" },
+        )
+    }
+
+    suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> =
+        if (services.support.isSupported) leaderboards.submitScore(id, score)
+        else Result.failure(GameServicesException.UnsupportedTarget(services.support.target))
+}
 ```
+
+Every operation returns `Result`; handle its failure instead of assuming authentication. A
+`PlayerId` identifies a player only inside its provider, so map it to your own account ID rather
+than storing it as an application-wide identifier.
 
 ## Android setup
 
