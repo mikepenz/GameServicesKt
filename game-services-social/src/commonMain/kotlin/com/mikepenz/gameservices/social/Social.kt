@@ -4,6 +4,8 @@ import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.PlayerIdentity
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 public data class PlayerProfile public constructor(
     public val identity: PlayerIdentity,
@@ -28,6 +30,8 @@ public enum class FriendsAccessState {
 }
 
 public interface SocialClient {
+    public val friendsAccessState: StateFlow<FriendsAccessState>
+
     public suspend fun requestFriendsAccess(): Result<FriendsAccessState>
 
     public suspend fun loadFriends(): Result<List<PlayerProfile>>
@@ -40,6 +44,8 @@ public interface SocialClient {
 internal class UnsupportedSocialClient(
     target: GameServicesPlatform,
 ) : SocialClient {
+    override val friendsAccessState: StateFlow<FriendsAccessState> = MutableStateFlow(FriendsAccessState.Unknown)
+
     private val unsupported: GameServicesException.UnsupportedTarget =
         GameServicesException.UnsupportedTarget(target)
 

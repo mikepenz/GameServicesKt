@@ -30,9 +30,14 @@ public final class com/mikepenz/gameservices/social/PlayerProfile {
 }
 
 public abstract interface class com/mikepenz/gameservices/social/SocialClient {
+	public abstract fun getFriendsAccessState ()Lkotlinx/coroutines/flow/StateFlow;
 	public abstract fun loadAvatar-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun loadFriends-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun requestFriendsAccess-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun showPlayerProfile-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/social/Social_androidKt {
+	public static final fun createSocialClient (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/social/SocialClient;
 }
 
