@@ -19,13 +19,18 @@ kotlin {
         nodejs()
     }
 
-    androidLibrary {
+    android {
         namespace = "com.mikepenz.gameservices.leaderboards"
+        withHostTest {}
     }
 
     sourceSets {
         commonMain.dependencies {
             api(projects.gameServicesCore)
+        }
+        androidMain.dependencies {
+            api("androidx.activity:activity:1.13.0")
+            implementation("com.google.android.gms:play-services-games-v2:22.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

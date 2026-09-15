@@ -1,5 +1,6 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -107,6 +108,9 @@ final value class com.mikepenz.gameservices.leaderboards/LeaderboardId { // com.
     final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardId.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardId.toString|toString(){}[0]
 }
+
+// Targets: [ios]
+final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
 
 // Targets: [wasmJs]
 final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(){}[0]

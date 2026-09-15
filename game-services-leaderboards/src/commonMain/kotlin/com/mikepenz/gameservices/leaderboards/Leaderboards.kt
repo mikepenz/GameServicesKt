@@ -45,7 +45,7 @@ public data class LeaderboardQuery public constructor(
 ) {
     init {
         require(startRank > 0)
-        require(limit > 0)
+        require(limit in 1..25)
     }
 }
 

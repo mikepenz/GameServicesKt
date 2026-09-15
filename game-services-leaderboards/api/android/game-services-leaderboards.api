@@ -84,3 +84,7 @@ public abstract interface class com/mikepenz/gameservices/leaderboards/Leaderboa
 	public abstract fun submitScore-ayMChJ4 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class com/mikepenz/gameservices/leaderboards/Leaderboards_androidKt {
+	public static final fun createLeaderboardsClient (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
+}
+

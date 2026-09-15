@@ -19,8 +19,9 @@ kotlin {
         nodejs()
     }
 
-    androidLibrary {
+    android {
         namespace = "com.mikepenz.gameservices.achievements"
+        withHostTest {}
     }
 
     sourceSets {
