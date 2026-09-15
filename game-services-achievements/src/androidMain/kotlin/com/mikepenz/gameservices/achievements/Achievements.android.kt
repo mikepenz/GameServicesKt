@@ -39,7 +39,8 @@ private class AndroidAchievementsClient(
     }
 
     override suspend fun showAchievements(): Result<Unit> = providerResult {
-        activity.startActivity(achievements.achievementsIntent.await())
+        @Suppress("DEPRECATION")
+        activity.startActivityForResult(achievements.achievementsIntent.await(), 0)
     }
 
     private suspend fun reportConfiguredProgress(id: AchievementId, progress: AchievementProgress) {
@@ -48,7 +49,8 @@ private class AndroidAchievementsClient(
             require(progress.percent() == 100) { "Standard achievements only accept completion" }
             achievements.unlockImmediate(id.value).await()
         } else {
-            achievements.setStepsImmediate(id.value, progress.stepsFor(googleAchievement.totalSteps)).await()
+            val steps = progress.stepsFor(googleAchievement.totalSteps)
+            if (steps > 0) achievements.setStepsImmediate(id.value, steps).await()
         }
     }
 

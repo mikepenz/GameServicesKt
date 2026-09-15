@@ -7,10 +7,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
 import platform.GameKit.GKAchievement
 import platform.GameKit.GKAchievementDescription
-import platform.GameKit.GKAchievementViewController
+import platform.GameKit.GKGameCenterControllerDelegateProtocol
+import platform.GameKit.GKGameCenterViewController
 import platform.UIKit.UIViewController
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
+import platform.darwin.NSObject
 import kotlin.coroutines.resume
 
 public fun createAchievementsClient(
@@ -20,6 +22,8 @@ public fun createAchievementsClient(
 private class IosAchievementsClient(
     private val presentingViewController: () -> UIViewController,
 ) : AchievementsClient {
+    private val gameCenterDelegate = AchievementsGameCenterDelegate()
+
     override suspend fun loadAchievements(): Result<List<Achievement>> = providerResult {
         val progress = loadProgress().associateBy { it.identifier }
         loadDescriptions().map { description ->
@@ -49,14 +53,9 @@ private class IosAchievementsClient(
         report(achievement)
     }
 
+    @Suppress("DEPRECATION_ERROR")
     override suspend fun showAchievements(): Result<Unit> = providerResult {
-        dispatch_async(dispatch_get_main_queue()) {
-            presentingViewController().presentViewController(
-                viewControllerToPresent = GKAchievementViewController(),
-                animated = true,
-                completion = null,
-            )
-        }
+        presentAchievementsDashboard(presentingViewController, gameCenterDelegate)
     }
 }
 
@@ -97,4 +96,15 @@ private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try 
 private fun NSError.toGameServicesException(): GameServicesException = GameServicesException.ProviderFailure(
     provider = GameServicesProvider.GameCenter,
     code = "$domain:$code",
+)
+
+private class AchievementsGameCenterDelegate : NSObject(), GKGameCenterControllerDelegateProtocol {
+    override fun gameCenterViewControllerDidFinish(gameCenterViewController: GKGameCenterViewController) {
+        gameCenterViewController.dismissViewControllerAnimated(true, null)
+    }
+}
+
+internal expect fun presentAchievementsDashboard(
+    presentingViewController: () -> UIViewController,
+    delegate: GKGameCenterControllerDelegateProtocol,
 )

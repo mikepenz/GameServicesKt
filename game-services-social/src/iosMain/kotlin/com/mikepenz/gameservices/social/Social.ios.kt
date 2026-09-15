@@ -24,7 +24,6 @@ import platform.GameKit.GKPhotoSizeNormal
 import platform.GameKit.loadFriends
 import platform.GameKit.loadFriendsAuthorizationStatus
 import platform.GameKit.loadPhotoForSize
-import platform.GameKit.initWithPlayer
 import platform.GameKit.setGameCenterDelegate
 import platform.UIKit.UIImagePNGRepresentation
 import platform.UIKit.UIViewController
@@ -78,16 +77,7 @@ private class IosSocialClient(
     override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = providerResult {
         val profile = loadFriendsInternal().firstOrNull { it.gamePlayerID == playerId.value }
             ?: throw IllegalArgumentException("Unknown player ${playerId.value}")
-        dispatch_async(dispatch_get_main_queue()) {
-            @Suppress("DEPRECATION_ERROR")
-            val controller = GKGameCenterViewController().initWithPlayer(profile)
-            controller.setGameCenterDelegate(gameCenterDelegate)
-            presentingViewController().presentViewController(
-                viewControllerToPresent = controller,
-                animated = true,
-                completion = null,
-            )
-        }
+        presentPlayerProfile(presentingViewController, gameCenterDelegate, profile)
     }
 
     private suspend fun authorizationStatus(): FriendsAccessState = suspendCancellableCoroutine { continuation ->
@@ -150,6 +140,12 @@ private class GameCenterDelegate : NSObject(), GKGameCenterControllerDelegatePro
         gameCenterViewController.dismissViewControllerAnimated(true, null)
     }
 }
+
+internal expect fun presentPlayerProfile(
+    presentingViewController: () -> UIViewController,
+    delegate: GKGameCenterControllerDelegateProtocol,
+    player: GKPlayer,
+)
 
 @OptIn(ExperimentalForeignApi::class)
 private fun platform.Foundation.NSData.toByteArray(): ByteArray = ByteArray(length.toInt()).also { output ->

@@ -36,4 +36,5 @@ include(
     ":game-services-leaderboards",
     ":game-services-saved-games",
     ":game-services-social",
+    ":sample",
 )
