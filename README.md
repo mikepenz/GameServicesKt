@@ -90,10 +90,11 @@ cancelled coroutine, while expected service failures remain typed `GameServicesE
 
 ## Provider-validation host
 
-`:sample-host-android` is a local, non-published Android app for Play Games validation. Replace its
-placeholder project ID in `sample-host-android/src/main/res/values/game_services.xml`; do not commit
-that value. It has direct controls for every first-release Android operation, including saves and
-conflict resolution. Run `./gradlew :sample-host-android:installDebug` on an API 30+ device with a
-configured Play Games test account. Use your iOS app's lifecycle-owned presenter with
-`createGameServicesSample { currentViewController }` for Game Center validation; its entitlement,
-bundle ID, and App Store Connect configuration belong to that app and are not included here.
+`:sample-host-android` and `sample-host-ios` are local, non-published validation apps. Replace the
+Android placeholder project ID in `sample-host-android/src/main/res/values/game_services.xml`; do
+not commit that value. The Android host has direct controls for every first-release operation,
+including saves and conflict resolution. Run `./gradlew :sample-host-android:installDebug` on an
+API 30+ device with a configured Play Games test account. Open
+`sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, select a sandbox Game Center account,
+set a development team and bundle ID, then run it on an iOS 16+ device. Its entitlement, bundle ID,
+and App Store Connect configuration remain app-owned.
