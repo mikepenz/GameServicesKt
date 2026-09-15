@@ -1,0 +1,112 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-leaderboards>
+final enum class com.mikepenz.gameservices.leaderboards/LeaderboardPeriod : kotlin/Enum<com.mikepenz.gameservices.leaderboards/LeaderboardPeriod> { // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod|null[0]
+    enum entry AllTime // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.AllTime|null[0]
+    enum entry Today // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.Today|null[0]
+    enum entry Week // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.Week|null[0]
+
+    final val entries // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices.leaderboards/LeaderboardPeriod> // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices.leaderboards/LeaderboardPeriod // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices.leaderboards/LeaderboardPeriod> // com.mikepenz.gameservices.leaderboards/LeaderboardPeriod.values|values#static(){}[0]
+}
+
+final enum class com.mikepenz.gameservices.leaderboards/LeaderboardScope : kotlin/Enum<com.mikepenz.gameservices.leaderboards/LeaderboardScope> { // com.mikepenz.gameservices.leaderboards/LeaderboardScope|null[0]
+    enum entry Friends // com.mikepenz.gameservices.leaderboards/LeaderboardScope.Friends|null[0]
+    enum entry Global // com.mikepenz.gameservices.leaderboards/LeaderboardScope.Global|null[0]
+
+    final val entries // com.mikepenz.gameservices.leaderboards/LeaderboardScope.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices.leaderboards/LeaderboardScope> // com.mikepenz.gameservices.leaderboards/LeaderboardScope.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices.leaderboards/LeaderboardScope // com.mikepenz.gameservices.leaderboards/LeaderboardScope.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices.leaderboards/LeaderboardScope> // com.mikepenz.gameservices.leaderboards/LeaderboardScope.values|values#static(){}[0]
+}
+
+abstract interface com.mikepenz.gameservices.leaderboards/LeaderboardsClient { // com.mikepenz.gameservices.leaderboards/LeaderboardsClient|null[0]
+    abstract suspend fun loadCurrentPlayerScore(com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardScope, com.mikepenz.gameservices.leaderboards/LeaderboardPeriod): kotlin/Result<com.mikepenz.gameservices.leaderboards/LeaderboardScore?> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.loadCurrentPlayerScore|loadCurrentPlayerScore(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardScope;com.mikepenz.gameservices.leaderboards.LeaderboardPeriod){}[0]
+    abstract suspend fun loadScores(com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardQuery): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.leaderboards/LeaderboardScore>> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.loadScores|loadScores(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardQuery){}[0]
+    abstract suspend fun showLeaderboard(com.mikepenz.gameservices.leaderboards/LeaderboardId): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.showLeaderboard|showLeaderboard(com.mikepenz.gameservices.leaderboards.LeaderboardId){}[0]
+    abstract suspend fun showLeaderboards(): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.showLeaderboards|showLeaderboards(){}[0]
+    abstract suspend fun submitScore(com.mikepenz.gameservices.leaderboards/LeaderboardId, kotlin/Long): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.submitScore|submitScore(com.mikepenz.gameservices.leaderboards.LeaderboardId;kotlin.Long){}[0]
+}
+
+final class com.mikepenz.gameservices.leaderboards/Leaderboard { // com.mikepenz.gameservices.leaderboards/Leaderboard|null[0]
+    constructor <init>(com.mikepenz.gameservices.leaderboards/LeaderboardId, kotlin/String) // com.mikepenz.gameservices.leaderboards/Leaderboard.<init>|<init>(com.mikepenz.gameservices.leaderboards.LeaderboardId;kotlin.String){}[0]
+
+    final val id // com.mikepenz.gameservices.leaderboards/Leaderboard.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/Leaderboard.id.<get-id>|<get-id>(){}[0]
+    final val title // com.mikepenz.gameservices.leaderboards/Leaderboard.title|{}title[0]
+        final fun <get-title>(): kotlin/String // com.mikepenz.gameservices.leaderboards/Leaderboard.title.<get-title>|<get-title>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/Leaderboard.component1|component1(){}[0]
+    final fun component2(): kotlin/String // com.mikepenz.gameservices.leaderboards/Leaderboard.component2|component2(){}[0]
+    final fun copy(com.mikepenz.gameservices.leaderboards/LeaderboardId = ..., kotlin/String = ...): com.mikepenz.gameservices.leaderboards/Leaderboard // com.mikepenz.gameservices.leaderboards/Leaderboard.copy|copy(com.mikepenz.gameservices.leaderboards.LeaderboardId;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/Leaderboard.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/Leaderboard.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/Leaderboard.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.leaderboards/LeaderboardQuery { // com.mikepenz.gameservices.leaderboards/LeaderboardQuery|null[0]
+    constructor <init>(com.mikepenz.gameservices.leaderboards/LeaderboardScope, com.mikepenz.gameservices.leaderboards/LeaderboardPeriod, kotlin/Int, kotlin/Int) // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.<init>|<init>(com.mikepenz.gameservices.leaderboards.LeaderboardScope;com.mikepenz.gameservices.leaderboards.LeaderboardPeriod;kotlin.Int;kotlin.Int){}[0]
+
+    final val limit // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.limit|{}limit[0]
+        final fun <get-limit>(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.limit.<get-limit>|<get-limit>(){}[0]
+    final val period // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.period|{}period[0]
+        final fun <get-period>(): com.mikepenz.gameservices.leaderboards/LeaderboardPeriod // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.period.<get-period>|<get-period>(){}[0]
+    final val scope // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.scope|{}scope[0]
+        final fun <get-scope>(): com.mikepenz.gameservices.leaderboards/LeaderboardScope // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.scope.<get-scope>|<get-scope>(){}[0]
+    final val startRank // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.startRank|{}startRank[0]
+        final fun <get-startRank>(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.startRank.<get-startRank>|<get-startRank>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.leaderboards/LeaderboardScope // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.component1|component1(){}[0]
+    final fun component2(): com.mikepenz.gameservices.leaderboards/LeaderboardPeriod // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.component4|component4(){}[0]
+    final fun copy(com.mikepenz.gameservices.leaderboards/LeaderboardScope = ..., com.mikepenz.gameservices.leaderboards/LeaderboardPeriod = ..., kotlin/Int = ..., kotlin/Int = ...): com.mikepenz.gameservices.leaderboards/LeaderboardQuery // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.copy|copy(com.mikepenz.gameservices.leaderboards.LeaderboardScope;com.mikepenz.gameservices.leaderboards.LeaderboardPeriod;kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.leaderboards/LeaderboardScore { // com.mikepenz.gameservices.leaderboards/LeaderboardScore|null[0]
+    constructor <init>(com.mikepenz.gameservices/PlayerIdentity, kotlin/Long, kotlin/String, kotlin/Int) // com.mikepenz.gameservices.leaderboards/LeaderboardScore.<init>|<init>(com.mikepenz.gameservices.PlayerIdentity;kotlin.Long;kotlin.String;kotlin.Int){}[0]
+
+    final val formattedValue // com.mikepenz.gameservices.leaderboards/LeaderboardScore.formattedValue|{}formattedValue[0]
+        final fun <get-formattedValue>(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardScore.formattedValue.<get-formattedValue>|<get-formattedValue>(){}[0]
+    final val player // com.mikepenz.gameservices.leaderboards/LeaderboardScore.player|{}player[0]
+        final fun <get-player>(): com.mikepenz.gameservices/PlayerIdentity // com.mikepenz.gameservices.leaderboards/LeaderboardScore.player.<get-player>|<get-player>(){}[0]
+    final val rank // com.mikepenz.gameservices.leaderboards/LeaderboardScore.rank|{}rank[0]
+        final fun <get-rank>(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardScore.rank.<get-rank>|<get-rank>(){}[0]
+    final val value // com.mikepenz.gameservices.leaderboards/LeaderboardScore.value|{}value[0]
+        final fun <get-value>(): kotlin/Long // com.mikepenz.gameservices.leaderboards/LeaderboardScore.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices/PlayerIdentity // com.mikepenz.gameservices.leaderboards/LeaderboardScore.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // com.mikepenz.gameservices.leaderboards/LeaderboardScore.component2|component2(){}[0]
+    final fun component3(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardScore.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardScore.component4|component4(){}[0]
+    final fun copy(com.mikepenz.gameservices/PlayerIdentity = ..., kotlin/Long = ..., kotlin/String = ..., kotlin/Int = ...): com.mikepenz.gameservices.leaderboards/LeaderboardScore // com.mikepenz.gameservices.leaderboards/LeaderboardScore.copy|copy(com.mikepenz.gameservices.PlayerIdentity;kotlin.Long;kotlin.String;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/LeaderboardScore.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardScore.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardScore.toString|toString(){}[0]
+}
+
+final value class com.mikepenz.gameservices.leaderboards/LeaderboardId { // com.mikepenz.gameservices.leaderboards/LeaderboardId|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.leaderboards/LeaderboardId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // com.mikepenz.gameservices.leaderboards/LeaderboardId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/LeaderboardId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardId.toString|toString(){}[0]
+}
+
+// Targets: [wasmJs]
+final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(){}[0]

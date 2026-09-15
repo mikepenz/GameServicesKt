@@ -1,0 +1,38 @@
+public final class com/mikepenz/gameservices/social/AvatarBytes {
+	public static final field Companion Lcom/mikepenz/gameservices/social/AvatarBytes$Companion;
+	public final fun copyBytes ()[B
+}
+
+public final class com/mikepenz/gameservices/social/AvatarBytes$Companion {
+	public final fun of ([B)Lcom/mikepenz/gameservices/social/AvatarBytes;
+}
+
+public final class com/mikepenz/gameservices/social/FriendsAccessState : java/lang/Enum {
+	public static final field ConsentRequired Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static final field Denied Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static final field Granted Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static final field Restricted Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static final field Unknown Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/social/FriendsAccessState;
+	public static fun values ()[Lcom/mikepenz/gameservices/social/FriendsAccessState;
+}
+
+public final class com/mikepenz/gameservices/social/PlayerProfile {
+	public fun <init> (Lcom/mikepenz/gameservices/PlayerIdentity;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public final fun copy (Lcom/mikepenz/gameservices/PlayerIdentity;)Lcom/mikepenz/gameservices/social/PlayerProfile;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/social/PlayerProfile;Lcom/mikepenz/gameservices/PlayerIdentity;ILjava/lang/Object;)Lcom/mikepenz/gameservices/social/PlayerProfile;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getIdentity ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/social/SocialClient {
+	public abstract fun loadAvatar-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun loadFriends-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun requestFriendsAccess-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun showPlayerProfile-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

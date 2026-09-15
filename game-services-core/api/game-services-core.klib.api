@@ -1,0 +1,169 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-core>
+final enum class com.mikepenz.gameservices/GameServicesPlatform : kotlin/Enum<com.mikepenz.gameservices/GameServicesPlatform> { // com.mikepenz.gameservices/GameServicesPlatform|null[0]
+    enum entry Android // com.mikepenz.gameservices/GameServicesPlatform.Android|null[0]
+    enum entry IOS // com.mikepenz.gameservices/GameServicesPlatform.IOS|null[0]
+    enum entry JVM // com.mikepenz.gameservices/GameServicesPlatform.JVM|null[0]
+    enum entry Wasm // com.mikepenz.gameservices/GameServicesPlatform.Wasm|null[0]
+
+    final val entries // com.mikepenz.gameservices/GameServicesPlatform.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices/GameServicesPlatform> // com.mikepenz.gameservices/GameServicesPlatform.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices/GameServicesPlatform // com.mikepenz.gameservices/GameServicesPlatform.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices/GameServicesPlatform> // com.mikepenz.gameservices/GameServicesPlatform.values|values#static(){}[0]
+}
+
+final enum class com.mikepenz.gameservices/GameServicesProvider : kotlin/Enum<com.mikepenz.gameservices/GameServicesProvider> { // com.mikepenz.gameservices/GameServicesProvider|null[0]
+    enum entry GameCenter // com.mikepenz.gameservices/GameServicesProvider.GameCenter|null[0]
+    enum entry GooglePlayGames // com.mikepenz.gameservices/GameServicesProvider.GooglePlayGames|null[0]
+    enum entry None // com.mikepenz.gameservices/GameServicesProvider.None|null[0]
+
+    final val entries // com.mikepenz.gameservices/GameServicesProvider.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices/GameServicesProvider> // com.mikepenz.gameservices/GameServicesProvider.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesProvider.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices/GameServicesProvider> // com.mikepenz.gameservices/GameServicesProvider.values|values#static(){}[0]
+}
+
+abstract interface com.mikepenz.gameservices/GameServices { // com.mikepenz.gameservices/GameServices|null[0]
+    abstract val authenticationState // com.mikepenz.gameservices/GameServices.authenticationState|{}authenticationState[0]
+        abstract fun <get-authenticationState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices/AuthenticationState> // com.mikepenz.gameservices/GameServices.authenticationState.<get-authenticationState>|<get-authenticationState>(){}[0]
+    abstract val support // com.mikepenz.gameservices/GameServices.support|{}support[0]
+        abstract fun <get-support>(): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices/GameServices.support.<get-support>|<get-support>(){}[0]
+
+    abstract suspend fun authenticate(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity> // com.mikepenz.gameservices/GameServices.authenticate|authenticate(){}[0]
+}
+
+sealed interface com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState|null[0]
+    final class Authenticated : com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState.Authenticated|null[0]
+        constructor <init>(com.mikepenz.gameservices/PlayerIdentity) // com.mikepenz.gameservices/AuthenticationState.Authenticated.<init>|<init>(com.mikepenz.gameservices.PlayerIdentity){}[0]
+
+        final val player // com.mikepenz.gameservices/AuthenticationState.Authenticated.player|{}player[0]
+            final fun <get-player>(): com.mikepenz.gameservices/PlayerIdentity // com.mikepenz.gameservices/AuthenticationState.Authenticated.player.<get-player>|<get-player>(){}[0]
+
+        final fun component1(): com.mikepenz.gameservices/PlayerIdentity // com.mikepenz.gameservices/AuthenticationState.Authenticated.component1|component1(){}[0]
+        final fun copy(com.mikepenz.gameservices/PlayerIdentity = ...): com.mikepenz.gameservices/AuthenticationState.Authenticated // com.mikepenz.gameservices/AuthenticationState.Authenticated.copy|copy(com.mikepenz.gameservices.PlayerIdentity){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/AuthenticationState.Authenticated.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/AuthenticationState.Authenticated.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/AuthenticationState.Authenticated.toString|toString(){}[0]
+    }
+
+    final object Authenticating : com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState.Authenticating|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/AuthenticationState.Authenticating.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/AuthenticationState.Authenticating.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/AuthenticationState.Authenticating.toString|toString(){}[0]
+    }
+
+    final object Unauthenticated : com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState.Unauthenticated|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/AuthenticationState.Unauthenticated.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/AuthenticationState.Unauthenticated.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/AuthenticationState.Unauthenticated.toString|toString(){}[0]
+    }
+
+    final object Unsupported : com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState.Unsupported|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/AuthenticationState.Unsupported.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/AuthenticationState.Unsupported.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/AuthenticationState.Unsupported.toString|toString(){}[0]
+    }
+}
+
+final class com.mikepenz.gameservices/GameServicesSupport { // com.mikepenz.gameservices/GameServicesSupport|null[0]
+    constructor <init>(com.mikepenz.gameservices/GameServicesPlatform, com.mikepenz.gameservices/GameServicesProvider, kotlin/Boolean) // com.mikepenz.gameservices/GameServicesSupport.<init>|<init>(com.mikepenz.gameservices.GameServicesPlatform;com.mikepenz.gameservices.GameServicesProvider;kotlin.Boolean){}[0]
+
+    final val isSupported // com.mikepenz.gameservices/GameServicesSupport.isSupported|{}isSupported[0]
+        final fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices/GameServicesSupport.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    final val provider // com.mikepenz.gameservices/GameServicesSupport.provider|{}provider[0]
+        final fun <get-provider>(): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesSupport.provider.<get-provider>|<get-provider>(){}[0]
+    final val target // com.mikepenz.gameservices/GameServicesSupport.target|{}target[0]
+        final fun <get-target>(): com.mikepenz.gameservices/GameServicesPlatform // com.mikepenz.gameservices/GameServicesSupport.target.<get-target>|<get-target>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices/GameServicesPlatform // com.mikepenz.gameservices/GameServicesSupport.component1|component1(){}[0]
+    final fun component2(): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesSupport.component2|component2(){}[0]
+    final fun component3(): kotlin/Boolean // com.mikepenz.gameservices/GameServicesSupport.component3|component3(){}[0]
+    final fun copy(com.mikepenz.gameservices/GameServicesPlatform = ..., com.mikepenz.gameservices/GameServicesProvider = ..., kotlin/Boolean = ...): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices/GameServicesSupport.copy|copy(com.mikepenz.gameservices.GameServicesPlatform;com.mikepenz.gameservices.GameServicesProvider;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesSupport.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesSupport.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesSupport.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices/PlayerIdentity { // com.mikepenz.gameservices/PlayerIdentity|null[0]
+    constructor <init>(com.mikepenz.gameservices/PlayerId, kotlin/String) // com.mikepenz.gameservices/PlayerIdentity.<init>|<init>(com.mikepenz.gameservices.PlayerId;kotlin.String){}[0]
+
+    final val displayName // com.mikepenz.gameservices/PlayerIdentity.displayName|{}displayName[0]
+        final fun <get-displayName>(): kotlin/String // com.mikepenz.gameservices/PlayerIdentity.displayName.<get-displayName>|<get-displayName>(){}[0]
+    final val id // com.mikepenz.gameservices/PlayerIdentity.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices/PlayerId // com.mikepenz.gameservices/PlayerIdentity.id.<get-id>|<get-id>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices/PlayerId // com.mikepenz.gameservices/PlayerIdentity.component1|component1(){}[0]
+    final fun component2(): kotlin/String // com.mikepenz.gameservices/PlayerIdentity.component2|component2(){}[0]
+    final fun copy(com.mikepenz.gameservices/PlayerId = ..., kotlin/String = ...): com.mikepenz.gameservices/PlayerIdentity // com.mikepenz.gameservices/PlayerIdentity.copy|copy(com.mikepenz.gameservices.PlayerId;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/PlayerIdentity.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/PlayerIdentity.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices/PlayerIdentity.toString|toString(){}[0]
+}
+
+final value class com.mikepenz.gameservices/PlayerId { // com.mikepenz.gameservices/PlayerId|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices/PlayerId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // com.mikepenz.gameservices/PlayerId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // com.mikepenz.gameservices/PlayerId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/PlayerId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/PlayerId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices/PlayerId.toString|toString(){}[0]
+}
+
+sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception { // com.mikepenz.gameservices/GameServicesException|null[0]
+    final class ProviderFailure : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.ProviderFailure|null[0]
+        constructor <init>(com.mikepenz.gameservices/GameServicesProvider, kotlin/String) // com.mikepenz.gameservices/GameServicesException.ProviderFailure.<init>|<init>(com.mikepenz.gameservices.GameServicesProvider;kotlin.String){}[0]
+
+        final val code // com.mikepenz.gameservices/GameServicesException.ProviderFailure.code|{}code[0]
+            final fun <get-code>(): kotlin/String // com.mikepenz.gameservices/GameServicesException.ProviderFailure.code.<get-code>|<get-code>(){}[0]
+        final val provider // com.mikepenz.gameservices/GameServicesException.ProviderFailure.provider|{}provider[0]
+            final fun <get-provider>(): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesException.ProviderFailure.provider.<get-provider>|<get-provider>(){}[0]
+    }
+
+    final class UnsupportedTarget : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget|null[0]
+        constructor <init>(com.mikepenz.gameservices/GameServicesPlatform) // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget.<init>|<init>(com.mikepenz.gameservices.GameServicesPlatform){}[0]
+
+        final val target // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget.target|{}target[0]
+            final fun <get-target>(): com.mikepenz.gameservices/GameServicesPlatform // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget.target.<get-target>|<get-target>(){}[0]
+    }
+
+    final object AuthenticationRequired : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.AuthenticationRequired|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.AuthenticationRequired.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.AuthenticationRequired.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.AuthenticationRequired.toString|toString(){}[0]
+    }
+
+    final object ConfigurationMissing : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing.toString|toString(){}[0]
+    }
+
+    final object PermissionRequired : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.PermissionRequired|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.PermissionRequired.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.PermissionRequired.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.PermissionRequired.toString|toString(){}[0]
+    }
+
+    final object UserCancelled : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.UserCancelled|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.UserCancelled.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.UserCancelled.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.UserCancelled.toString|toString(){}[0]
+    }
+}
+
+// Targets: [ios]
+final fun com.mikepenz.gameservices/createGameServices(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+
+// Targets: [wasmJs]
+final fun com.mikepenz.gameservices/createGameServices(): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(){}[0]

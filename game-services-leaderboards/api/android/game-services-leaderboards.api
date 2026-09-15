@@ -1,0 +1,86 @@
+public final class com/mikepenz/gameservices/leaderboards/Leaderboard {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-3yCXzy4 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy-3lm22HY (Ljava/lang/String;Ljava/lang/String;)Lcom/mikepenz/gameservices/leaderboards/Leaderboard;
+	public static synthetic fun copy-3lm22HY$default (Lcom/mikepenz/gameservices/leaderboards/Leaderboard;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/Leaderboard;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId-3yCXzy4 ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardId {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardId;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardPeriod : java/lang/Enum {
+	public static final field AllTime Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public static final field Today Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public static final field Week Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public static fun values ()[Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardQuery {
+	public fun <init> (Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;II)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+	public final fun component2 ()Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun copy (Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;II)Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;IIILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLimit ()I
+	public final fun getPeriod ()Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;
+	public final fun getScope ()Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+	public final fun getStartRank ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardScope : java/lang/Enum {
+	public static final field Friends Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+	public static final field Global Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+	public static fun values ()[Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardScore {
+	public fun <init> (Lcom/mikepenz/gameservices/PlayerIdentity;JLjava/lang/String;I)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public final fun component2 ()J
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()I
+	public final fun copy (Lcom/mikepenz/gameservices/PlayerIdentity;JLjava/lang/String;I)Lcom/mikepenz/gameservices/leaderboards/LeaderboardScore;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/leaderboards/LeaderboardScore;Lcom/mikepenz/gameservices/PlayerIdentity;JLjava/lang/String;IILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardScore;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFormattedValue ()Ljava/lang/String;
+	public final fun getPlayer ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public final fun getRank ()I
+	public final fun getValue ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/leaderboards/LeaderboardsClient {
+	public abstract fun loadCurrentPlayerScore-RuZBKsI (Ljava/lang/String;Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun loadScores-ayMChJ4 (Ljava/lang/String;Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun showLeaderboard-vFf5gEQ (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun showLeaderboards-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun submitScore-ayMChJ4 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

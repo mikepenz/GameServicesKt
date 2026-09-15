@@ -1,0 +1,147 @@
+public final class com/mikepenz/gameservices/savedgames/SavedGameConflict {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1--0Gl9PM ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy-JLxvvA0 (Ljava/lang/String;Ljava/util/List;)Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public static synthetic fun copy-JLxvvA0$default (Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId--0Gl9PM ()Ljava/lang/String;
+	public final fun getVersions ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameConflictId {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcom/mikepenz/gameservices/savedgames/SavedGameConflictId;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameData {
+	public static final field Companion Lcom/mikepenz/gameservices/savedgames/SavedGameData$Companion;
+	public final fun copyBytes ()[B
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameData$Companion {
+	public final fun of ([B)Lcom/mikepenz/gameservices/savedgames/SavedGameData;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameId {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcom/mikepenz/gameservices/savedgames/SavedGameId;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameMetadata {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-gRvkH-8 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy-ziz6uYc (Ljava/lang/String;Ljava/lang/String;)Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public static synthetic fun copy-ziz6uYc$default (Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId-gRvkH-8 ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/savedgames/SavedGameReadResult {
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameReadResult$Conflict : com/mikepenz/gameservices/savedgames/SavedGameReadResult {
+	public fun <init> (Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public final fun copy (Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;)Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Conflict;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Conflict;Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Conflict;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConflict ()Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameReadResult$Loaded : com/mikepenz/gameservices/savedgames/SavedGameReadResult {
+	public fun <init> (Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;
+	public final fun copy (Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;)Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Loaded;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Loaded;Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$Loaded;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getVersion ()Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameReadResult$NotFound : com/mikepenz/gameservices/savedgames/SavedGameReadResult {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/savedgames/SavedGameReadResult$NotFound;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameVersion {
+	public fun <init> (Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;Lcom/mikepenz/gameservices/savedgames/SavedGameData;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public final fun component2 ()Lcom/mikepenz/gameservices/savedgames/SavedGameData;
+	public final fun copy (Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;Lcom/mikepenz/gameservices/savedgames/SavedGameData;)Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;Lcom/mikepenz/gameservices/savedgames/SavedGameData;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameVersion;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Lcom/mikepenz/gameservices/savedgames/SavedGameData;
+	public final fun getMetadata ()Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/savedgames/SavedGameWriteResult {
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameWriteResult$Conflict : com/mikepenz/gameservices/savedgames/SavedGameWriteResult {
+	public fun <init> (Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public final fun copy (Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;)Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Conflict;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Conflict;Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Conflict;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConflict ()Lcom/mikepenz/gameservices/savedgames/SavedGameConflict;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGameWriteResult$Saved : com/mikepenz/gameservices/savedgames/SavedGameWriteResult {
+	public fun <init> (Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public final fun copy (Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;)Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Saved;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Saved;Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGameWriteResult$Saved;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMetadata ()Lcom/mikepenz/gameservices/savedgames/SavedGameMetadata;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/savedgames/SavedGamesClient {
+	public abstract fun delete-D5Paxtk (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun isSelectionPresenterSupported ()Z
+	public abstract fun listSavedGames-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun read-D5Paxtk (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun resolve-IgdyV3c (Ljava/lang/String;Lcom/mikepenz/gameservices/savedgames/SavedGameData;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun showSavedGameSelection-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun write-Qn6bZSI (Ljava/lang/String;Lcom/mikepenz/gameservices/savedgames/SavedGameData;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGames_androidKt {
+	public static final fun createSavedGamesClient (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+}
+

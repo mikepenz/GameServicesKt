@@ -1,0 +1,125 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-achievements>
+final enum class com.mikepenz.gameservices.achievements/AchievementState : kotlin/Enum<com.mikepenz.gameservices.achievements/AchievementState> { // com.mikepenz.gameservices.achievements/AchievementState|null[0]
+    enum entry Locked // com.mikepenz.gameservices.achievements/AchievementState.Locked|null[0]
+    enum entry Unlocked // com.mikepenz.gameservices.achievements/AchievementState.Unlocked|null[0]
+
+    final val entries // com.mikepenz.gameservices.achievements/AchievementState.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices.achievements/AchievementState> // com.mikepenz.gameservices.achievements/AchievementState.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices.achievements/AchievementState // com.mikepenz.gameservices.achievements/AchievementState.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices.achievements/AchievementState> // com.mikepenz.gameservices.achievements/AchievementState.values|values#static(){}[0]
+}
+
+abstract interface com.mikepenz.gameservices.achievements/AchievementsClient { // com.mikepenz.gameservices.achievements/AchievementsClient|null[0]
+    abstract suspend fun loadAchievements(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.achievements/Achievement>> // com.mikepenz.gameservices.achievements/AchievementsClient.loadAchievements|loadAchievements(){}[0]
+    abstract suspend fun reportProgress(com.mikepenz.gameservices.achievements/AchievementId, com.mikepenz.gameservices.achievements/AchievementProgress): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.achievements/AchievementsClient.reportProgress|reportProgress(com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementProgress){}[0]
+    abstract suspend fun showAchievements(): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.achievements/AchievementsClient.showAchievements|showAchievements(){}[0]
+}
+
+sealed interface com.mikepenz.gameservices.achievements/AchievementProgress { // com.mikepenz.gameservices.achievements/AchievementProgress|null[0]
+    final class Percent : com.mikepenz.gameservices.achievements/AchievementProgress { // com.mikepenz.gameservices.achievements/AchievementProgress.Percent|null[0]
+        constructor <init>(kotlin/Int) // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.<init>|<init>(kotlin.Int){}[0]
+
+        final val value // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.value|{}value[0]
+            final fun <get-value>(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.value.<get-value>|<get-value>(){}[0]
+
+        final fun component1(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.component1|component1(){}[0]
+        final fun copy(kotlin/Int = ...): com.mikepenz.gameservices.achievements/AchievementProgress.Percent // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.copy|copy(kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementProgress.Percent.toString|toString(){}[0]
+    }
+
+    final class Steps : com.mikepenz.gameservices.achievements/AchievementProgress { // com.mikepenz.gameservices.achievements/AchievementProgress.Steps|null[0]
+        constructor <init>(kotlin/Int, kotlin/Int) // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+        final val current // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.current|{}current[0]
+            final fun <get-current>(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.current.<get-current>|<get-current>(){}[0]
+        final val total // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.total|{}total[0]
+            final fun <get-total>(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.total.<get-total>|<get-total>(){}[0]
+
+        final fun component1(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.component1|component1(){}[0]
+        final fun component2(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.component2|component2(){}[0]
+        final fun copy(kotlin/Int = ..., kotlin/Int = ...): com.mikepenz.gameservices.achievements/AchievementProgress.Steps // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.copy|copy(kotlin.Int;kotlin.Int){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementProgress.Steps.toString|toString(){}[0]
+    }
+
+    final object Unlocked : com.mikepenz.gameservices.achievements/AchievementProgress { // com.mikepenz.gameservices.achievements/AchievementProgress.Unlocked|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementProgress.Unlocked.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementProgress.Unlocked.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementProgress.Unlocked.toString|toString(){}[0]
+    }
+}
+
+final class com.mikepenz.gameservices.achievements/Achievement { // com.mikepenz.gameservices.achievements/Achievement|null[0]
+    constructor <init>(com.mikepenz.gameservices.achievements/AchievementId, kotlin/String, kotlin/String, kotlin/Long, kotlin/Boolean, com.mikepenz.gameservices.achievements/AchievementState, kotlin/Int, com.mikepenz.gameservices.achievements/AchievementSteps? = ...) // com.mikepenz.gameservices.achievements/Achievement.<init>|<init>(com.mikepenz.gameservices.achievements.AchievementId;kotlin.String;kotlin.String;kotlin.Long;kotlin.Boolean;com.mikepenz.gameservices.achievements.AchievementState;kotlin.Int;com.mikepenz.gameservices.achievements.AchievementSteps?){}[0]
+
+    final val completionPercent // com.mikepenz.gameservices.achievements/Achievement.completionPercent|{}completionPercent[0]
+        final fun <get-completionPercent>(): kotlin/Int // com.mikepenz.gameservices.achievements/Achievement.completionPercent.<get-completionPercent>|<get-completionPercent>(){}[0]
+    final val description // com.mikepenz.gameservices.achievements/Achievement.description|{}description[0]
+        final fun <get-description>(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.description.<get-description>|<get-description>(){}[0]
+    final val id // com.mikepenz.gameservices.achievements/Achievement.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/Achievement.id.<get-id>|<get-id>(){}[0]
+    final val isHidden // com.mikepenz.gameservices.achievements/Achievement.isHidden|{}isHidden[0]
+        final fun <get-isHidden>(): kotlin/Boolean // com.mikepenz.gameservices.achievements/Achievement.isHidden.<get-isHidden>|<get-isHidden>(){}[0]
+    final val points // com.mikepenz.gameservices.achievements/Achievement.points|{}points[0]
+        final fun <get-points>(): kotlin/Long // com.mikepenz.gameservices.achievements/Achievement.points.<get-points>|<get-points>(){}[0]
+    final val state // com.mikepenz.gameservices.achievements/Achievement.state|{}state[0]
+        final fun <get-state>(): com.mikepenz.gameservices.achievements/AchievementState // com.mikepenz.gameservices.achievements/Achievement.state.<get-state>|<get-state>(){}[0]
+    final val steps // com.mikepenz.gameservices.achievements/Achievement.steps|{}steps[0]
+        final fun <get-steps>(): com.mikepenz.gameservices.achievements/AchievementSteps? // com.mikepenz.gameservices.achievements/Achievement.steps.<get-steps>|<get-steps>(){}[0]
+    final val title // com.mikepenz.gameservices.achievements/Achievement.title|{}title[0]
+        final fun <get-title>(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.title.<get-title>|<get-title>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/Achievement.component1|component1(){}[0]
+    final fun component2(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.component2|component2(){}[0]
+    final fun component3(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.component3|component3(){}[0]
+    final fun component4(): kotlin/Long // com.mikepenz.gameservices.achievements/Achievement.component4|component4(){}[0]
+    final fun component5(): kotlin/Boolean // com.mikepenz.gameservices.achievements/Achievement.component5|component5(){}[0]
+    final fun component6(): com.mikepenz.gameservices.achievements/AchievementState // com.mikepenz.gameservices.achievements/Achievement.component6|component6(){}[0]
+    final fun component7(): kotlin/Int // com.mikepenz.gameservices.achievements/Achievement.component7|component7(){}[0]
+    final fun component8(): com.mikepenz.gameservices.achievements/AchievementSteps? // com.mikepenz.gameservices.achievements/Achievement.component8|component8(){}[0]
+    final fun copy(com.mikepenz.gameservices.achievements/AchievementId = ..., kotlin/String = ..., kotlin/String = ..., kotlin/Long = ..., kotlin/Boolean = ..., com.mikepenz.gameservices.achievements/AchievementState = ..., kotlin/Int = ..., com.mikepenz.gameservices.achievements/AchievementSteps? = ...): com.mikepenz.gameservices.achievements/Achievement // com.mikepenz.gameservices.achievements/Achievement.copy|copy(com.mikepenz.gameservices.achievements.AchievementId;kotlin.String;kotlin.String;kotlin.Long;kotlin.Boolean;com.mikepenz.gameservices.achievements.AchievementState;kotlin.Int;com.mikepenz.gameservices.achievements.AchievementSteps?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/Achievement.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/Achievement.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.achievements/AchievementSteps { // com.mikepenz.gameservices.achievements/AchievementSteps|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int) // com.mikepenz.gameservices.achievements/AchievementSteps.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+    final val current // com.mikepenz.gameservices.achievements/AchievementSteps.current|{}current[0]
+        final fun <get-current>(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementSteps.current.<get-current>|<get-current>(){}[0]
+    final val total // com.mikepenz.gameservices.achievements/AchievementSteps.total|{}total[0]
+        final fun <get-total>(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementSteps.total.<get-total>|<get-total>(){}[0]
+
+    final fun component1(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementSteps.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementSteps.component2|component2(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ...): com.mikepenz.gameservices.achievements/AchievementSteps // com.mikepenz.gameservices.achievements/AchievementSteps.copy|copy(kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementSteps.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementSteps.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementSteps.toString|toString(){}[0]
+}
+
+final value class com.mikepenz.gameservices.achievements/AchievementId { // com.mikepenz.gameservices.achievements/AchievementId|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.achievements/AchievementId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // com.mikepenz.gameservices.achievements/AchievementId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementId.toString|toString(){}[0]
+}
+
+// Targets: [wasmJs]
+final fun com.mikepenz.gameservices.achievements/createAchievementsClient(): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(){}[0]

@@ -1,0 +1,162 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-saved-games>
+abstract interface com.mikepenz.gameservices.savedgames/SavedGamesClient { // com.mikepenz.gameservices.savedgames/SavedGamesClient|null[0]
+    abstract val isSelectionPresenterSupported // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSelectionPresenterSupported|{}isSelectionPresenterSupported[0]
+        abstract fun <get-isSelectionPresenterSupported>(): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSelectionPresenterSupported.<get-isSelectionPresenterSupported>|<get-isSelectionPresenterSupported>(){}[0]
+
+    abstract suspend fun delete(com.mikepenz.gameservices.savedgames/SavedGameId): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.savedgames/SavedGamesClient.delete|delete(com.mikepenz.gameservices.savedgames.SavedGameId){}[0]
+    abstract suspend fun listSavedGames(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameMetadata>> // com.mikepenz.gameservices.savedgames/SavedGamesClient.listSavedGames|listSavedGames(){}[0]
+    abstract suspend fun read(com.mikepenz.gameservices.savedgames/SavedGameId): kotlin/Result<com.mikepenz.gameservices.savedgames/SavedGameReadResult> // com.mikepenz.gameservices.savedgames/SavedGamesClient.read|read(com.mikepenz.gameservices.savedgames.SavedGameId){}[0]
+    abstract suspend fun resolve(com.mikepenz.gameservices.savedgames/SavedGameConflictId, com.mikepenz.gameservices.savedgames/SavedGameData): kotlin/Result<com.mikepenz.gameservices.savedgames/SavedGameWriteResult> // com.mikepenz.gameservices.savedgames/SavedGamesClient.resolve|resolve(com.mikepenz.gameservices.savedgames.SavedGameConflictId;com.mikepenz.gameservices.savedgames.SavedGameData){}[0]
+    abstract suspend fun showSavedGameSelection(): kotlin/Result<com.mikepenz.gameservices.savedgames/SavedGameMetadata?> // com.mikepenz.gameservices.savedgames/SavedGamesClient.showSavedGameSelection|showSavedGameSelection(){}[0]
+    abstract suspend fun write(com.mikepenz.gameservices.savedgames/SavedGameId, com.mikepenz.gameservices.savedgames/SavedGameData): kotlin/Result<com.mikepenz.gameservices.savedgames/SavedGameWriteResult> // com.mikepenz.gameservices.savedgames/SavedGamesClient.write|write(com.mikepenz.gameservices.savedgames.SavedGameId;com.mikepenz.gameservices.savedgames.SavedGameData){}[0]
+}
+
+sealed interface com.mikepenz.gameservices.savedgames/SavedGameReadResult { // com.mikepenz.gameservices.savedgames/SavedGameReadResult|null[0]
+    final class Conflict : com.mikepenz.gameservices.savedgames/SavedGameReadResult { // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict|null[0]
+        constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameConflict) // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameConflict){}[0]
+
+        final val conflict // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.conflict|{}conflict[0]
+            final fun <get-conflict>(): com.mikepenz.gameservices.savedgames/SavedGameConflict // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.conflict.<get-conflict>|<get-conflict>(){}[0]
+
+        final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameConflict // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.component1|component1(){}[0]
+        final fun copy(com.mikepenz.gameservices.savedgames/SavedGameConflict = ...): com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameConflict){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Conflict.toString|toString(){}[0]
+    }
+
+    final class Loaded : com.mikepenz.gameservices.savedgames/SavedGameReadResult { // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded|null[0]
+        constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameVersion) // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameVersion){}[0]
+
+        final val version // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.version|{}version[0]
+            final fun <get-version>(): com.mikepenz.gameservices.savedgames/SavedGameVersion // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.version.<get-version>|<get-version>(){}[0]
+
+        final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameVersion // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.component1|component1(){}[0]
+        final fun copy(com.mikepenz.gameservices.savedgames/SavedGameVersion = ...): com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameVersion){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameReadResult.Loaded.toString|toString(){}[0]
+    }
+
+    final object NotFound : com.mikepenz.gameservices.savedgames/SavedGameReadResult { // com.mikepenz.gameservices.savedgames/SavedGameReadResult.NotFound|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameReadResult.NotFound.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameReadResult.NotFound.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameReadResult.NotFound.toString|toString(){}[0]
+    }
+}
+
+sealed interface com.mikepenz.gameservices.savedgames/SavedGameWriteResult { // com.mikepenz.gameservices.savedgames/SavedGameWriteResult|null[0]
+    final class Conflict : com.mikepenz.gameservices.savedgames/SavedGameWriteResult { // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict|null[0]
+        constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameConflict) // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameConflict){}[0]
+
+        final val conflict // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.conflict|{}conflict[0]
+            final fun <get-conflict>(): com.mikepenz.gameservices.savedgames/SavedGameConflict // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.conflict.<get-conflict>|<get-conflict>(){}[0]
+
+        final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameConflict // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.component1|component1(){}[0]
+        final fun copy(com.mikepenz.gameservices.savedgames/SavedGameConflict = ...): com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameConflict){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Conflict.toString|toString(){}[0]
+    }
+
+    final class Saved : com.mikepenz.gameservices.savedgames/SavedGameWriteResult { // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved|null[0]
+        constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameMetadata) // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameMetadata){}[0]
+
+        final val metadata // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.metadata|{}metadata[0]
+            final fun <get-metadata>(): com.mikepenz.gameservices.savedgames/SavedGameMetadata // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.metadata.<get-metadata>|<get-metadata>(){}[0]
+
+        final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameMetadata // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.component1|component1(){}[0]
+        final fun copy(com.mikepenz.gameservices.savedgames/SavedGameMetadata = ...): com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameMetadata){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameWriteResult.Saved.toString|toString(){}[0]
+    }
+}
+
+final class com.mikepenz.gameservices.savedgames/SavedGameConflict { // com.mikepenz.gameservices.savedgames/SavedGameConflict|null[0]
+    constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameConflictId, kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameVersion>) // com.mikepenz.gameservices.savedgames/SavedGameConflict.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameConflictId;kotlin.collections.List<com.mikepenz.gameservices.savedgames.SavedGameVersion>){}[0]
+
+    final val id // com.mikepenz.gameservices.savedgames/SavedGameConflict.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.savedgames/SavedGameConflictId // com.mikepenz.gameservices.savedgames/SavedGameConflict.id.<get-id>|<get-id>(){}[0]
+    final val versions // com.mikepenz.gameservices.savedgames/SavedGameConflict.versions|{}versions[0]
+        final fun <get-versions>(): kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameVersion> // com.mikepenz.gameservices.savedgames/SavedGameConflict.versions.<get-versions>|<get-versions>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameConflictId // com.mikepenz.gameservices.savedgames/SavedGameConflict.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameVersion> // com.mikepenz.gameservices.savedgames/SavedGameConflict.component2|component2(){}[0]
+    final fun copy(com.mikepenz.gameservices.savedgames/SavedGameConflictId = ..., kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameVersion> = ...): com.mikepenz.gameservices.savedgames/SavedGameConflict // com.mikepenz.gameservices.savedgames/SavedGameConflict.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameConflictId;kotlin.collections.List<com.mikepenz.gameservices.savedgames.SavedGameVersion>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameConflict.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameConflict.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameConflict.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.savedgames/SavedGameData { // com.mikepenz.gameservices.savedgames/SavedGameData|null[0]
+    final fun copyBytes(): kotlin/ByteArray // com.mikepenz.gameservices.savedgames/SavedGameData.copyBytes|copyBytes(){}[0]
+
+    final object Companion { // com.mikepenz.gameservices.savedgames/SavedGameData.Companion|null[0]
+        final fun of(kotlin/ByteArray): com.mikepenz.gameservices.savedgames/SavedGameData // com.mikepenz.gameservices.savedgames/SavedGameData.Companion.of|of(kotlin.ByteArray){}[0]
+    }
+}
+
+final class com.mikepenz.gameservices.savedgames/SavedGameMetadata { // com.mikepenz.gameservices.savedgames/SavedGameMetadata|null[0]
+    constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameId, kotlin/String) // com.mikepenz.gameservices.savedgames/SavedGameMetadata.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameId;kotlin.String){}[0]
+
+    final val id // com.mikepenz.gameservices.savedgames/SavedGameMetadata.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.savedgames/SavedGameId // com.mikepenz.gameservices.savedgames/SavedGameMetadata.id.<get-id>|<get-id>(){}[0]
+    final val name // com.mikepenz.gameservices.savedgames/SavedGameMetadata.name|{}name[0]
+        final fun <get-name>(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameMetadata.name.<get-name>|<get-name>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameId // com.mikepenz.gameservices.savedgames/SavedGameMetadata.component1|component1(){}[0]
+    final fun component2(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameMetadata.component2|component2(){}[0]
+    final fun copy(com.mikepenz.gameservices.savedgames/SavedGameId = ..., kotlin/String = ...): com.mikepenz.gameservices.savedgames/SavedGameMetadata // com.mikepenz.gameservices.savedgames/SavedGameMetadata.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameId;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameMetadata.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameMetadata.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameMetadata.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.savedgames/SavedGameVersion { // com.mikepenz.gameservices.savedgames/SavedGameVersion|null[0]
+    constructor <init>(com.mikepenz.gameservices.savedgames/SavedGameMetadata, com.mikepenz.gameservices.savedgames/SavedGameData) // com.mikepenz.gameservices.savedgames/SavedGameVersion.<init>|<init>(com.mikepenz.gameservices.savedgames.SavedGameMetadata;com.mikepenz.gameservices.savedgames.SavedGameData){}[0]
+
+    final val data // com.mikepenz.gameservices.savedgames/SavedGameVersion.data|{}data[0]
+        final fun <get-data>(): com.mikepenz.gameservices.savedgames/SavedGameData // com.mikepenz.gameservices.savedgames/SavedGameVersion.data.<get-data>|<get-data>(){}[0]
+    final val metadata // com.mikepenz.gameservices.savedgames/SavedGameVersion.metadata|{}metadata[0]
+        final fun <get-metadata>(): com.mikepenz.gameservices.savedgames/SavedGameMetadata // com.mikepenz.gameservices.savedgames/SavedGameVersion.metadata.<get-metadata>|<get-metadata>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.savedgames/SavedGameMetadata // com.mikepenz.gameservices.savedgames/SavedGameVersion.component1|component1(){}[0]
+    final fun component2(): com.mikepenz.gameservices.savedgames/SavedGameData // com.mikepenz.gameservices.savedgames/SavedGameVersion.component2|component2(){}[0]
+    final fun copy(com.mikepenz.gameservices.savedgames/SavedGameMetadata = ..., com.mikepenz.gameservices.savedgames/SavedGameData = ...): com.mikepenz.gameservices.savedgames/SavedGameVersion // com.mikepenz.gameservices.savedgames/SavedGameVersion.copy|copy(com.mikepenz.gameservices.savedgames.SavedGameMetadata;com.mikepenz.gameservices.savedgames.SavedGameData){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameVersion.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameVersion.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameVersion.toString|toString(){}[0]
+}
+
+final value class com.mikepenz.gameservices.savedgames/SavedGameConflictId { // com.mikepenz.gameservices.savedgames/SavedGameConflictId|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.savedgames/SavedGameConflictId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // com.mikepenz.gameservices.savedgames/SavedGameConflictId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameConflictId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameConflictId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameConflictId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameConflictId.toString|toString(){}[0]
+}
+
+final value class com.mikepenz.gameservices.savedgames/SavedGameId { // com.mikepenz.gameservices.savedgames/SavedGameId|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.savedgames/SavedGameId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // com.mikepenz.gameservices.savedgames/SavedGameId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGameId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.savedgames/SavedGameId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameId.toString|toString(){}[0]
+}
+
+// Targets: [wasmJs]
+final fun com.mikepenz.gameservices.savedgames/createSavedGamesClient(): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createSavedGamesClient|createSavedGamesClient(){}[0]

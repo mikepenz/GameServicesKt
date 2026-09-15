@@ -1,0 +1,149 @@
+public abstract interface class com/mikepenz/gameservices/AuthenticationState {
+}
+
+public final class com/mikepenz/gameservices/AuthenticationState$Authenticated : com/mikepenz/gameservices/AuthenticationState {
+	public fun <init> (Lcom/mikepenz/gameservices/PlayerIdentity;)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public final fun copy (Lcom/mikepenz/gameservices/PlayerIdentity;)Lcom/mikepenz/gameservices/AuthenticationState$Authenticated;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/AuthenticationState$Authenticated;Lcom/mikepenz/gameservices/PlayerIdentity;ILjava/lang/Object;)Lcom/mikepenz/gameservices/AuthenticationState$Authenticated;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPlayer ()Lcom/mikepenz/gameservices/PlayerIdentity;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/AuthenticationState$Authenticating : com/mikepenz/gameservices/AuthenticationState {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/AuthenticationState$Authenticating;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/AuthenticationState$Unauthenticated : com/mikepenz/gameservices/AuthenticationState {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/AuthenticationState$Unauthenticated;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/AuthenticationState$Unsupported : com/mikepenz/gameservices/AuthenticationState {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/AuthenticationState$Unsupported;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/mikepenz/gameservices/GameServices {
+	public abstract fun authenticate-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
+	public abstract fun getSupport ()Lcom/mikepenz/gameservices/GameServicesSupport;
+}
+
+public abstract class com/mikepenz/gameservices/GameServicesException : java/lang/Exception {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$AuthenticationRequired : com/mikepenz/gameservices/GameServicesException {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/GameServicesException$AuthenticationRequired;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$ConfigurationMissing : com/mikepenz/gameservices/GameServicesException {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/GameServicesException$ConfigurationMissing;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$PermissionRequired : com/mikepenz/gameservices/GameServicesException {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/GameServicesException$PermissionRequired;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$ProviderFailure : com/mikepenz/gameservices/GameServicesException {
+	public fun <init> (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)V
+	public final fun getCode ()Ljava/lang/String;
+	public final fun getProvider ()Lcom/mikepenz/gameservices/GameServicesProvider;
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$UnsupportedTarget : com/mikepenz/gameservices/GameServicesException {
+	public fun <init> (Lcom/mikepenz/gameservices/GameServicesPlatform;)V
+	public final fun getTarget ()Lcom/mikepenz/gameservices/GameServicesPlatform;
+}
+
+public final class com/mikepenz/gameservices/GameServicesException$UserCancelled : com/mikepenz/gameservices/GameServicesException {
+	public static final field INSTANCE Lcom/mikepenz/gameservices/GameServicesException$UserCancelled;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/GameServicesPlatform : java/lang/Enum {
+	public static final field Android Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field IOS Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field JVM Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field Wasm Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static fun values ()[Lcom/mikepenz/gameservices/GameServicesPlatform;
+}
+
+public final class com/mikepenz/gameservices/GameServicesProvider : java/lang/Enum {
+	public static final field GameCenter Lcom/mikepenz/gameservices/GameServicesProvider;
+	public static final field GooglePlayGames Lcom/mikepenz/gameservices/GameServicesProvider;
+	public static final field None Lcom/mikepenz/gameservices/GameServicesProvider;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/GameServicesProvider;
+	public static fun values ()[Lcom/mikepenz/gameservices/GameServicesProvider;
+}
+
+public final class com/mikepenz/gameservices/GameServicesSupport {
+	public fun <init> (Lcom/mikepenz/gameservices/GameServicesPlatform;Lcom/mikepenz/gameservices/GameServicesProvider;Z)V
+	public final fun component1 ()Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public final fun component2 ()Lcom/mikepenz/gameservices/GameServicesProvider;
+	public final fun component3 ()Z
+	public final fun copy (Lcom/mikepenz/gameservices/GameServicesPlatform;Lcom/mikepenz/gameservices/GameServicesProvider;Z)Lcom/mikepenz/gameservices/GameServicesSupport;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/GameServicesSupport;Lcom/mikepenz/gameservices/GameServicesPlatform;Lcom/mikepenz/gameservices/GameServicesProvider;ZILjava/lang/Object;)Lcom/mikepenz/gameservices/GameServicesSupport;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getProvider ()Lcom/mikepenz/gameservices/GameServicesProvider;
+	public final fun getTarget ()Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public fun hashCode ()I
+	public final fun isSupported ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/GameServices_androidKt {
+	public static final fun createGameServices (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/GameServices;
+}
+
+public final class com/mikepenz/gameservices/PlayerId {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lcom/mikepenz/gameservices/PlayerId;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/PlayerIdentity {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-dn8Zjvc ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy-5MItCBU (Ljava/lang/String;Ljava/lang/String;)Lcom/mikepenz/gameservices/PlayerIdentity;
+	public static synthetic fun copy-5MItCBU$default (Lcom/mikepenz/gameservices/PlayerIdentity;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/mikepenz/gameservices/PlayerIdentity;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getId-dn8Zjvc ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
