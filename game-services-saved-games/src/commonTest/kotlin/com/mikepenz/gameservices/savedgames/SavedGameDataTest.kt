@@ -15,4 +15,5 @@ class SavedGameDataTest {
 
         assertContentEquals(byteArrayOf(1), data.copyBytes())
     }
+
 }

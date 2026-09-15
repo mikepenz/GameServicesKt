@@ -158,5 +158,4 @@ final value class com.mikepenz.gameservices.savedgames/SavedGameId { // com.mike
     final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameId.toString|toString(){}[0]
 }
 
-// Targets: [wasmJs]
 final fun com.mikepenz.gameservices.savedgames/createSavedGamesClient(): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createSavedGamesClient|createSavedGamesClient(){}[0]
