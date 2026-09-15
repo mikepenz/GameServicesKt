@@ -7,6 +7,7 @@ import com.google.android.gms.games.GamesClientStatusCodes
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -30,7 +31,7 @@ private class AndroidGameServices(
     )
     override val authenticationState: StateFlow<AuthenticationState> = mutableAuthenticationState
 
-    override suspend fun authenticate(): Result<PlayerIdentity> {
+    override suspend fun authenticate(): Result<PlayerIdentity> = try {
         mutableAuthenticationState.value = AuthenticationState.Authenticating
         val signInClient = PlayGames.getGamesSignInClient(activity)
         val authentication = signInClient.isAuthenticated().awaitResult()
@@ -41,9 +42,12 @@ private class AndroidGameServices(
         }
         val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitResult()
             .getOrElse { return authenticationFailed(it) }
-        return PlayerIdentity(PlayerId(player.playerId), player.displayName)
+        PlayerIdentity(PlayerId(player.playerId), player.displayName)
             .also { mutableAuthenticationState.value = AuthenticationState.Authenticated(it) }
             .let(Result.Companion::success)
+    } catch (cancellation: CancellationException) {
+        mutableAuthenticationState.value = AuthenticationState.Unauthenticated
+        throw cancellation
     }
 
     private fun authenticationFailed(throwable: Throwable): Result<PlayerIdentity> {

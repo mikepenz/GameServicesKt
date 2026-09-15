@@ -1,5 +1,6 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -120,6 +121,9 @@ final value class com.mikepenz.gameservices.achievements/AchievementId { // com.
     final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementId.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementId.toString|toString(){}[0]
 }
+
+// Targets: [ios]
+final fun com.mikepenz.gameservices.achievements/createAchievementsClient(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
 
 // Targets: [wasmJs]
 final fun com.mikepenz.gameservices.achievements/createAchievementsClient(): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(){}[0]

@@ -35,6 +35,9 @@ private class IosGameServices(
 
     override suspend fun authenticate(): Result<PlayerIdentity> = suspendCancellableCoroutine { continuation ->
         mutableAuthenticationState.value = AuthenticationState.Authenticating
+        continuation.invokeOnCancellation {
+            mutableAuthenticationState.value = AuthenticationState.Unauthenticated
+        }
         localPlayer.setAuthenticateHandler { viewController, error ->
             when {
                 error != null -> complete(continuation, Result.failure(error.toGameServicesException()))

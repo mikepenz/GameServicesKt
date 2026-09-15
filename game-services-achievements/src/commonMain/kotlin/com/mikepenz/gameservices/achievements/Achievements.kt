@@ -61,6 +61,21 @@ public sealed interface AchievementProgress {
     }
 }
 
+internal fun AchievementProgress.percent(): Int = when (this) {
+    AchievementProgress.Unlocked -> 100
+    is AchievementProgress.Percent -> value
+    is AchievementProgress.Steps -> current * 100 / total
+}
+
+internal fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
+    require(configuredTotal > 0)
+    return when (this) {
+        AchievementProgress.Unlocked -> configuredTotal
+        is AchievementProgress.Percent -> configuredTotal * value / 100
+        is AchievementProgress.Steps -> configuredTotal * current / total
+    }
+}
+
 public interface AchievementsClient {
     public suspend fun loadAchievements(): Result<List<Achievement>>
 

@@ -99,3 +99,7 @@ public abstract interface class com/mikepenz/gameservices/achievements/Achieveme
 	public abstract fun showAchievements-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class com/mikepenz/gameservices/achievements/Achievements_androidKt {
+	public static final fun createAchievementsClient (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+}
+
