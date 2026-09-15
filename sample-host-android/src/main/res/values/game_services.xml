@@ -1,0 +1,4 @@
+<resources>
+    <!-- Replace locally with the numeric Play Games project ID. Do not commit it. -->
+    <string name="game_services_project_id">REPLACE_WITH_PLAY_GAMES_PROJECT_ID</string>
+</resources>

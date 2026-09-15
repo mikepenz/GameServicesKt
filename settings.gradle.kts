@@ -37,5 +37,6 @@ include(
     ":game-services-saved-games",
     ":game-services-social",
     ":sample",
+    ":sample-host-android",
     ":local-maven-consumer",
 )

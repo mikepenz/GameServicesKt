@@ -2,6 +2,7 @@ import java.util.zip.ZipFile
 
 plugins {
     alias(baseLibs.plugins.conventionPlugin)
+    alias(baseLibs.plugins.androidApplication) apply false
     alias(baseLibs.plugins.androidLibrary) apply false
     alias(baseLibs.plugins.kotlinMultiplatform) apply false
     alias(baseLibs.plugins.dokka)
