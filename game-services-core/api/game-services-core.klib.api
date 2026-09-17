@@ -39,6 +39,7 @@ abstract interface com.mikepenz.gameservices/GameServices { // com.mikepenz.game
         abstract fun <get-support>(): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices/GameServices.support.<get-support>|<get-support>(){}[0]
 
     abstract suspend fun authenticate(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity> // com.mikepenz.gameservices/GameServices.authenticate|authenticate(){}[0]
+    abstract suspend fun refreshAuthentication(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity?> // com.mikepenz.gameservices/GameServices.refreshAuthentication|refreshAuthentication(){}[0]
 }
 
 sealed interface com.mikepenz.gameservices/AuthenticationState { // com.mikepenz.gameservices/AuthenticationState|null[0]

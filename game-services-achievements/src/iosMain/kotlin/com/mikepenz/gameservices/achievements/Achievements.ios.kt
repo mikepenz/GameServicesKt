@@ -17,10 +17,12 @@ import kotlin.coroutines.resume
 
 public fun createAchievementsClient(
     presentingViewController: () -> UIViewController,
-): AchievementsClient = IosAchievementsClient(presentingViewController)
+    ids: AchievementIdMappings = AchievementIdMappings.Empty,
+): AchievementsClient = IosAchievementsClient(presentingViewController, ids)
 
 private class IosAchievementsClient(
     private val presentingViewController: () -> UIViewController,
+    private val ids: AchievementIdMappings,
 ) : AchievementsClient {
     override val isSupported: Boolean = true
 
@@ -31,7 +33,7 @@ private class IosAchievementsClient(
         loadDescriptions().map { description ->
             val achievement = progress[description.identifier]
             Achievement(
-                id = AchievementId(requireNotNull(description.identifier)),
+                id = ids.commonId(GameServicesProvider.GameCenter, AchievementId(requireNotNull(description.identifier))),
                 title = description.title.orEmpty(),
                 description = if (achievement?.completed == true) {
                     description.achievedDescription.orEmpty()
@@ -50,7 +52,7 @@ private class IosAchievementsClient(
         id: AchievementId,
         progress: AchievementProgress,
     ): Result<Unit> = providerResult {
-        val achievement = GKAchievement(identifier = id.value)
+        val achievement = GKAchievement(identifier = ids.providerId(GameServicesProvider.GameCenter, id).value)
         achievement.percentComplete = progress.percent().toDouble()
         report(achievement)
     }

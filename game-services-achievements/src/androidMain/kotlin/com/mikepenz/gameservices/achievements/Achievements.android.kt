@@ -12,12 +12,15 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-public fun createAchievementsClient(activity: ComponentActivity): AchievementsClient =
-    AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), activity)
+public fun createAchievementsClient(
+    activity: ComponentActivity,
+    ids: AchievementIdMappings = AchievementIdMappings.Empty,
+): AchievementsClient = AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), activity, ids)
 
 private class AndroidAchievementsClient(
     private val achievements: GoogleAchievementsClient,
     private val activity: ComponentActivity,
+    private val ids: AchievementIdMappings,
 ) : AchievementsClient {
     override val isSupported: Boolean = true
 
@@ -41,13 +44,14 @@ private class AndroidAchievementsClient(
     }
 
     private suspend fun reportConfiguredProgress(id: AchievementId, progress: AchievementProgress) {
-        val (type, totalSteps) = findAchievement(id)
+        val providerId = ids.providerId(GameServicesProvider.GooglePlayGames, id)
+        val (type, totalSteps) = findAchievement(providerId)
         if (type == GoogleAchievement.TYPE_STANDARD) {
             require(progress.percent() == 100) { "Standard achievements only accept completion" }
-            achievements.unlock(id.value)
+            achievements.unlock(providerId.value)
         } else {
             val steps = progress.stepsFor(totalSteps)
-            if (steps > 0) achievements.setSteps(id.value, steps)
+            if (steps > 0) achievements.setSteps(providerId.value, steps)
         }
     }
 
@@ -66,7 +70,7 @@ private class AndroidAchievementsClient(
     }
 
     private fun GoogleAchievement.toAchievement(): Achievement = Achievement(
-        id = AchievementId(achievementId),
+        id = ids.commonId(GameServicesProvider.GooglePlayGames, AchievementId(achievementId)),
         title = name,
         description = description,
         points = xpValue,

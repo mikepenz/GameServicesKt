@@ -98,6 +98,36 @@ final class com.mikepenz.gameservices.achievements/Achievement { // com.mikepenz
     final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/Achievement.toString|toString(){}[0]
 }
 
+final class com.mikepenz.gameservices.achievements/AchievementIdMapping { // com.mikepenz.gameservices.achievements/AchievementIdMapping|null[0]
+    constructor <init>(com.mikepenz.gameservices.achievements/AchievementId, com.mikepenz.gameservices.achievements/AchievementId, com.mikepenz.gameservices.achievements/AchievementId) // com.mikepenz.gameservices.achievements/AchievementIdMapping.<init>|<init>(com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementId){}[0]
+
+    final val gameCenterId // com.mikepenz.gameservices.achievements/AchievementIdMapping.gameCenterId|{}gameCenterId[0]
+        final fun <get-gameCenterId>(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.gameCenterId.<get-gameCenterId>|<get-gameCenterId>(){}[0]
+    final val googlePlayGamesId // com.mikepenz.gameservices.achievements/AchievementIdMapping.googlePlayGamesId|{}googlePlayGamesId[0]
+        final fun <get-googlePlayGamesId>(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.googlePlayGamesId.<get-googlePlayGamesId>|<get-googlePlayGamesId>(){}[0]
+    final val id // com.mikepenz.gameservices.achievements/AchievementIdMapping.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.id.<get-id>|<get-id>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.component1|component1(){}[0]
+    final fun component2(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.component2|component2(){}[0]
+    final fun component3(): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMapping.component3|component3(){}[0]
+    final fun copy(com.mikepenz.gameservices.achievements/AchievementId = ..., com.mikepenz.gameservices.achievements/AchievementId = ..., com.mikepenz.gameservices.achievements/AchievementId = ...): com.mikepenz.gameservices.achievements/AchievementIdMapping // com.mikepenz.gameservices.achievements/AchievementIdMapping.copy|copy(com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementId){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementIdMapping.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.achievements/AchievementIdMapping.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementIdMapping.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.achievements/AchievementIdMappings { // com.mikepenz.gameservices.achievements/AchievementIdMappings|null[0]
+    constructor <init>(kotlin.collections/List<com.mikepenz.gameservices.achievements/AchievementIdMapping>) // com.mikepenz.gameservices.achievements/AchievementIdMappings.<init>|<init>(kotlin.collections.List<com.mikepenz.gameservices.achievements.AchievementIdMapping>){}[0]
+
+    final object Companion { // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion|null[0]
+        final val Empty // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion.Empty|{}Empty[0]
+            final fun <get-Empty>(): com.mikepenz.gameservices.achievements/AchievementIdMappings // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
+
+        final fun of(kotlin/Array<out com.mikepenz.gameservices.achievements/AchievementIdMapping>...): com.mikepenz.gameservices.achievements/AchievementIdMappings // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion.of|of(kotlin.Array<out|com.mikepenz.gameservices.achievements.AchievementIdMapping>...){}[0]
+    }
+}
+
 final class com.mikepenz.gameservices.achievements/AchievementSteps { // com.mikepenz.gameservices.achievements/AchievementSteps|null[0]
     constructor <init>(kotlin/Int, kotlin/Int) // com.mikepenz.gameservices.achievements/AchievementSteps.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
 
@@ -126,7 +156,7 @@ final value class com.mikepenz.gameservices.achievements/AchievementId { // com.
 }
 
 // Targets: [ios]
-final fun com.mikepenz.gameservices.achievements/createAchievementsClient(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+final fun com.mikepenz.gameservices.achievements/createAchievementsClient(kotlin/Function0<platform.UIKit/UIViewController>, com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(kotlin.Function0<platform.UIKit.UIViewController>;com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]
 
 // Targets: [wasmJs]
-final fun com.mikepenz.gameservices.achievements/createAchievementsClient(): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(){}[0]
+final fun com.mikepenz.gameservices.achievements/createAchievementsClient(com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]

@@ -37,6 +37,7 @@ public abstract interface class com/mikepenz/gameservices/GameServices {
 	public abstract fun authenticate-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
 	public abstract fun getSupport ()Lcom/mikepenz/gameservices/GameServicesSupport;
+	public abstract fun refreshAuthentication-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract class com/mikepenz/gameservices/GameServicesException : java/lang/Exception {

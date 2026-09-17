@@ -31,28 +31,47 @@ private class AndroidGameServices(
     )
     override val authenticationState: StateFlow<AuthenticationState> = mutableAuthenticationState
 
-    override suspend fun authenticate(): Result<PlayerIdentity> = try {
+    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = try {
         mutableAuthenticationState.value = AuthenticationState.Authenticating
         val signInClient = PlayGames.getGamesSignInClient(activity)
         val authentication = signInClient.isAuthenticated().awaitResult()
             .getOrElse { return authenticationFailed(it) }
         if (!authentication.isAuthenticated) {
-            signInClient.signIn().awaitResult()
-                .getOrElse { return authenticationFailed(it) }
+            mutableAuthenticationState.value = AuthenticationState.Unauthenticated
+            return Result.success(null)
         }
-        val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitResult()
-            .getOrElse { return authenticationFailed(it) }
-        PlayerIdentity(PlayerId(player.playerId), player.displayName)
-            .also { mutableAuthenticationState.value = AuthenticationState.Authenticated(it) }
-            .let(Result.Companion::success)
+        currentPlayer()
     } catch (cancellation: CancellationException) {
         mutableAuthenticationState.value = AuthenticationState.Unauthenticated
         throw cancellation
     }
 
-    private fun authenticationFailed(throwable: Throwable): Result<PlayerIdentity> {
+    override suspend fun authenticate(): Result<PlayerIdentity> = try {
+        refreshAuthentication().getOrElse { return Result.failure(it) }
+            ?.let { return Result.success(it) }
+        mutableAuthenticationState.value = AuthenticationState.Authenticating
+        val authentication = PlayGames.getGamesSignInClient(activity).signIn().awaitResult()
+            .getOrElse { return authenticationFailed(it) }
+        if (!authentication.isAuthenticated) {
+            return authenticationFailed(GameServicesException.AuthenticationRequired)
+        }
+        currentPlayer()
+    } catch (cancellation: CancellationException) {
         mutableAuthenticationState.value = AuthenticationState.Unauthenticated
-        return Result.failure(throwable.toGameServicesException())
+        throw cancellation
+    }
+
+    private suspend fun currentPlayer(): Result<PlayerIdentity> {
+        val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitResult()
+            .getOrElse { return authenticationFailed(it) }
+        return PlayerIdentity(PlayerId(player.playerId), player.displayName)
+            .also { mutableAuthenticationState.value = AuthenticationState.Authenticated(it) }
+            .let(Result.Companion::success)
+    }
+
+    private fun <T> authenticationFailed(throwable: Throwable): Result<T> {
+        mutableAuthenticationState.value = AuthenticationState.Unauthenticated
+        return Result.failure(throwable as? GameServicesException ?: throwable.toGameServicesException())
     }
 }
 

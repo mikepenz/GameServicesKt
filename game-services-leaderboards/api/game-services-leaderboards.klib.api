@@ -58,6 +58,36 @@ final class com.mikepenz.gameservices.leaderboards/Leaderboard { // com.mikepenz
     final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/Leaderboard.toString|toString(){}[0]
 }
 
+final class com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping { // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping|null[0]
+    constructor <init>(com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardId) // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.<init>|<init>(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardId){}[0]
+
+    final val gameCenterId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.gameCenterId|{}gameCenterId[0]
+        final fun <get-gameCenterId>(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.gameCenterId.<get-gameCenterId>|<get-gameCenterId>(){}[0]
+    final val googlePlayGamesId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.googlePlayGamesId|{}googlePlayGamesId[0]
+        final fun <get-googlePlayGamesId>(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.googlePlayGamesId.<get-googlePlayGamesId>|<get-googlePlayGamesId>(){}[0]
+    final val id // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.id|{}id[0]
+        final fun <get-id>(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.id.<get-id>|<get-id>(){}[0]
+
+    final fun component1(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.component1|component1(){}[0]
+    final fun component2(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.component2|component2(){}[0]
+    final fun component3(): com.mikepenz.gameservices.leaderboards/LeaderboardId // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.component3|component3(){}[0]
+    final fun copy(com.mikepenz.gameservices.leaderboards/LeaderboardId = ..., com.mikepenz.gameservices.leaderboards/LeaderboardId = ..., com.mikepenz.gameservices.leaderboards/LeaderboardId = ...): com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.copy|copy(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardId){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping.toString|toString(){}[0]
+}
+
+final class com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings { // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings|null[0]
+    constructor <init>(kotlin.collections/List<com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping>) // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings.<init>|<init>(kotlin.collections.List<com.mikepenz.gameservices.leaderboards.LeaderboardIdMapping>){}[0]
+
+    final object Companion { // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings.Companion|null[0]
+        final val Empty // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings.Companion.Empty|{}Empty[0]
+            final fun <get-Empty>(): com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
+
+        final fun of(kotlin/Array<out com.mikepenz.gameservices.leaderboards/LeaderboardIdMapping>...): com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings // com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings.Companion.of|of(kotlin.Array<out|com.mikepenz.gameservices.leaderboards.LeaderboardIdMapping>...){}[0]
+    }
+}
+
 final class com.mikepenz.gameservices.leaderboards/LeaderboardQuery { // com.mikepenz.gameservices.leaderboards/LeaderboardQuery|null[0]
     constructor <init>(com.mikepenz.gameservices.leaderboards/LeaderboardScope, com.mikepenz.gameservices.leaderboards/LeaderboardPeriod, kotlin/Int, kotlin/Int) // com.mikepenz.gameservices.leaderboards/LeaderboardQuery.<init>|<init>(com.mikepenz.gameservices.leaderboards.LeaderboardScope;com.mikepenz.gameservices.leaderboards.LeaderboardPeriod;kotlin.Int;kotlin.Int){}[0]
 
@@ -114,7 +144,7 @@ final value class com.mikepenz.gameservices.leaderboards/LeaderboardId { // com.
 }
 
 // Targets: [ios]
-final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(kotlin/Function0<platform.UIKit/UIViewController>, com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings = ...): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(kotlin.Function0<platform.UIKit.UIViewController>;com.mikepenz.gameservices.leaderboards.LeaderboardIdMappings){}[0]
 
 // Targets: [wasmJs]
-final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(){}[0]
+final fun com.mikepenz.gameservices.leaderboards/createLeaderboardsClient(com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings = ...): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.leaderboards/createLeaderboardsClient|createLeaderboardsClient(com.mikepenz.gameservices.leaderboards.LeaderboardIdMappings){}[0]

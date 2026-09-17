@@ -1,10 +1,39 @@
 package com.mikepenz.gameservices.achievements
 
+import com.mikepenz.gameservices.GameServicesProvider
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
 
 class AchievementProgressTest {
+    @Test
+    fun `maps shared and provider achievement IDs`() {
+        val common = AchievementId("dragon_slayer")
+        val mappings = AchievementIdMappings.of(
+            AchievementIdMapping(
+                id = common,
+                googlePlayGamesId = AchievementId("CgkI-google"),
+                gameCenterId = AchievementId("game-center.dragon-slayer"),
+            ),
+        )
+
+        assertEquals(AchievementId("CgkI-google"), mappings.providerId(GameServicesProvider.GooglePlayGames, common))
+        assertEquals(AchievementId("game-center.dragon-slayer"), mappings.providerId(GameServicesProvider.GameCenter, common))
+        assertEquals(common, mappings.commonId(GameServicesProvider.GooglePlayGames, AchievementId("CgkI-google")))
+        assertEquals(common, mappings.commonId(GameServicesProvider.GameCenter, AchievementId("game-center.dragon-slayer")))
+        assertEquals(AchievementId("unmapped"), mappings.providerId(GameServicesProvider.GooglePlayGames, AchievementId("unmapped")))
+    }
+
+    @Test
+    fun `rejects ambiguous achievement mappings`() {
+        assertFailsWith<IllegalArgumentException> {
+            AchievementIdMappings.of(
+                AchievementIdMapping(AchievementId("one"), AchievementId("google-one"), AchievementId("apple-one")),
+                AchievementIdMapping(AchievementId("two"), AchievementId("google-one"), AchievementId("apple-two")),
+            )
+        }
+    }
+
     @Test
     fun validatesPercentAndSteps() {
         AchievementProgress.Percent(0)

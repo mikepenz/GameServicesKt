@@ -33,7 +33,7 @@ private class IosGameServices(
     )
     override val authenticationState: StateFlow<AuthenticationState> = mutableAuthenticationState
 
-    override suspend fun authenticate(): Result<PlayerIdentity> = suspendCancellableCoroutine { continuation ->
+    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = suspendCancellableCoroutine { continuation ->
         mutableAuthenticationState.value = AuthenticationState.Authenticating
         continuation.invokeOnCancellation {
             mutableAuthenticationState.value = AuthenticationState.Unauthenticated
@@ -61,8 +61,13 @@ private class IosGameServices(
         }
     }
 
+    override suspend fun authenticate(): Result<PlayerIdentity> = refreshAuthentication().fold(
+        onSuccess = { player -> player?.let(Result.Companion::success) ?: Result.failure(GameServicesException.AuthenticationRequired) },
+        onFailure = Result.Companion::failure,
+    )
+
     private fun complete(
-        continuation: CancellableContinuation<Result<PlayerIdentity>>,
+        continuation: CancellableContinuation<Result<PlayerIdentity?>>,
         result: Result<PlayerIdentity>,
     ) {
         if (continuation.isActive) {

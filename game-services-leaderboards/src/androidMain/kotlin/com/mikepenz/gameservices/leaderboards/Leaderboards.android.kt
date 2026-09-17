@@ -19,28 +19,33 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-public fun createLeaderboardsClient(activity: ComponentActivity): LeaderboardsClient = AndroidLeaderboardsClient(
+public fun createLeaderboardsClient(
+    activity: ComponentActivity,
+    ids: LeaderboardIdMappings = LeaderboardIdMappings.Empty,
+): LeaderboardsClient = AndroidLeaderboardsClient(
     leaderboards = PlayGames.getLeaderboardsClient(activity),
     launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {},
+    ids = ids,
 )
 
 private class AndroidLeaderboardsClient(
     private val leaderboards: GoogleLeaderboardsClient,
     private val launcher: ActivityResultLauncher<android.content.Intent>,
+    private val ids: LeaderboardIdMappings,
 ) : LeaderboardsClient {
     override val isSupported: Boolean = true
 
     override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = providerResult {
         val metadata = requireNotNull(leaderboards.loadLeaderboardMetadata(false).await().get())
         try {
-            (0 until metadata.count).map { metadata.get(it).toLeaderboard() }
+            (0 until metadata.count).map { toLeaderboard(metadata.get(it)) }
         } finally {
             metadata.release()
         }
     }
 
     override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = providerResult {
-        leaderboards.submitScore(id.value, score)
+        leaderboards.submitScore(ids.providerId(GameServicesProvider.GooglePlayGames, id).value, score)
     }
 
     override suspend fun loadCurrentPlayerScore(
@@ -48,7 +53,11 @@ private class AndroidLeaderboardsClient(
         scope: LeaderboardScope,
         period: LeaderboardPeriod,
     ): Result<LeaderboardScore?> = providerResult {
-        leaderboards.loadCurrentPlayerLeaderboardScore(id.value, period.googleValue(), scope.googleValue())
+        leaderboards.loadCurrentPlayerLeaderboardScore(
+            ids.providerId(GameServicesProvider.GooglePlayGames, id).value,
+            period.googleValue(),
+            scope.googleValue(),
+        )
             .await().get()?.toLeaderboardScore()
     }
 
@@ -57,7 +66,7 @@ private class AndroidLeaderboardsClient(
         query: LeaderboardQuery,
     ): Result<List<LeaderboardScore>> = providerResult {
         var scores = requireNotNull(leaderboards.loadTopScores(
-            id.value,
+            ids.providerId(GameServicesProvider.GooglePlayGames, id).value,
             query.period.googleValue(),
             query.scope.googleValue(),
             query.limit,
@@ -87,8 +96,13 @@ private class AndroidLeaderboardsClient(
     }
 
     override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = providerResult {
-        launcher.launch(leaderboards.getLeaderboardIntent(id.value).await())
+        launcher.launch(leaderboards.getLeaderboardIntent(ids.providerId(GameServicesProvider.GooglePlayGames, id).value).await())
     }
+
+    private fun toLeaderboard(leaderboard: GoogleLeaderboard): Leaderboard = Leaderboard(
+        id = ids.commonId(GameServicesProvider.GooglePlayGames, LeaderboardId(leaderboard.leaderboardId)),
+        title = leaderboard.displayName,
+    )
 }
 
 private fun com.google.android.gms.games.leaderboard.LeaderboardScoreBuffer.lastRank(): Int =
@@ -110,11 +124,6 @@ private fun GoogleLeaderboardScore.toLeaderboardScore(): LeaderboardScore = Lead
     value = rawScore,
     formattedValue = displayScore,
     rank = rank.toInt(),
-)
-
-private fun GoogleLeaderboard.toLeaderboard(): Leaderboard = Leaderboard(
-    id = LeaderboardId(leaderboardId),
-    title = displayName,
 )
 
 private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->

@@ -26,11 +26,13 @@ import kotlin.coroutines.resume
 
 public fun createLeaderboardsClient(
     presentingViewController: () -> UIViewController,
-): LeaderboardsClient = IosLeaderboardsClient(presentingViewController)
+    ids: LeaderboardIdMappings = LeaderboardIdMappings.Empty,
+): LeaderboardsClient = IosLeaderboardsClient(presentingViewController, ids)
 
 @OptIn(ExperimentalForeignApi::class)
 private class IosLeaderboardsClient(
     private val presentingViewController: () -> UIViewController,
+    private val ids: LeaderboardIdMappings,
 ) : LeaderboardsClient {
     override val isSupported: Boolean = true
 
@@ -40,7 +42,7 @@ private class IosLeaderboardsClient(
                 if (continuation.isActive) {
                     if (error == null) {
                         continuation.resume(
-                            leaderboards.orEmpty().filterIsInstance<GKLeaderboard>().map { it.toLeaderboard() },
+                            leaderboards.orEmpty().filterIsInstance<GKLeaderboard>().map(::toLeaderboard),
                         )
                     } else {
                         continuation.resumeWith(Result.failure(error.toGameServicesException()))
@@ -56,7 +58,7 @@ private class IosLeaderboardsClient(
                 score = score,
                 context = 0u,
                 player = GKLocalPlayer.localPlayer(),
-                leaderboardIDs = listOf(id.value),
+                leaderboardIDs = listOf(ids.providerId(GameServicesProvider.GameCenter, id).value),
             ) { error ->
                 if (continuation.isActive) {
                     if (error == null) continuation.resume(Unit)
@@ -90,7 +92,7 @@ private class IosLeaderboardsClient(
     override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = providerResult {
         dispatch_async(dispatch_get_main_queue()) {
             GKAccessPoint.shared().triggerAccessPointWithLeaderboardID(
-                leaderboardID = id.value,
+                leaderboardID = ids.providerId(GameServicesProvider.GameCenter, id).value,
                 playerScope = GKLeaderboardPlayerScopeGlobal,
                 timeScope = GKLeaderboardTimeScopeAllTime,
                 handler = {},
@@ -105,7 +107,8 @@ private class IosLeaderboardsClient(
         startRank: Int,
         limit: Int,
     ): Pair<LeaderboardScore?, List<LeaderboardScore>> = suspendCancellableCoroutine { continuation ->
-        GKLeaderboard.loadLeaderboardsWithIDs(listOf(id.value)) { leaderboards, error ->
+        val providerId = ids.providerId(GameServicesProvider.GameCenter, id)
+        GKLeaderboard.loadLeaderboardsWithIDs(listOf(providerId.value)) { leaderboards, error ->
             val leaderboard = leaderboards?.firstOrNull() as? GKLeaderboard
             when {
                 error != null -> continuation.resumeWith(Result.failure(error.toGameServicesException()))
@@ -125,6 +128,11 @@ private class IosLeaderboardsClient(
             }
         }
     }
+
+    private fun toLeaderboard(leaderboard: GKLeaderboard): Leaderboard = Leaderboard(
+        id = ids.commonId(GameServicesProvider.GameCenter, LeaderboardId(leaderboard.baseLeaderboardID)),
+        title = leaderboard.title ?: leaderboard.baseLeaderboardID,
+    )
 }
 
 private fun LeaderboardScope.gameKitValue(): Long = when (this) {
@@ -143,11 +151,6 @@ private fun GKLeaderboardEntry.toLeaderboardScore(): LeaderboardScore = Leaderbo
     value = score,
     formattedValue = formattedScore,
     rank = rank.toInt(),
-)
-
-private fun GKLeaderboard.toLeaderboard(): Leaderboard = Leaderboard(
-    id = LeaderboardId(baseLeaderboardID),
-    title = title ?: baseLeaderboardID,
 )
 
 private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {

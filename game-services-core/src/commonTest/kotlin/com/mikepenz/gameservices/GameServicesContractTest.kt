@@ -17,6 +17,7 @@ class GameServicesContractTest {
         assertEquals(GameServicesProvider.GooglePlayGames, service.support.provider)
         assertTrue(service.support.isSupported)
         assertIs<AuthenticationState.Authenticated>(service.authenticationState.value)
+        runTest { assertEquals(player, service.refreshAuthentication().getOrThrow()) }
         runTest { assertEquals(player, service.authenticate().getOrThrow()) }
     }
 
@@ -25,6 +26,8 @@ class GameServicesContractTest {
         val service = UnsupportedGameServices(GameServicesPlatform.Wasm)
 
         runTest {
+            val refreshFailure = assertIs<GameServicesException.UnsupportedTarget>(service.refreshAuthentication().exceptionOrNull())
+            assertEquals(GameServicesPlatform.Wasm, refreshFailure.target)
             val unsupported = assertIs<GameServicesException.UnsupportedTarget>(service.authenticate().exceptionOrNull())
             assertEquals(GameServicesPlatform.Wasm, unsupported.target)
         }
@@ -41,6 +44,8 @@ class GameServicesContractTest {
         override val authenticationState = MutableStateFlow<AuthenticationState>(
             AuthenticationState.Authenticated(player),
         )
+
+        override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = Result.success(player)
 
         override suspend fun authenticate(): Result<PlayerIdentity> = Result.success(player)
     }

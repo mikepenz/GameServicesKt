@@ -2,12 +2,54 @@ package com.mikepenz.gameservices.achievements
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
+import com.mikepenz.gameservices.GameServicesProvider
 import kotlin.jvm.JvmInline
 
 @JvmInline
 public value class AchievementId public constructor(
     public val value: String,
 )
+
+public data class AchievementIdMapping public constructor(
+    public val id: AchievementId,
+    public val googlePlayGamesId: AchievementId,
+    public val gameCenterId: AchievementId,
+)
+
+public class AchievementIdMappings public constructor(
+    mappings: List<AchievementIdMapping>,
+) {
+    private val mappings: List<AchievementIdMapping> = mappings.toList()
+    private val byId: Map<AchievementId, AchievementIdMapping> = this.mappings.associateBy(AchievementIdMapping::id)
+    private val byGooglePlayGamesId: Map<AchievementId, AchievementIdMapping> =
+        this.mappings.associateBy(AchievementIdMapping::googlePlayGamesId)
+    private val byGameCenterId: Map<AchievementId, AchievementIdMapping> =
+        this.mappings.associateBy(AchievementIdMapping::gameCenterId)
+
+    init {
+        require(byId.size == this.mappings.size) { "Achievement IDs must be unique" }
+        require(byGooglePlayGamesId.size == this.mappings.size) { "Google Play Games achievement IDs must be unique" }
+        require(byGameCenterId.size == this.mappings.size) { "Game Center achievement IDs must be unique" }
+    }
+
+    internal fun providerId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
+        GameServicesProvider.GooglePlayGames -> byId[id]?.googlePlayGamesId ?: id
+        GameServicesProvider.GameCenter -> byId[id]?.gameCenterId ?: id
+        GameServicesProvider.None -> id
+    }
+
+    internal fun commonId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
+        GameServicesProvider.GooglePlayGames -> byGooglePlayGamesId[id]?.id ?: id
+        GameServicesProvider.GameCenter -> byGameCenterId[id]?.id ?: id
+        GameServicesProvider.None -> id
+    }
+
+    public companion object {
+        public val Empty: AchievementIdMappings = AchievementIdMappings(emptyList())
+
+        public fun of(vararg mappings: AchievementIdMapping): AchievementIdMappings = AchievementIdMappings(mappings.toList())
+    }
+}
 
 public data class Achievement public constructor(
     public val id: AchievementId,

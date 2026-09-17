@@ -50,6 +50,8 @@ public interface GameServices {
 
     public val authenticationState: StateFlow<AuthenticationState>
 
+    public suspend fun refreshAuthentication(): Result<PlayerIdentity?>
+
     public suspend fun authenticate(): Result<PlayerIdentity>
 }
 
@@ -63,6 +65,10 @@ internal class UnsupportedGameServices(
     )
     override val authenticationState: StateFlow<AuthenticationState> = MutableStateFlow(
         AuthenticationState.Unsupported,
+    )
+
+    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = Result.failure(
+        GameServicesException.UnsupportedTarget(support.target),
     )
 
     override suspend fun authenticate(): Result<PlayerIdentity> = Result.failure(

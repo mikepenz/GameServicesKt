@@ -3,12 +3,54 @@ package com.mikepenz.gameservices.leaderboards
 import com.mikepenz.gameservices.PlayerIdentity
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
+import com.mikepenz.gameservices.GameServicesProvider
 import kotlin.jvm.JvmInline
 
 @JvmInline
 public value class LeaderboardId public constructor(
     public val value: String,
 )
+
+public data class LeaderboardIdMapping public constructor(
+    public val id: LeaderboardId,
+    public val googlePlayGamesId: LeaderboardId,
+    public val gameCenterId: LeaderboardId,
+)
+
+public class LeaderboardIdMappings public constructor(
+    mappings: List<LeaderboardIdMapping>,
+) {
+    private val mappings: List<LeaderboardIdMapping> = mappings.toList()
+    private val byId: Map<LeaderboardId, LeaderboardIdMapping> = this.mappings.associateBy(LeaderboardIdMapping::id)
+    private val byGooglePlayGamesId: Map<LeaderboardId, LeaderboardIdMapping> =
+        this.mappings.associateBy(LeaderboardIdMapping::googlePlayGamesId)
+    private val byGameCenterId: Map<LeaderboardId, LeaderboardIdMapping> =
+        this.mappings.associateBy(LeaderboardIdMapping::gameCenterId)
+
+    init {
+        require(byId.size == this.mappings.size) { "Leaderboard IDs must be unique" }
+        require(byGooglePlayGamesId.size == this.mappings.size) { "Google Play Games leaderboard IDs must be unique" }
+        require(byGameCenterId.size == this.mappings.size) { "Game Center leaderboard IDs must be unique" }
+    }
+
+    internal fun providerId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
+        GameServicesProvider.GooglePlayGames -> byId[id]?.googlePlayGamesId ?: id
+        GameServicesProvider.GameCenter -> byId[id]?.gameCenterId ?: id
+        GameServicesProvider.None -> id
+    }
+
+    internal fun commonId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
+        GameServicesProvider.GooglePlayGames -> byGooglePlayGamesId[id]?.id ?: id
+        GameServicesProvider.GameCenter -> byGameCenterId[id]?.id ?: id
+        GameServicesProvider.None -> id
+    }
+
+    public companion object {
+        public val Empty: LeaderboardIdMappings = LeaderboardIdMappings(emptyList())
+
+        public fun of(vararg mappings: LeaderboardIdMapping): LeaderboardIdMappings = LeaderboardIdMappings(mappings.toList())
+    }
+}
 
 public data class Leaderboard public constructor(
     public val id: LeaderboardId,

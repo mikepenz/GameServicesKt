@@ -38,6 +38,31 @@ public final class com/mikepenz/gameservices/achievements/AchievementId {
 	public final synthetic fun unbox-impl ()Ljava/lang/String;
 }
 
+public final class com/mikepenz/gameservices/achievements/AchievementIdMapping {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-fYoI8WI ()Ljava/lang/String;
+	public final fun component2-fYoI8WI ()Ljava/lang/String;
+	public final fun component3-fYoI8WI ()Ljava/lang/String;
+	public final fun copy-udmk05c (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/mikepenz/gameservices/achievements/AchievementIdMapping;
+	public static synthetic fun copy-udmk05c$default (Lcom/mikepenz/gameservices/achievements/AchievementIdMapping;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/mikepenz/gameservices/achievements/AchievementIdMapping;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGameCenterId-fYoI8WI ()Ljava/lang/String;
+	public final fun getGooglePlayGamesId-fYoI8WI ()Ljava/lang/String;
+	public final fun getId-fYoI8WI ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/achievements/AchievementIdMappings {
+	public static final field Companion Lcom/mikepenz/gameservices/achievements/AchievementIdMappings$Companion;
+	public fun <init> (Ljava/util/List;)V
+}
+
+public final class com/mikepenz/gameservices/achievements/AchievementIdMappings$Companion {
+	public final fun getEmpty ()Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;
+	public final fun of ([Lcom/mikepenz/gameservices/achievements/AchievementIdMapping;)Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;
+}
+
 public abstract interface class com/mikepenz/gameservices/achievements/AchievementProgress {
 }
 
@@ -106,6 +131,7 @@ public final class com/mikepenz/gameservices/achievements/AchievementsClient$Def
 }
 
 public final class com/mikepenz/gameservices/achievements/Achievements_jvmKt {
-	public static final fun createAchievementsClient ()Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+	public static final fun createAchievementsClient (Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+	public static synthetic fun createAchievementsClient$default (Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;ILjava/lang/Object;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
 }
 

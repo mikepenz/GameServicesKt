@@ -85,6 +85,46 @@ presenter:
 val services = createGameServices { currentViewController }
 ```
 
+## Authentication
+
+Call `refreshAuthentication()` once at app startup after creating the client. On Android it checks
+the Play Games automatic-authentication result without starting the explicit sign-in flow. On iOS it
+initializes Game Center and may receive a system view controller that the library presents.
+
+Call `authenticate()` only from a player action. It starts the explicit Play Games sign-in flow on
+Android. Game Center has no separate retry API, so iOS runs its normal initialization flow again.
+Derive a boolean from `authenticationState.value is AuthenticationState.Authenticated`; the state
+flow remains the single source of truth.
+
+## Shared service IDs
+
+Google Play Games uses opaque achievement and leaderboard IDs while Game Center IDs are app-defined.
+Pass immutable mappings to the feature factories when shared game code should use one ID on both
+platforms. Calls translate the shared ID to the provider ID; loaded achievement and leaderboard
+metadata translates back to the shared ID.
+
+```kotlin
+import com.mikepenz.gameservices.achievements.AchievementId
+import com.mikepenz.gameservices.achievements.AchievementIdMapping
+import com.mikepenz.gameservices.achievements.AchievementIdMappings
+
+val achievementIds = AchievementIdMappings.of(
+    AchievementIdMapping(
+        id = AchievementId("dragon_slayer"),
+        googlePlayGamesId = AchievementId("CgkI..."),
+        gameCenterId = AchievementId("dragon_slayer"),
+    ),
+)
+
+// Android
+val achievements = createAchievementsClient(this, achievementIds)
+
+// iOS
+val achievements = createAchievementsClient({ currentViewController }, achievementIds)
+```
+
+`LeaderboardIdMappings` works the same way. IDs absent from a mapping pass through unchanged.
+
 Provider UI can be launched only from a user action. Handle every `Result`; cancellation stays a
 cancelled coroutine, while expected service failures remain typed `GameServicesException` values.
 
