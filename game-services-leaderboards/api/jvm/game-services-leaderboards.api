@@ -77,7 +77,9 @@ public final class com/mikepenz/gameservices/leaderboards/LeaderboardScore {
 }
 
 public abstract interface class com/mikepenz/gameservices/leaderboards/LeaderboardsClient {
+	public abstract fun isSupported ()Z
 	public abstract fun loadCurrentPlayerScore-RuZBKsI (Ljava/lang/String;Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun loadLeaderboards-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun loadScores-ayMChJ4 (Ljava/lang/String;Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun showLeaderboard-vFf5gEQ (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun showLeaderboards-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

@@ -3,9 +3,11 @@ package com.mikepenz.gameservices.leaderboards
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.LeaderboardsClient as GoogleLeaderboardsClient
 import com.google.android.gms.games.PageDirection
 import com.google.android.gms.games.PlayGames
+import com.google.android.gms.games.leaderboard.Leaderboard as GoogleLeaderboard
 import com.google.android.gms.games.leaderboard.LeaderboardScore as GoogleLeaderboardScore
 import com.google.android.gms.games.leaderboard.LeaderboardVariant
 import com.google.android.gms.tasks.Task
@@ -26,8 +28,19 @@ private class AndroidLeaderboardsClient(
     private val leaderboards: GoogleLeaderboardsClient,
     private val launcher: ActivityResultLauncher<android.content.Intent>,
 ) : LeaderboardsClient {
+    override val isSupported: Boolean = true
+
+    override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = providerResult {
+        val metadata = requireNotNull(leaderboards.loadLeaderboardMetadata(false).await().get())
+        try {
+            (0 until metadata.count).map { metadata.get(it).toLeaderboard() }
+        } finally {
+            metadata.release()
+        }
+    }
+
     override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = providerResult {
-        leaderboards.submitScoreImmediate(id.value, score).await()
+        leaderboards.submitScore(id.value, score)
     }
 
     override suspend fun loadCurrentPlayerScore(
@@ -99,6 +112,11 @@ private fun GoogleLeaderboardScore.toLeaderboardScore(): LeaderboardScore = Lead
     rank = rank.toInt(),
 )
 
+private fun GoogleLeaderboard.toLeaderboard(): Leaderboard = Leaderboard(
+    id = LeaderboardId(leaderboardId),
+    title = displayName,
+)
+
 private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnCompleteListener { task ->
         if (continuation.isActive) {
@@ -114,6 +132,8 @@ private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try 
     throw cancellation
 } catch (exception: GameServicesException) {
     Result.failure(exception)
+} catch (exception: ApiException) {
+    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.statusCode.toString()))
 } catch (exception: Throwable) {
     Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.javaClass.name))
 }

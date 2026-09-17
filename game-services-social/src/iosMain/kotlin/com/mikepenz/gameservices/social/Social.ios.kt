@@ -44,6 +44,7 @@ private class IosSocialClient(
 ) : SocialClient {
     private val mutableFriendsAccessState = MutableStateFlow(FriendsAccessState.Unknown)
     private val gameCenterDelegate = GameCenterDelegate()
+    override val isSupported: Boolean = true
     override val friendsAccessState: StateFlow<FriendsAccessState> = mutableFriendsAccessState
 
     override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = providerResult {
@@ -70,14 +71,19 @@ private class IosSocialClient(
     }
 
     override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = providerResult {
-        val profile = loadFriendsInternal().firstOrNull { it.gamePlayerID == playerId.value } ?: return@providerResult null
+        val profile = playerFor(playerId) ?: return@providerResult null
         AvatarBytes.of(requireNotNull(UIImagePNGRepresentation(profile.loadPhotoForSize(GKPhotoSizeNormal))).toByteArray())
     }
 
     override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = providerResult {
-        val profile = loadFriendsInternal().firstOrNull { it.gamePlayerID == playerId.value }
+        val profile = playerFor(playerId)
             ?: throw IllegalArgumentException("Unknown player ${playerId.value}")
         presentPlayerProfile(presentingViewController, gameCenterDelegate, profile)
+    }
+
+    private suspend fun playerFor(playerId: PlayerId): GKPlayer? = when (playerId.value) {
+        player.gamePlayerID -> player
+        else -> loadFriendsInternal().firstOrNull { it.gamePlayerID == playerId.value }
     }
 
     private suspend fun authorizationStatus(): FriendsAccessState = suspendCancellableCoroutine { continuation ->

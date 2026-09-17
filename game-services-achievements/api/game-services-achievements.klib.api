@@ -19,7 +19,10 @@ final enum class com.mikepenz.gameservices.achievements/AchievementState : kotli
 }
 
 abstract interface com.mikepenz.gameservices.achievements/AchievementsClient { // com.mikepenz.gameservices.achievements/AchievementsClient|null[0]
-    abstract suspend fun loadAchievements(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.achievements/Achievement>> // com.mikepenz.gameservices.achievements/AchievementsClient.loadAchievements|loadAchievements(){}[0]
+    abstract val isSupported // com.mikepenz.gameservices.achievements/AchievementsClient.isSupported|{}isSupported[0]
+        abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementsClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+
+    abstract suspend fun loadAchievements(kotlin/Boolean = ...): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.achievements/Achievement>> // com.mikepenz.gameservices.achievements/AchievementsClient.loadAchievements|loadAchievements(kotlin.Boolean){}[0]
     abstract suspend fun reportProgress(com.mikepenz.gameservices.achievements/AchievementId, com.mikepenz.gameservices.achievements/AchievementProgress): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.achievements/AchievementsClient.reportProgress|reportProgress(com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementProgress){}[0]
     abstract suspend fun showAchievements(): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.achievements/AchievementsClient.showAchievements|showAchievements(){}[0]
 }

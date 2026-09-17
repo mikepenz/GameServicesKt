@@ -94,9 +94,15 @@ public final class com/mikepenz/gameservices/achievements/AchievementSteps {
 }
 
 public abstract interface class com/mikepenz/gameservices/achievements/AchievementsClient {
-	public abstract fun loadAchievements-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun isSupported ()Z
+	public abstract fun loadAchievements-gIAlu-s (ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun loadAchievements-gIAlu-s$default (Lcom/mikepenz/gameservices/achievements/AchievementsClient;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun reportProgress-STfCk88 (Ljava/lang/String;Lcom/mikepenz/gameservices/achievements/AchievementProgress;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun showAchievements-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/achievements/AchievementsClient$DefaultImpls {
+	public static synthetic fun loadAchievements-gIAlu-s$default (Lcom/mikepenz/gameservices/achievements/AchievementsClient;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class com/mikepenz/gameservices/achievements/Achievements_jvmKt {

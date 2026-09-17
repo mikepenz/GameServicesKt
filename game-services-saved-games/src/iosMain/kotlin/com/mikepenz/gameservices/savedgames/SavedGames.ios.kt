@@ -28,6 +28,7 @@ private class IosSavedGamesClient(
 ) : SavedGamesClient {
     private val conflicts: MutableMap<String, List<GKSavedGame>> = mutableMapOf()
 
+    override val isSupported: Boolean = true
     override val isSelectionPresenterSupported: Boolean = false
 
     override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = providerResult {

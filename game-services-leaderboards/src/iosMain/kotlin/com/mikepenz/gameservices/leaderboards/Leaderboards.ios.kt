@@ -32,6 +32,24 @@ public fun createLeaderboardsClient(
 private class IosLeaderboardsClient(
     private val presentingViewController: () -> UIViewController,
 ) : LeaderboardsClient {
+    override val isSupported: Boolean = true
+
+    override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = providerResult {
+        suspendCancellableCoroutine { continuation ->
+            GKLeaderboard.loadLeaderboardsWithIDs(null) { leaderboards, error ->
+                if (continuation.isActive) {
+                    if (error == null) {
+                        continuation.resume(
+                            leaderboards.orEmpty().filterIsInstance<GKLeaderboard>().map { it.toLeaderboard() },
+                        )
+                    } else {
+                        continuation.resumeWith(Result.failure(error.toGameServicesException()))
+                    }
+                }
+            }
+        }
+    }
+
     override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = providerResult {
         suspendCancellableCoroutine { continuation ->
             GKLeaderboard.submitScore(
@@ -125,6 +143,11 @@ private fun GKLeaderboardEntry.toLeaderboardScore(): LeaderboardScore = Leaderbo
     value = score,
     formattedValue = formattedScore,
     rank = rank.toInt(),
+)
+
+private fun GKLeaderboard.toLeaderboard(): Leaderboard = Leaderboard(
+    id = LeaderboardId(baseLeaderboardID),
+    title = title ?: baseLeaderboardID,
 )
 
 private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {

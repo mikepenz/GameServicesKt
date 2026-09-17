@@ -134,6 +134,7 @@ public final class com/mikepenz/gameservices/savedgames/SavedGameWriteResult$Sav
 public abstract interface class com/mikepenz/gameservices/savedgames/SavedGamesClient {
 	public abstract fun delete-D5Paxtk (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun isSelectionPresenterSupported ()Z
+	public abstract fun isSupported ()Z
 	public abstract fun listSavedGames-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun read-D5Paxtk (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun resolve-IgdyV3c (Ljava/lang/String;Lcom/mikepenz/gameservices/savedgames/SavedGameData;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

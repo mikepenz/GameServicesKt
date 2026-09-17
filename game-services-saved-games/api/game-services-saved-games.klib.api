@@ -9,6 +9,8 @@
 abstract interface com.mikepenz.gameservices.savedgames/SavedGamesClient { // com.mikepenz.gameservices.savedgames/SavedGamesClient|null[0]
     abstract val isSelectionPresenterSupported // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSelectionPresenterSupported|{}isSelectionPresenterSupported[0]
         abstract fun <get-isSelectionPresenterSupported>(): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSelectionPresenterSupported.<get-isSelectionPresenterSupported>|<get-isSelectionPresenterSupported>(){}[0]
+    abstract val isSupported // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSupported|{}isSupported[0]
+        abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
 
     abstract suspend fun delete(com.mikepenz.gameservices.savedgames/SavedGameId): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.savedgames/SavedGamesClient.delete|delete(com.mikepenz.gameservices.savedgames.SavedGameId){}[0]
     abstract suspend fun listSavedGames(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameMetadata>> // com.mikepenz.gameservices.savedgames/SavedGamesClient.listSavedGames|listSavedGames(){}[0]

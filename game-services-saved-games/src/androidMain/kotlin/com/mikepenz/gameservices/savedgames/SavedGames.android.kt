@@ -36,6 +36,7 @@ private class AndroidSavedGamesClient(
 ) : SavedGamesClient {
     private val conflicts: MutableMap<String, SnapshotsClient.SnapshotConflict> = mutableMapOf()
 
+    override val isSupported: Boolean = true
     override val isSelectionPresenterSupported: Boolean = true
 
     override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = providerResult {

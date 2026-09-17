@@ -90,11 +90,22 @@ cancelled coroutine, while expected service failures remain typed `GameServicesE
 
 ## Provider-validation host
 
-`:sample-host-android` and `sample-host-ios` are local, non-published validation apps. Replace the
-Android placeholder project ID in `sample-host-android/src/main/res/values/game_services.xml`; do
-not commit that value. The Android host has direct controls for every first-release operation,
-including saves and conflict resolution. Run `./gradlew :sample-host-android:installDebug` on an
-API 30+ device with a configured Play Games test account. Open
-`sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, select a sandbox Game Center account,
-set a development team and bundle ID, then run it on an iOS 16+ device. Its entitlement, bundle ID,
-and App Store Connect configuration remain app-owned.
+`:sample-host-android` and `sample-host-ios` are private, non-published validation apps.
+Both hosts render the same Compose Multiplatform screen from `:sample`. Feature-client capability
+flags disable unavailable actions, including provider-owned save selection on iOS.
+
+Android setup:
+
+1. Create a private Play Games Services project linked to `com.mikepenz.gameservices.sample.host`.
+   Add every testing account under PGS **Testers**; no production release is needed.
+2. Put the numeric PGS Project ID (not the OAuth client ID) in the ignored root `local.properties`:
+   `gameServicesProjectId=123456789012`. If using the local demo keystore, add its password as
+   `demoKeystorePassword=...`. This is local, so forks supply their own project and keystore.
+3. Create a PGS credential for the certificate that signs `installDebug`. Also add the Google Play
+   app-signing SHA-1 only when testing an internal-track build. Run
+   `./gradlew :sample-host-android:installDebug` on an API 30+ device; individual PGS testers can
+   use the local build, while an internal track validates the Google Play-signed path.
+
+Open `sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, select a sandbox Game Center
+account, set a development team and bundle ID, then run it on an iOS 16+ device. Its entitlement,
+bundle ID, and App Store Connect configuration remain app-owned.

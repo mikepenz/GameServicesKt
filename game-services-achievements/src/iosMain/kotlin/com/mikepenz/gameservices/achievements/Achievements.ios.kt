@@ -22,9 +22,11 @@ public fun createAchievementsClient(
 private class IosAchievementsClient(
     private val presentingViewController: () -> UIViewController,
 ) : AchievementsClient {
+    override val isSupported: Boolean = true
+
     private val gameCenterDelegate = AchievementsGameCenterDelegate()
 
-    override suspend fun loadAchievements(): Result<List<Achievement>> = providerResult {
+    override suspend fun loadAchievements(forceReload: Boolean): Result<List<Achievement>> = providerResult {
         val progress = loadProgress().associateBy { it.identifier }
         loadDescriptions().map { description ->
             val achievement = progress[description.identifier]

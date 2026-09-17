@@ -30,6 +30,8 @@ public enum class FriendsAccessState {
 }
 
 public interface SocialClient {
+    public val isSupported: Boolean
+
     public val friendsAccessState: StateFlow<FriendsAccessState>
 
     public suspend fun requestFriendsAccess(): Result<FriendsAccessState>
@@ -44,6 +46,8 @@ public interface SocialClient {
 internal class UnsupportedSocialClient(
     target: GameServicesPlatform,
 ) : SocialClient {
+    override val isSupported: Boolean = false
+
     override val friendsAccessState: StateFlow<FriendsAccessState> = MutableStateFlow(FriendsAccessState.Unknown)
 
     private val unsupported: GameServicesException.UnsupportedTarget =

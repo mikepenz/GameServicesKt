@@ -18,6 +18,10 @@
     <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
+    <key>NSGKFriendListUsageDescription</key>
+    <string>Show your Game Center friends so you can compare progress and play together.</string>
     <key>UILaunchScreen</key>
     <dict/>
 </dict>

@@ -31,7 +31,11 @@ final enum class com.mikepenz.gameservices.leaderboards/LeaderboardScope : kotli
 }
 
 abstract interface com.mikepenz.gameservices.leaderboards/LeaderboardsClient { // com.mikepenz.gameservices.leaderboards/LeaderboardsClient|null[0]
+    abstract val isSupported // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.isSupported|{}isSupported[0]
+        abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+
     abstract suspend fun loadCurrentPlayerScore(com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardScope, com.mikepenz.gameservices.leaderboards/LeaderboardPeriod): kotlin/Result<com.mikepenz.gameservices.leaderboards/LeaderboardScore?> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.loadCurrentPlayerScore|loadCurrentPlayerScore(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardScope;com.mikepenz.gameservices.leaderboards.LeaderboardPeriod){}[0]
+    abstract suspend fun loadLeaderboards(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.leaderboards/Leaderboard>> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.loadLeaderboards|loadLeaderboards(){}[0]
     abstract suspend fun loadScores(com.mikepenz.gameservices.leaderboards/LeaderboardId, com.mikepenz.gameservices.leaderboards/LeaderboardQuery): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.leaderboards/LeaderboardScore>> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.loadScores|loadScores(com.mikepenz.gameservices.leaderboards.LeaderboardId;com.mikepenz.gameservices.leaderboards.LeaderboardQuery){}[0]
     abstract suspend fun showLeaderboard(com.mikepenz.gameservices.leaderboards/LeaderboardId): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.showLeaderboard|showLeaderboard(com.mikepenz.gameservices.leaderboards.LeaderboardId){}[0]
     abstract suspend fun showLeaderboards(): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.leaderboards/LeaderboardsClient.showLeaderboards|showLeaderboards(){}[0]

@@ -9,7 +9,7 @@ class LeaderboardsJvmTest {
     @Test
     fun `JVM client returns a typed unsupported failure`() {
         assertIs<GameServicesException.UnsupportedTarget>(
-            runBlocking { createLeaderboardsClient().showLeaderboards().exceptionOrNull() },
+            runBlocking { createLeaderboardsClient().loadLeaderboards().exceptionOrNull() },
         )
     }
 }

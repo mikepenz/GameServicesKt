@@ -50,6 +50,10 @@ public data class LeaderboardQuery public constructor(
 }
 
 public interface LeaderboardsClient {
+    public val isSupported: Boolean
+
+    public suspend fun loadLeaderboards(): Result<List<Leaderboard>>
+
     public suspend fun submitScore(
         id: LeaderboardId,
         score: Long,
@@ -74,8 +78,12 @@ public interface LeaderboardsClient {
 internal class UnsupportedLeaderboardsClient(
     target: GameServicesPlatform,
 ) : LeaderboardsClient {
+    override val isSupported: Boolean = false
+
     private val unsupported: GameServicesException.UnsupportedTarget =
         GameServicesException.UnsupportedTarget(target)
+
+    override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = Result.failure(unsupported)
 
     override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = Result.failure(unsupported)
 

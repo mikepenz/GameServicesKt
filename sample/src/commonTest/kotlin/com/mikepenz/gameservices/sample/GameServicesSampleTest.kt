@@ -10,6 +10,7 @@ import com.mikepenz.gameservices.achievements.AchievementId
 import com.mikepenz.gameservices.achievements.AchievementProgress
 import com.mikepenz.gameservices.achievements.AchievementsClient
 import com.mikepenz.gameservices.leaderboards.LeaderboardId
+import com.mikepenz.gameservices.leaderboards.Leaderboard
 import com.mikepenz.gameservices.leaderboards.LeaderboardPeriod
 import com.mikepenz.gameservices.leaderboards.LeaderboardQuery
 import com.mikepenz.gameservices.leaderboards.LeaderboardScope
@@ -31,19 +32,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GameServicesSampleTest {
+    private var achievementsSupported = false
+    private var leaderboardsSupported = false
+    private var savedGamesSupported = false
+    private var selectionSupported = false
+    private var socialSupported = false
+
     @Test
     fun `unsupported clients hide every action`() {
-        val unsupported = object : GameServices {
-            override val support = GameServicesSupport(GameServicesPlatform.JVM, GameServicesProvider.None, false)
-            override val authenticationState = MutableStateFlow<com.mikepenz.gameservices.AuthenticationState>(
-                com.mikepenz.gameservices.AuthenticationState.Unsupported,
-            )
-            override suspend fun authenticate() = error("not called")
-        }
         assertEquals(
             emptySet(),
             GameServicesSample(
-                unsupported,
+                services(supported = false),
                 achievements,
                 leaderboards,
                 savedGames,
@@ -52,13 +52,66 @@ class GameServicesSampleTest {
         )
     }
 
+    @Test
+    fun `actions follow each client capability`() {
+        leaderboardsSupported = true
+        savedGamesSupported = true
+
+        assertEquals(
+            setOf(SampleAction.Authenticate, SampleAction.Leaderboards, SampleAction.SavedGames),
+            GameServicesSample(
+                services(supported = true),
+                achievements,
+                leaderboards,
+                savedGames,
+                social,
+            ).availableActions(),
+        )
+    }
+
+    @Test
+    fun `save selection requires saved games and a presenter`() {
+        savedGamesSupported = true
+        selectionSupported = true
+
+        assertEquals(
+            setOf(SampleAction.SavedGames, SampleAction.SavedGameSelection),
+            GameServicesSample(
+                services(supported = false),
+                achievements,
+                leaderboards,
+                savedGames,
+                social,
+            ).availableActions(),
+        )
+    }
+
+    private fun services(supported: Boolean) = object : GameServices {
+        override val support = GameServicesSupport(
+            if (supported) GameServicesPlatform.Android else GameServicesPlatform.JVM,
+            if (supported) GameServicesProvider.GooglePlayGames else GameServicesProvider.None,
+            supported,
+        )
+        override val authenticationState = MutableStateFlow<com.mikepenz.gameservices.AuthenticationState>(
+            if (supported) {
+                com.mikepenz.gameservices.AuthenticationState.Unauthenticated
+            } else {
+                com.mikepenz.gameservices.AuthenticationState.Unsupported
+            },
+        )
+        override suspend fun authenticate() = error("not called")
+    }
+
     private val achievements = object : AchievementsClient {
-        override suspend fun loadAchievements(): Result<List<Achievement>> = error("not called")
+        override val isSupported: Boolean get() = achievementsSupported
+        override suspend fun loadAchievements(forceReload: Boolean): Result<List<Achievement>> = error("not called")
         override suspend fun reportProgress(id: AchievementId, progress: AchievementProgress): Result<Unit> = error("not called")
         override suspend fun showAchievements(): Result<Unit> = error("not called")
     }
 
     private val leaderboards = object : LeaderboardsClient {
+        override val isSupported: Boolean get() = leaderboardsSupported
+        override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = error("not called")
         override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = error("not called")
         override suspend fun loadCurrentPlayerScore(id: LeaderboardId, scope: LeaderboardScope, period: LeaderboardPeriod): Result<LeaderboardScore?> = error("not called")
         override suspend fun loadScores(id: LeaderboardId, query: LeaderboardQuery): Result<List<LeaderboardScore>> = error("not called")
@@ -67,7 +120,8 @@ class GameServicesSampleTest {
     }
 
     private val savedGames = object : SavedGamesClient {
-        override val isSelectionPresenterSupported: Boolean = false
+        override val isSupported: Boolean get() = savedGamesSupported
+        override val isSelectionPresenterSupported: Boolean get() = selectionSupported
         override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = error("not called")
         override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = error("not called")
         override suspend fun write(id: SavedGameId, data: SavedGameData): Result<SavedGameWriteResult> = error("not called")
@@ -77,6 +131,7 @@ class GameServicesSampleTest {
     }
 
     private val social = object : SocialClient {
+        override val isSupported: Boolean get() = socialSupported
         override val friendsAccessState = MutableStateFlow(FriendsAccessState.Unknown)
         override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = error("not called")
         override suspend fun loadFriends(): Result<List<PlayerProfile>> = error("not called")

@@ -1,5 +1,7 @@
 package com.mikepenz.gameservices.sample
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.window.ComposeUIViewController
 import com.mikepenz.gameservices.createGameServices
 import com.mikepenz.gameservices.achievements.createAchievementsClient
 import com.mikepenz.gameservices.leaderboards.createLeaderboardsClient
@@ -16,3 +18,17 @@ public fun createGameServicesSample(
     savedGames = createSavedGamesClient(),
     social = createSocialClient(presentingViewController),
 )
+
+@Suppress("FunctionName")
+public fun MainViewController(): UIViewController {
+    lateinit var controller: UIViewController
+    controller = ComposeUIViewController {
+        val sample = remember {
+            createGameServicesSample {
+                controller.presentedViewController ?: controller
+            }
+        }
+        GameServicesSampleApp(sample)
+    }
+    return controller
+}

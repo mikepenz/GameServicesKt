@@ -77,7 +77,9 @@ internal fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
 }
 
 public interface AchievementsClient {
-    public suspend fun loadAchievements(): Result<List<Achievement>>
+    public val isSupported: Boolean
+
+    public suspend fun loadAchievements(forceReload: Boolean = false): Result<List<Achievement>>
 
     public suspend fun reportProgress(
         id: AchievementId,
@@ -90,10 +92,12 @@ public interface AchievementsClient {
 internal class UnsupportedAchievementsClient(
     target: GameServicesPlatform,
 ) : AchievementsClient {
+    override val isSupported: Boolean = false
+
     private val unsupported: GameServicesException.UnsupportedTarget =
         GameServicesException.UnsupportedTarget(target)
 
-    override suspend fun loadAchievements(): Result<List<Achievement>> = Result.failure(unsupported)
+    override suspend fun loadAchievements(forceReload: Boolean): Result<List<Achievement>> = Result.failure(unsupported)
 
     override suspend fun reportProgress(
         id: AchievementId,

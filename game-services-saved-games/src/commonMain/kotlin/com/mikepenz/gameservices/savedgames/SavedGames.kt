@@ -66,6 +66,8 @@ public sealed interface SavedGameWriteResult {
 }
 
 public interface SavedGamesClient {
+    public val isSupported: Boolean
+
     public val isSelectionPresenterSupported: Boolean
 
     public suspend fun listSavedGames(): Result<List<SavedGameMetadata>>
@@ -90,6 +92,8 @@ public interface SavedGamesClient {
 internal class UnsupportedSavedGamesClient(
     private val target: GameServicesPlatform,
 ) : SavedGamesClient {
+    override val isSupported: Boolean = false
+
     override val isSelectionPresenterSupported: Boolean = false
 
     override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = unsupported()

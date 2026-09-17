@@ -24,6 +24,8 @@ final enum class com.mikepenz.gameservices.social/FriendsAccessState : kotlin/En
 abstract interface com.mikepenz.gameservices.social/SocialClient { // com.mikepenz.gameservices.social/SocialClient|null[0]
     abstract val friendsAccessState // com.mikepenz.gameservices.social/SocialClient.friendsAccessState|{}friendsAccessState[0]
         abstract fun <get-friendsAccessState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices.social/FriendsAccessState> // com.mikepenz.gameservices.social/SocialClient.friendsAccessState.<get-friendsAccessState>|<get-friendsAccessState>(){}[0]
+    abstract val isSupported // com.mikepenz.gameservices.social/SocialClient.isSupported|{}isSupported[0]
+        abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.social/SocialClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
 
     abstract suspend fun loadAvatar(com.mikepenz.gameservices/PlayerId): kotlin/Result<com.mikepenz.gameservices.social/AvatarBytes?> // com.mikepenz.gameservices.social/SocialClient.loadAvatar|loadAvatar(com.mikepenz.gameservices.PlayerId){}[0]
     abstract suspend fun loadFriends(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile>> // com.mikepenz.gameservices.social/SocialClient.loadFriends|loadFriends(){}[0]
