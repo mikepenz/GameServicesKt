@@ -47,6 +47,7 @@ captures/
 
 ## User settings
 xcuserdata/
+sample-host-ios/Local.xcconfig
 /gradle-user-home/
 /tmp/
 

@@ -106,6 +106,7 @@ Android setup:
    `./gradlew :sample-host-android:installDebug` on an API 30+ device; individual PGS testers can
    use the local build, while an internal track validates the Google Play-signed path.
 
-Open `sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, select a sandbox Game Center
-account, set a development team and bundle ID, then run it on an iOS 16+ device. Its entitlement,
-bundle ID, and App Store Connect configuration remain app-owned.
+Open `sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, copy `Config.xcconfig` to the
+ignored `Local.xcconfig`, and set its development team, bundle ID, and iCloud container before
+running on an iOS 16+ device. Select a sandbox Game Center account; App Store Connect
+configuration remains app-owned.

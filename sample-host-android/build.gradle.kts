@@ -8,9 +8,7 @@ plugins {
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.isFile }?.inputStream()?.use(::load)
 }
-val demoKeystorePassword = localProperties.getProperty("demoKeystorePassword") ?: providers.exec {
-    commandLine("op", "read", "REDACTED_DEMO_KEYSTORE_PASSWORD")
-}.standardOutput.asText.get().trim()
+val demoKeystorePassword = localProperties.getProperty("demoKeystorePassword").orEmpty()
 val gameServicesProjectId = localProperties.getProperty(
     "gameServicesProjectId",
     "REPLACE_WITH_PLAY_GAMES_PROJECT_ID",
