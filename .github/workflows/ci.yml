@@ -33,7 +33,9 @@ jobs:
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Test and verify API
-        run: ./gradlew check checkKotlinAbi verifyAndroidMinSdk
+        run: |
+          ./gradlew publishToMavenLocal
+          ./gradlew check checkKotlinAbi verifyAndroidMinSdk
 
       - name: Verify screenshots
         run: ./gradlew :sample-host-android:verifyPaparazziDebug
@@ -42,7 +44,7 @@ jobs:
         run: ./gradlew lint
 
       - name: Verify published artifacts
-        run: ./gradlew publishToMavenLocal verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
+        run: ./gradlew verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
 
       - name: Archive screenshot report
         if: always()

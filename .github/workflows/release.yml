@@ -40,7 +40,9 @@ jobs:
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Verify release
-        run: ./gradlew check checkKotlinAbi lint :sample-host-android:verifyPaparazziDebug verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
+        run: |
+          ./gradlew publishToMavenLocal
+          ./gradlew check checkKotlinAbi lint :sample-host-android:verifyPaparazziDebug verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
 
       - name: Publish to Maven Central
         env:
