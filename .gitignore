@@ -54,5 +54,10 @@ sample-host-ios/Local.xcconfig
 ## AI
 *.local.json
 
+## Local planning notes
+/PLAN.md
+/PROGRESS.md
+/docs/
+
 ## Kotlin/JS
 kotlin-js-store/
