@@ -3,6 +3,9 @@
 Open an issue before substantial changes. Keep pull requests focused, include tests for changed
 behavior, and run the relevant Gradle checks before opening a pull request.
 
+Every pull request must have exactly one release category label: `feature`, `fix`, `test`, `other`,
+or `dependencies`. The release workflow uses that label to place the change in its release notes.
+
 ## Releases
 
 Set `VERSION_NAME` in `gradle.properties`, then push a matching `v` tag. For example, version

@@ -1,0 +1,25 @@
+name: PR labels
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  require-release-category:
+    name: Require release category
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check labels
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const categories = ['feature', 'fix', 'test', 'other', 'dependencies'];
+            const labels = context.payload.pull_request.labels.map(({ name }) => name);
+            const assigned = categories.filter((category) => labels.includes(category));
+
+            if (assigned.length !== 1) {
+              core.setFailed(`Pull requests require exactly one release category label: ${categories.join(', ')}. Found: ${assigned.join(', ') || 'none'}.`);
+            }
