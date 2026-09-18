@@ -50,6 +50,7 @@ xcuserdata/
 sample-host-ios/Local.xcconfig
 /gradle-user-home/
 /tmp/
+/sample-host-android/src/test/kotlin/generated/
 
 ## AI
 *.local.json

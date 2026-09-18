@@ -213,6 +213,18 @@ internal data class SampleScreenState(
 }
 
 @Composable
+public fun GameServicesSamplePreview() {
+    GameServicesSampleContent(
+        state = SampleScreenState(status = "Google Play Games; enter configured IDs before testing."),
+        availableActions = SampleAction.entries.toSet(),
+        onFieldChange = { _, _ -> },
+        onAction = {},
+        onLeaderboardSelected = {},
+        onAchievementSelected = {},
+    )
+}
+
+@Composable
 internal fun GameServicesSampleContent(
     state: SampleScreenState,
     availableActions: Set<SampleAction>,
