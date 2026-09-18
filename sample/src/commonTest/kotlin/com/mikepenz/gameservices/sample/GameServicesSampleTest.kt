@@ -99,6 +99,7 @@ class GameServicesSampleTest {
                 com.mikepenz.gameservices.AuthenticationState.Unsupported
             },
         )
+        override suspend fun refreshAuthentication() = error("not called")
         override suspend fun authenticate() = error("not called")
     }
 

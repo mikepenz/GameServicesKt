@@ -1,0 +1,21 @@
+{
+  "categories": [
+    {
+      "title": "## Features",
+      "labels": ["feature"]
+    },
+    {
+      "title": "## Fixes",
+      "labels": ["fix"]
+    },
+    {
+      "title": "## Tests",
+      "labels": ["test"]
+    },
+    {
+      "title": "## Other",
+      "labels": ["other", "dependencies"]
+    }
+  ],
+  "template": "#{{CHANGELOG}}\n## Contributors\n- #{{CONTRIBUTORS}}"
+}

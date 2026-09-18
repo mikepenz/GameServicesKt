@@ -9,6 +9,7 @@ plugins {
     alias(baseLibs.plugins.kotlinMultiplatform) apply false
     alias(baseLibs.plugins.dokka)
     alias(baseLibs.plugins.mavenPublish) apply false
+    alias(baseLibs.plugins.paparazzi) apply false
     alias(baseLibs.plugins.versionCatalogUpdate) apply false
 }
 

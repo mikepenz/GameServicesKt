@@ -12,6 +12,17 @@ implementation("com.mikepenz:game-services-saved-games:0.1.0-SNAPSHOT")
 implementation("com.mikepenz:game-services-social:0.1.0-SNAPSHOT")
 ```
 
+Snapshot builds require the Central Portal snapshot repository:
+
+```kotlin
+repositories {
+    maven("https://central.sonatype.com/repository/maven-snapshots/") {
+        content { includeGroup("com.mikepenz") }
+    }
+    mavenCentral()
+}
+```
+
 Every module compiles for Android API 30+, iOS, JVM, and Wasm. The core runtime uses Google Play
 Games on Android and Game Center on iOS. JVM and Wasm factories return a client whose support
 provider is `None`, whose `isSupported` is false, and whose operations fail with
