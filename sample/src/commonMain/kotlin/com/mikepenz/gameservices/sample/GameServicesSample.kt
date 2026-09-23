@@ -260,6 +260,7 @@ internal enum class SampleOperation(
 internal data class SampleScreenState(
     val status: String = "Ready",
     val busy: Boolean = false,
+    val fieldsOmittedOnRestore: Boolean = false,
     val achievementId: String = "",
     val achievementProgress: String = "100",
     val achievements: List<Achievement> = emptyList(),
@@ -316,11 +317,17 @@ internal data class SampleScreenState(
 
     companion object {
         val Saver = listSaver<SampleScreenState, String>(
-            save = { listOf(it.achievementId, it.achievementProgress, it.leaderboardId, it.score,
-                it.saveId, it.playerId, it.startRank, it.limit, it.scope.name, it.period.name, it.saveData) },
+            save = { state ->
+                val fields = listOf(state.achievementId, state.achievementProgress, state.leaderboardId, state.score,
+                    state.saveId, state.playerId, state.startRank, state.limit, state.scope.name, state.period.name, state.saveData)
+                // ponytail: keep Bundle text bounded; use file-backed drafts if large edits must survive recreation.
+                fields.map { it.takeIf { field -> field.length <= 16_384 }.orEmpty() } +
+                    (state.fieldsOmittedOnRestore || fields.any { it.length > 16_384 }).toString()
+            },
             restore = { SampleScreenState(achievementId = it[0], achievementProgress = it[1], leaderboardId = it[2],
                 score = it[3], saveId = it[4], playerId = it[5], startRank = it[6], limit = it[7],
-                scope = LeaderboardScope.valueOf(it[8]), period = LeaderboardPeriod.valueOf(it[9]), saveData = it[10]) },
+                scope = LeaderboardScope.valueOf(it[8]), period = LeaderboardPeriod.valueOf(it[9]), saveData = it[10],
+                fieldsOmittedOnRestore = it.getOrNull(11).toBoolean()) },
         )
     }
 
@@ -358,6 +365,9 @@ internal fun GameServicesSampleContent(
             ) {
                 Text(state.status, style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.heightIn(max = 160.dp).verticalScroll(rememberScrollState()))
+                if (state.fieldsOmittedOnRestore) {
+                    Text("Large fields were not restored. Read the saved game again before writing.")
+                }
                 state.avatar?.let { avatar ->
                     AsyncImage(
                         model = remember(avatar) { avatar.copyBytes() },

@@ -148,15 +148,15 @@ internal class UnsupportedLeaderboardsClient(
     override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = Result.failure(unsupported)
 }
 
+/** The SDK replaces the previous buffer with an expanded snapshot. */
 internal data class ScorePage(val scores: List<LeaderboardScore>, val hasMore: Boolean)
 
 internal suspend fun collectLeaderboardScores(query: LeaderboardQuery, loadPage: suspend () -> ScorePage): List<LeaderboardScore> {
-    val result = mutableListOf<LeaderboardScore>()
     // ponytail: bound sequential Android SDK work; use provider UI for deeper or heavily tied boards.
     repeat(41) {
         val page = loadPage()
-        result += page.scores.filter { score -> score.rank?.let { it >= query.startRank } == true }
-            .take(query.limit - result.size)
+        val result = page.scores.filter { score -> score.rank?.let { it >= query.startRank } == true }
+            .take(query.limit)
         if (result.size == query.limit || !page.hasMore) return result
     }
     error("Leaderboard query exceeds 41 provider pages; use the provider leaderboard screen")

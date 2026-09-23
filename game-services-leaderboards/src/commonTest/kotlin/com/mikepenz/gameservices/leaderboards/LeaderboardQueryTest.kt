@@ -59,16 +59,17 @@ class LeaderboardQueryTest {
         }
     }
     @Test
-    fun `queries fill across pages and preserve tied entries`() = runTest {
+    fun `expanded buffers replace earlier scores and preserve tied entries`() = runTest {
         fun score(rank: Long) = LeaderboardScore(null, rank, "$rank", rank, "Anonymous")
         val pages = listOf(
             ScorePage((1L..25L).map(::score), true),
-            ScorePage((26L..50L).map(::score), false),
+            ScorePage((1L..50L).map(::score), false),
         ).iterator()
         val query = LeaderboardQuery(LeaderboardScope.Global, LeaderboardPeriod.AllTime, 20, 25)
         assertEquals((20L..44L).toList(), collectLeaderboardScores(query) { pages.next() }.map { it.rank })
-        val ties = listOf(ScorePage(List(25) { score(1) }, true), ScorePage(listOf(score(2)), false)).iterator()
-        assertEquals(listOf(2L), collectLeaderboardScores(query.copy(startRank = 2)) { ties.next() }.map { it.rank })
+        val tiedScores = List(25) { score(1) }
+        val ties = listOf(ScorePage(tiedScores, true), ScorePage(tiedScores + List(3) { score(2) }, false)).iterator()
+        assertEquals(List(3) { 2L }, collectLeaderboardScores(query.copy(startRank = 2)) { ties.next() }.map { it.rank })
     }
 
     @Test

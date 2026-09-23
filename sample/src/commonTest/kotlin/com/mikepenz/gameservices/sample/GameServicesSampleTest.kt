@@ -114,6 +114,23 @@ class GameServicesSampleTest {
         assertEquals("", restored.conflictId)
     }
 
+    @Test
+    fun `saved state omits oversized fields without truncating live data`() {
+        val scope = object : SaverScope { override fun canBeSaved(value: Any): Boolean = true }
+        for (size in listOf(16_384, 16_385, 1_000_000)) {
+            val original = SampleScreenState(saveId = "slot", saveData = "x".repeat(size), playerId = "p".repeat(size))
+            val saved = requireNotNull(with(SampleScreenState.Saver) { scope.save(original) })
+            val restored = requireNotNull(SampleScreenState.Saver.restore(saved))
+            assertEquals("slot", restored.saveId)
+            assertEquals(if (size <= 16_384) original.saveData else "", restored.saveData)
+            assertEquals(if (size <= 16_384) original.playerId else "", restored.playerId)
+            assertEquals(size > 16_384, restored.fieldsOmittedOnRestore)
+            assertEquals(size, original.saveData.length)
+            val savedAgain = requireNotNull(with(SampleScreenState.Saver) { scope.save(restored) })
+            assertEquals(restored.fieldsOmittedOnRestore, SampleScreenState.Saver.restore(savedAgain)?.fieldsOmittedOnRestore)
+        }
+    }
+
     private fun services(supported: Boolean) = object : GameServices {
         override val support = GameServicesSupport(
             if (supported) GameServicesPlatform.Android else GameServicesPlatform.JVM,

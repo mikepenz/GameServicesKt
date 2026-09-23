@@ -216,7 +216,9 @@ running on an iOS 16+ device. Select a sandbox Game Center account; App Store Co
 configuration remains app-owned.
 
 The validation screen refreshes authentication on startup, observes account changes, prevents
-concurrent operations, and preserves editable fields across activity recreation. It can query scores,
+concurrent operations, and preserves editable fields up to 16,384 characters each across activity recreation.
+Larger fields are omitted from restored state with a warning; read the save again before writing.
+The full payload remains available while the screen is open. It can query scores,
 read the current player's score, and inspect or edit UTF-8 save/conflict payloads. Re-read conflicts
 after recreating a client; session conflict handles are deliberately not restored.
 
