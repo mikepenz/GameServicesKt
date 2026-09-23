@@ -1,9 +1,9 @@
 package com.mikepenz.gameservices.leaderboards
 
-import com.mikepenz.gameservices.PlayerIdentity
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
 import com.mikepenz.gameservices.GameServicesProvider
+import com.mikepenz.gameservices.PlayerIdentity
 import kotlin.jvm.JvmInline
 
 @JvmInline
@@ -58,13 +58,14 @@ public data class Leaderboard public constructor(
 )
 
 public data class LeaderboardScore public constructor(
-    public val player: PlayerIdentity,
+    public val player: PlayerIdentity?,
     public val value: Long,
     public val formattedValue: String,
-    public val rank: Int,
+    public val rank: Long?,
+    public val displayName: String = player?.displayName.orEmpty(),
 ) {
     init {
-        require(rank > 0)
+        require(rank == null || rank > 0)
     }
 }
 
@@ -79,6 +80,7 @@ public enum class LeaderboardPeriod {
     AllTime,
 }
 
+/** Starts at a rank and returns at most [limit] entries, including ties. Deep random access is bounded to rank 1000. */
 public data class LeaderboardQuery public constructor(
     public val scope: LeaderboardScope,
     public val period: LeaderboardPeriod,
@@ -86,7 +88,7 @@ public data class LeaderboardQuery public constructor(
     public val limit: Int,
 ) {
     init {
-        require(startRank > 0)
+        require(startRank in 1..1000) { "Start rank must be between 1 and 1000" }
         require(limit in 1..25)
     }
 }
@@ -96,6 +98,7 @@ public interface LeaderboardsClient {
 
     public suspend fun loadLeaderboards(): Result<List<Leaderboard>>
 
+    /** Completes after provider acknowledgement, not merely local enqueueing. */
     public suspend fun submitScore(
         id: LeaderboardId,
         score: Long,
@@ -143,4 +146,18 @@ internal class UnsupportedLeaderboardsClient(
     override suspend fun showLeaderboards(): Result<Unit> = Result.failure(unsupported)
 
     override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = Result.failure(unsupported)
+}
+
+internal data class ScorePage(val scores: List<LeaderboardScore>, val hasMore: Boolean)
+
+internal suspend fun collectLeaderboardScores(query: LeaderboardQuery, loadPage: suspend () -> ScorePage): List<LeaderboardScore> {
+    val result = mutableListOf<LeaderboardScore>()
+    // ponytail: bound sequential Android SDK work; use provider UI for deeper or heavily tied boards.
+    repeat(41) {
+        val page = loadPage()
+        result += page.scores.filter { score -> score.rank?.let { it >= query.startRank } == true }
+            .take(query.limit - result.size)
+        if (result.size == query.limit || !page.hasMore) return result
+    }
+    error("Leaderboard query exceeds 41 provider pages; use the provider leaderboard screen")
 }

@@ -4,6 +4,7 @@ import com.mikepenz.gameservices.GameServicesProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.runTest
 
 class LeaderboardQueryTest {
     @Test
@@ -56,5 +57,31 @@ class LeaderboardQueryTest {
                 LeaderboardQuery(scope, period, startRank = 1, limit = 25)
             }
         }
+    }
+    @Test
+    fun `queries fill across pages and preserve tied entries`() = runTest {
+        fun score(rank: Long) = LeaderboardScore(null, rank, "$rank", rank, "Anonymous")
+        val pages = listOf(
+            ScorePage((1L..25L).map(::score), true),
+            ScorePage((26L..50L).map(::score), false),
+        ).iterator()
+        val query = LeaderboardQuery(LeaderboardScope.Global, LeaderboardPeriod.AllTime, 20, 25)
+        assertEquals((20L..44L).toList(), collectLeaderboardScores(query) { pages.next() }.map { it.rank })
+        val ties = listOf(ScorePage(List(25) { score(1) }, true), ScorePage(listOf(score(2)), false)).iterator()
+        assertEquals(listOf(2L), collectLeaderboardScores(query.copy(startRank = 2)) { ties.next() }.map { it.rank })
+    }
+
+    @Test
+    fun `anonymous and unranked scores are valid but excessive queries fail`() = runTest {
+        LeaderboardScore(null, 1, "1", null, "Anonymous")
+        assertFailsWith<IllegalArgumentException> { LeaderboardQuery(LeaderboardScope.Global, LeaderboardPeriod.AllTime, 1001, 25) }
+        var pages = 0
+        assertFailsWith<IllegalStateException> {
+            collectLeaderboardScores(LeaderboardQuery(LeaderboardScope.Global, LeaderboardPeriod.AllTime, 1, 25)) {
+                pages++
+                ScorePage(emptyList(), true)
+            }
+        }
+        assertEquals(41, pages)
     }
 }

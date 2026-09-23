@@ -1,15 +1,20 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.savedgames
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesProvider
+import com.mikepenz.gameservices.gameServicesResult
+import com.mikepenz.gameservices.toGameServicesException
+import kotlin.coroutines.resume
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSData
-import platform.Foundation.NSError
 import platform.Foundation.create
 import platform.GameKit.GKLocalPlayer
 import platform.GameKit.GKSavedGame
@@ -18,7 +23,6 @@ import platform.GameKit.fetchSavedGamesWithCompletionHandler
 import platform.GameKit.resolveConflictingSavedGames
 import platform.GameKit.saveGameData
 import platform.posix.memcpy
-import kotlin.coroutines.resume
 
 public fun createSavedGamesClient(): SavedGamesClient = IosSavedGamesClient(GKLocalPlayer.localPlayer())
 
@@ -26,18 +30,21 @@ public fun createSavedGamesClient(): SavedGamesClient = IosSavedGamesClient(GKLo
 private class IosSavedGamesClient(
     private val player: GKLocalPlayer,
 ) : SavedGamesClient {
+    private val operations = Mutex()
+    private suspend fun <T> savedGameResult(block: suspend () -> T): Result<T> = gameServicesResult { operations.withLock { block() } }
+
     private val conflicts: MutableMap<String, List<GKSavedGame>> = mutableMapOf()
 
     override val isSupported: Boolean = true
     override val isSelectionPresenterSupported: Boolean = false
 
-    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = providerResult {
+    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = savedGameResult {
         savedGames()
             .mapNotNull { game -> game.name?.let { SavedGameMetadata(SavedGameId(it), it) } }
             .distinctBy(SavedGameMetadata::id)
     }
 
-    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = providerResult {
+    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = savedGameResult {
         val versions = savedGames().filter { it.name == id.value }
         when (versions.size) {
             0 -> SavedGameReadResult.NotFound
@@ -49,13 +56,13 @@ private class IosSavedGamesClient(
     override suspend fun write(
         id: SavedGameId,
         data: SavedGameData,
-    ): Result<SavedGameWriteResult> = providerResult {
+    ): Result<SavedGameWriteResult> = savedGameResult {
         val versions = savedGames().filter { it.name == id.value }
-        if (versions.size > 1) return@providerResult SavedGameWriteResult.Conflict(versions.toConflict(id))
+        if (versions.size > 1) return@savedGameResult SavedGameWriteResult.Conflict(versions.toConflict(id))
         SavedGameWriteResult.Saved(save(data, id.value).toMetadata())
     }
 
-    override suspend fun delete(id: SavedGameId): Result<Unit> = providerResult {
+    override suspend fun delete(id: SavedGameId): Result<Unit> = savedGameResult {
         require(savedGames().any { it.name == id.value }) { "Unknown saved game ${id.value}" }
         suspendCancellableCoroutine { continuation ->
             player.deleteSavedGamesWithName(id.value) { error ->
@@ -70,7 +77,7 @@ private class IosSavedGamesClient(
     override suspend fun resolve(
         conflictId: SavedGameConflictId,
         data: SavedGameData,
-    ): Result<SavedGameWriteResult> = providerResult {
+    ): Result<SavedGameWriteResult> = savedGameResult {
         val versions = requireNotNull(conflicts[conflictId.value]) { "Unknown saved game conflict" }
         val resolved = resolve(versions, data)
         conflicts.remove(conflictId.value)
@@ -95,7 +102,7 @@ private class IosSavedGamesClient(
     private suspend fun save(data: SavedGameData, name: String): GKSavedGame = suspendCancellableCoroutine { continuation ->
         player.saveGameData(data.copyBytes().toNSData(), name) { game, error ->
             if (continuation.isActive) {
-                if (error == null) continuation.resume(requireNotNull(game))
+                if (error == null) continuation.resumeWith(runCatching { requireNotNull(game) })
                 else continuation.resumeWith(Result.failure(error.toGameServicesException()))
             }
         }
@@ -112,10 +119,11 @@ private class IosSavedGamesClient(
         }
 
     private suspend fun List<GKSavedGame>.toConflict(id: SavedGameId): SavedGameConflict {
+        val versions = map { it.toVersion() }
         conflicts[id.value] = this
         return SavedGameConflict(
             id = SavedGameConflictId(id.value),
-            versions = map { it.toVersion() },
+            versions = versions,
         )
     }
 
@@ -129,27 +137,12 @@ private class IosSavedGamesClient(
     private suspend fun GKSavedGame.loadData(): ByteArray = suspendCancellableCoroutine { continuation ->
         loadDataWithCompletionHandler { data, error ->
             if (continuation.isActive) {
-                if (error == null) continuation.resume(requireNotNull(data).toByteArray())
+                if (error == null) continuation.resumeWith(runCatching { requireNotNull(data).toByteArray() })
                 else continuation.resumeWith(Result.failure(error.toGameServicesException()))
             }
         }
     }
 }
-
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, exception.toString()))
-}
-
-private fun NSError.toGameServicesException(): GameServicesException = GameServicesException.ProviderFailure(
-    provider = GameServicesProvider.GameCenter,
-    code = "$domain:$code",
-)
 
 @OptIn(BetaInteropApi::class, ExperimentalForeignApi::class)
 private fun ByteArray.toNSData(): NSData =

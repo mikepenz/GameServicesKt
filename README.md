@@ -62,7 +62,7 @@ class GameServicesScreen(
 }
 ```
 
-Every operation returns `Result`; handle its failure instead of assuming authentication. A
+Every service operation returns `Result`; handle its failure instead of assuming authentication. Value constructors validate inputs and may throw `IllegalArgumentException`. A
 `PlayerId` identifies a player only inside its provider, so map it to your own account ID rather
 than storing it as an application-wide identifier.
 
@@ -103,7 +103,7 @@ the Play Games automatic-authentication result without starting the explicit sig
 initializes Game Center and may receive a system view controller that the library presents.
 
 Call `authenticate()` only from a player action. It starts the explicit Play Games sign-in flow on
-Android. Game Center has no separate retry API, so iOS runs its normal initialization flow again.
+Android. Game Center has no separate retry API. The iOS client installs its handler once, keeps observing account changes, and rechecks the current player on later calls. Create one iOS core client for the app.
 Derive a boolean from `authenticationState.value is AuthenticationState.Authenticated`; the state
 flow remains the single source of truth.
 
@@ -139,6 +139,59 @@ val achievements = createAchievementsClient({ currentViewController }, achieveme
 Provider UI can be launched only from a user action. Handle every `Result`; cancellation stays a
 cancelled coroutine, while expected service failures remain typed `GameServicesException` values.
 
+## Operation contracts
+
+Keep Android clients with the `ComponentActivity` that created them. Recreate them during the new
+activity's `onCreate`; do not store an old activity client in an application singleton. Register every
+feature factory before the activity starts. Coroutine cancellation does not dismiss an already opened
+provider screen. A second selection or consent request fails while that screen is still outstanding;
+its late result is discarded for the cancelled caller. Destroying the activity cancels the outstanding
+wait. Provider UI methods switch to the main thread internally.
+
+Score submissions and achievement updates wait for provider acknowledgement. A successful result
+does not guarantee immediate visibility in a later leaderboard query or on another device. Handle
+offline failures and choose an application-owned retry policy. Save commits acknowledge local commit
+and requested background synchronization on Android; they do not confirm remote synchronization.
+Cancelling a save cannot undo a commit that has already started. Native save commit and cleanup finish
+before releasing the operation's resources.
+
+`AuthenticationRequired`, `PermissionRequired`, `ConfigurationMissing`, and `UserCancelled` represent
+recognized provider failures. Other failures carry a provider and code. JVM provider exceptions retain
+the original cause for diagnostics. `InternalGameServicesApi` marks implementation helpers shared by
+the published modules; applications should use the service interfaces instead.
+
+## Leaderboard queries
+
+`LeaderboardScore.player` is nullable for an anonymous or privacy-restricted player. Use
+`displayName` for presentation. `rank` is a nullable `Long`; null means the provider did not return a
+positive rank. Never manufacture a player ID for anonymous scores.
+
+Queries start at ranks 1 through 1000 and return at most 25 entries. The limit counts entries, including
+ties. Android reads successive SDK pages and scans at most 41 pages, then returns a failure instead
+of silently returning an incomplete result. Use the native leaderboard screen for deeper browsing or
+boards with enough ties to exhaust this limit. These bounds avoid unbounded sequential provider calls.
+
+## Saved games and friends setup
+
+Use 1–100 ASCII letters, digits, or `-._~` for portable saved game IDs. Android enforces this filename subset; iOS can still read existing saves with other nonempty names.
+Android validates bytes against the SDK's maximum data size before opening a save. Keep payloads small
+and handle provider-specific limits and quota failures. The library copies bytes at public boundaries;
+it does not own your serialization or compression format.
+
+Handle `Conflict` on both reads and writes. Inspect every version, then call `resolve(conflict.id, data)`
+with chosen or merged bytes on the same client. Android reopens the save before resolving and returns
+a fresh conflict if it changed. After process/activity recreation or an unknown-conflict error, read
+again. A failed resolution can be retried, but cancellation or an ambiguous network failure should be
+followed by readback before another write.
+
+For iOS saves, enable iCloud Documents, configure the ubiquity container and matching entitlements,
+and test with iCloud Drive enabled. Game Center authentication alone does not configure cloud saves.
+For friends, add a localized `NSGKFriendListUsageDescription` to the app's `Info.plist`, then call
+`requestFriendsAccess()` from a user action. `loadFriends()` does not silently request consent.
+Android loads all available friend pages. iOS avatar/profile lookup resolves the supplied Game Center
+player identifier directly instead of restricting it to the current friend list; provider privacy
+restrictions still apply.
+
 ## Provider-validation host
 
 `:sample-host-android` and `sample-host-ios` are private, non-published validation apps.
@@ -161,3 +214,16 @@ Open `sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, copy `Config.x
 ignored `Local.xcconfig`, and set its development team, bundle ID, and iCloud container before
 running on an iOS 16+ device. Select a sandbox Game Center account; App Store Connect
 configuration remains app-owned.
+
+The validation screen refreshes authentication on startup, observes account changes, prevents
+concurrent operations, and preserves editable fields across activity recreation. It can query scores,
+read the current player's score, and inspect or edit UTF-8 save/conflict payloads. Re-read conflicts
+after recreating a client; session conflict handles are deliberately not restored.
+
+## Validation limits
+
+Automated regressions cover shared contracts, pagination, authentication callbacks, cancellation,
+sample interactions, and Android snapshot lifecycle using a fake SDK. Live provider acceptance still
+requires configured Android and iOS devices: sign-in and account changes, consent cancellation,
+score visibility, offline writes, and conflicts between two devices. Device frame time, allocation,
+and network latency measurements are separate from these tests.

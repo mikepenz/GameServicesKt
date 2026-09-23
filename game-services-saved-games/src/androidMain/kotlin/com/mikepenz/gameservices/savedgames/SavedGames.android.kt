@@ -1,163 +1,206 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.savedgames
 
 import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.GamesClientStatusCodes
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.Snapshot
 import com.google.android.gms.games.snapshot.SnapshotMetadata
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange
-import com.google.android.gms.tasks.Task
-import com.mikepenz.gameservices.GameServicesException
-import com.mikepenz.gameservices.GameServicesProvider
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import com.mikepenz.gameservices.ProviderUiRequest
+import com.mikepenz.gameservices.awaitGameServices
+import com.mikepenz.gameservices.gameServicesResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 public fun createSavedGamesClient(activity: ComponentActivity): SavedGamesClient {
-    val selectionResults = Channel<ActivityResult>(Channel.BUFFERED)
-    return AndroidSavedGamesClient(
-        snapshots = PlayGames.getSnapshotsClient(activity),
-        selectionLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            selectionResults.trySend(it)
-        },
-        selectionResults = selectionResults,
-    )
+    val selection = ProviderUiRequest<ActivityResult>()
+    activity.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) selection.close()
+    })
+    val launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult(), selection::complete)
+    return AndroidSavedGamesClient(PlayGames.getSnapshotsClient(activity), launcher::launch, selection)
 }
 
-private class AndroidSavedGamesClient(
+internal class AndroidSavedGamesClient(
     private val snapshots: SnapshotsClient,
-    private val selectionLauncher: ActivityResultLauncher<android.content.Intent>,
-    private val selectionResults: Channel<ActivityResult>,
+    private val selectionLauncher: (android.content.Intent) -> Unit,
+    private val selection: ProviderUiRequest<ActivityResult>,
 ) : SavedGamesClient {
-    private val conflicts: MutableMap<String, SnapshotsClient.SnapshotConflict> = mutableMapOf()
-
+    // Retain names, never open native files. Reopen and verify the conflict before resolving.
+    private val conflicts = mutableMapOf<String, SavedGameId>()
+    private val operations = Mutex()
+    private var maxDataSize: Int? = null
     override val isSupported: Boolean = true
     override val isSelectionPresenterSupported: Boolean = true
 
-    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = providerResult {
-        val buffer = requireNotNull(snapshots.load(false).await().get())
-        try {
-            (0 until buffer.count).map { buffer.get(it).toMetadata() }
-        } finally {
-            buffer.release()
+    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = gameServicesResult { metadata() }
+
+    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = gameServicesResult {
+        operations.withLock {
+            val opened = try {
+                open(id, false)
+            } catch (error: ApiException) {
+                if (error.statusCode == GamesClientStatusCodes.SNAPSHOT_NOT_FOUND) return@withLock SavedGameReadResult.NotFound
+                throw error
+            }
+            try {
+                if (opened.isConflict) SavedGameReadResult.Conflict(requireNotNull(opened.conflict).toConflict())
+                else SavedGameReadResult.Loaded(requireNotNull(opened.data).toVersion())
+            } finally {
+                close(opened)
+            }
         }
     }
 
-    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = providerResult {
-        if (!contains(id)) return@providerResult SavedGameReadResult.NotFound
-        val result = open(id, false)
-        if (result.isConflict) {
-            SavedGameReadResult.Conflict(requireNotNull(result.conflict).toConflict())
-        } else {
-            val snapshot = requireNotNull(result.data)
-            SavedGameReadResult.Loaded(
-                SavedGameVersion(snapshot.metadata.toMetadata(), SavedGameData.of(snapshot.snapshotContents.readFully())),
-            )
-        }
-    }
-
-    override suspend fun write(
-        id: SavedGameId,
-        data: SavedGameData,
-    ): Result<SavedGameWriteResult> = providerResult {
-        val result = open(id, true)
-        if (result.isConflict) return@providerResult SavedGameWriteResult.Conflict(requireNotNull(result.conflict).toConflict())
-        val snapshot = requireNotNull(result.data)
-        snapshot.snapshotContents.writeBytes(data.copyBytes())
-        SavedGameWriteResult.Saved(
-            snapshots.commitAndClose(snapshot, SnapshotMetadataChange.Builder().build()).await().toMetadata(),
-        )
-    }
-
-    override suspend fun delete(id: SavedGameId): Result<Unit> = providerResult {
-        val result = open(id, false)
-        check(!result.isConflict) { "Saved game ${id.value} must be resolved before deletion" }
-        snapshots.delete(requireNotNull(result.data).metadata).await()
-    }
-
-    override suspend fun resolve(
-        conflictId: SavedGameConflictId,
-        data: SavedGameData,
-    ): Result<SavedGameWriteResult> = providerResult {
-        val conflict = requireNotNull(conflicts.remove(conflictId.value)) { "Unknown saved game conflict" }
-        val contents = conflict.resolutionSnapshotContents
-        contents.writeBytes(data.copyBytes())
-        val result = snapshots.resolveConflict(
-            conflictId.value,
-            conflict.snapshot.metadata.snapshotId,
-            SnapshotMetadataChange.Builder().build(),
-            contents,
-        ).await()
-        if (result.isConflict) {
-            SavedGameWriteResult.Conflict(requireNotNull(result.conflict).toConflict())
-        } else {
-            SavedGameWriteResult.Saved(requireNotNull(result.data).metadata.toMetadata())
-        }
-    }
-
-    override suspend fun showSavedGameSelection(): Result<SavedGameMetadata?> = providerResult {
-        selectionLauncher.launch(
-            snapshots.getSelectSnapshotIntent("Saved games", true, true, SnapshotsClient.DISPLAY_LIMIT_NONE).await(),
-        )
-        val result = selectionResults.receive()
-        if (result.resultCode != Activity.RESULT_OK) return@providerResult null
-        SnapshotsClient.getSnapshotFromBundle(requireNotNull(result.data?.extras))?.toMetadata()
-    }
-
-    private suspend fun open(
-        id: SavedGameId,
-        createIfNotFound: Boolean,
-    ): SnapshotsClient.DataOrConflict<Snapshot> =
-        snapshots.open(id.value, createIfNotFound, SnapshotsClient.RESOLUTION_POLICY_MANUAL).await()
-
-    private suspend fun contains(id: SavedGameId): Boolean {
-        val metadata = requireNotNull(snapshots.load(false).await().get())
-        try {
-            return (0 until metadata.count).any { metadata.get(it).uniqueName == id.value }
-        } finally {
-            metadata.release()
-        }
-    }
-
-    private fun SnapshotsClient.SnapshotConflict.toConflict(): SavedGameConflict {
-        conflicts[conflictId] = this
-        return SavedGameConflict(
-            id = SavedGameConflictId(conflictId),
-            versions = listOf(snapshot, conflictingSnapshot).map { version ->
-                SavedGameVersion(
-                    version.metadata.toMetadata(),
-                    SavedGameData.of(version.snapshotContents.readFully()),
+    override suspend fun write(id: SavedGameId, data: SavedGameData): Result<SavedGameWriteResult> = gameServicesResult {
+        operations.withLock {
+            id.requirePortableName()
+            val bytes = checkedBytes(data)
+            val opened = open(id, true)
+            try {
+                if (opened.isConflict) return@withLock SavedGameWriteResult.Conflict(requireNotNull(opened.conflict).toConflict())
+                val snapshot = requireNotNull(opened.data)
+                writeAndCommit(
+                    write = { withContext(Dispatchers.IO) { snapshot.snapshotContents.writeBytes(bytes) } },
+                    commit = {
+                        withContext(NonCancellable) {
+                            SavedGameWriteResult.Saved(snapshots.commitAndClose(snapshot, SnapshotMetadataChange.EMPTY_CHANGE)
+                                .awaitGameServices().toMetadata())
+                        }
+                    },
                 )
-            },
-        )
-    }
-
-    private fun SnapshotMetadata.toMetadata(): SavedGameMetadata = SavedGameMetadata(
-        id = SavedGameId(uniqueName),
-        name = uniqueName,
-    )
-}
-
-private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
-    addOnCompleteListener { task ->
-        if (continuation.isActive) {
-            if (task.isSuccessful) continuation.resume(task.result)
-            else continuation.resumeWith(Result.failure(task.exception ?: IllegalStateException("Play Games task failed")))
+            } finally {
+                close(opened)
+            }
         }
     }
-}
 
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.javaClass.name))
+    override suspend fun delete(id: SavedGameId): Result<Unit> = gameServicesResult {
+        operations.withLock {
+            val opened = open(id, false)
+            try {
+                check(!opened.isConflict) { "Read and resolve the saved game conflict before deletion" }
+                snapshots.delete(requireNotNull(opened.data).metadata).awaitGameServices()
+                conflicts.entries.removeAll { it.value == id }
+            } finally {
+                close(opened)
+            }
+        }
+    }
+
+    override suspend fun resolve(conflictId: SavedGameConflictId, data: SavedGameData): Result<SavedGameWriteResult> = gameServicesResult {
+        operations.withLock {
+            val id = requireNotNull(conflicts[conflictId.value]) { "Unknown conflict; read the saved game again" }
+            val bytes = checkedBytes(data)
+            val opened = open(id, false)
+            try {
+                check(opened.isConflict) { "Conflict is no longer current; read the saved game again" }
+                val conflict = requireNotNull(opened.conflict)
+                if (conflict.conflictId != conflictId.value) {
+                    return@withLock SavedGameWriteResult.Conflict(conflict.toConflict())
+                }
+                withContext(NonCancellable) {
+                    val resolved = writeAndCommit(
+                        write = { withContext(Dispatchers.IO) { conflict.resolutionSnapshotContents.writeBytes(bytes) } },
+                        commit = {
+                            snapshots.resolveConflict(conflict.conflictId, conflict.snapshot.metadata.snapshotId,
+                                SnapshotMetadataChange.EMPTY_CHANGE, conflict.resolutionSnapshotContents)
+                                .awaitGameServices(::discard)
+                        },
+                    )
+                    try {
+                        if (resolved.isConflict) SavedGameWriteResult.Conflict(requireNotNull(resolved.conflict).toConflict())
+                        else SavedGameWriteResult.Saved(requireNotNull(resolved.data).metadata.toMetadata()).also {
+                            conflicts.remove(conflictId.value)
+                        }
+                    } finally {
+                        close(resolved)
+                    }
+                }
+            } finally {
+                close(opened)
+            }
+        }
+    }
+
+    override suspend fun showSavedGameSelection(): Result<SavedGameMetadata?> = gameServicesResult {
+        val intent = snapshots.getSelectSnapshotIntent("Saved games", false, true, SnapshotsClient.DISPLAY_LIMIT_NONE).awaitGameServices()
+        val result = withContext(Dispatchers.Main.immediate) { selection.launchAndAwait { selectionLauncher(intent) } }
+        if (result.resultCode != Activity.RESULT_OK) null
+        else result.data?.extras?.let(SnapshotsClient::getSnapshotFromBundle)?.toMetadata()
+    }
+
+    private suspend fun metadata(): List<SavedGameMetadata> {
+        val buffer = requireNotNull(snapshots.load(false).awaitGameServices { it.get()?.release() }.get())
+        return try { (0 until buffer.count).map { buffer.get(it).toMetadata() } } finally { buffer.release() }
+    }
+
+    private suspend fun checkedBytes(data: SavedGameData): ByteArray {
+        val maximum = maxDataSize ?: snapshots.maxDataSize.awaitGameServices().also { maxDataSize = it }
+        return data.copyBytes().also { require(it.size <= maximum) { "Saved game exceeds the provider limit of $maximum bytes" } }
+    }
+
+    private suspend fun open(id: SavedGameId, create: Boolean): SnapshotsClient.DataOrConflict<Snapshot> {
+        id.requirePortableName()
+        return snapshots.open(id.value, create, SnapshotsClient.RESOLUTION_POLICY_MANUAL).awaitGameServices(::discard)
+    }
+
+    private fun SnapshotsClient.DataOrConflict<Snapshot>.versions(): List<Snapshot> =
+        if (isConflict) requireNotNull(conflict).let { listOf(it.snapshot, it.conflictingSnapshot) }
+        else listOfNotNull(data)
+
+    private fun discard(opened: SnapshotsClient.DataOrConflict<Snapshot>) {
+        opened.versions().filterNot { it.snapshotContents.isClosed }.forEach { snapshot ->
+            runCatching { snapshots.discardAndClose(snapshot) }
+        }
+        runCatching { opened.closeResolutionContents() }
+    }
+
+    private suspend fun close(opened: SnapshotsClient.DataOrConflict<Snapshot>) = withContext(NonCancellable) {
+        var failure: Exception? = null
+        for (snapshot in opened.versions().filterNot { it.snapshotContents.isClosed }) {
+            try {
+                snapshots.discardAndClose(snapshot).awaitGameServices()
+            } catch (error: Exception) {
+                if (failure == null) failure = error else failure.addSuppressed(error)
+            }
+        }
+        try {
+            opened.closeResolutionContents()
+        } catch (error: Exception) {
+            if (failure == null) failure = error else failure.addSuppressed(error)
+        }
+        failure?.let { throw it }
+    }
+
+    private fun SnapshotsClient.DataOrConflict<Snapshot>.closeResolutionContents() {
+        if (isConflict) conflict?.resolutionSnapshotContents?.let { contents ->
+            if (!contents.isClosed) contents.parcelFileDescriptor.close()
+        }
+    }
+
+    private suspend fun Snapshot.toVersion(): SavedGameVersion = SavedGameVersion(metadata.toMetadata(),
+        withContext(Dispatchers.IO) { SavedGameData.of(snapshotContents.readFully()) })
+
+    private suspend fun SnapshotsClient.SnapshotConflict.toConflict(): SavedGameConflict {
+        val id = SavedGameId(snapshot.metadata.uniqueName)
+        val versions = listOf(snapshot.toVersion(), conflictingSnapshot.toVersion())
+        conflicts.entries.removeAll { it.value == id }
+        conflicts[conflictId] = id
+        return SavedGameConflict(SavedGameConflictId(conflictId), versions)
+    }
+
+    private fun SnapshotMetadata.toMetadata(): SavedGameMetadata = SavedGameMetadata(SavedGameId(uniqueName), uniqueName)
 }

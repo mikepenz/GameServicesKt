@@ -1,103 +1,55 @@
+@file:OptIn(InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices
 
 import androidx.activity.ComponentActivity
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.CommonStatusCodes
-import com.google.android.gms.games.GamesClientStatusCodes
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
-import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 public fun createGameServices(activity: ComponentActivity): GameServices {
     PlayGamesSdk.initialize(activity.applicationContext)
     return AndroidGameServices(activity)
 }
 
-private class AndroidGameServices(
-    private val activity: ComponentActivity,
-) : GameServices {
-    override val support: GameServicesSupport = GameServicesSupport(
-        target = GameServicesPlatform.Android,
-        provider = GameServicesProvider.GooglePlayGames,
-        isSupported = true,
+private class AndroidGameServices(private val activity: ComponentActivity) : GameServices {
+    override val support = GameServicesSupport(GameServicesPlatform.Android, GameServicesProvider.GooglePlayGames, true)
+    private val state = MutableStateFlow<AuthenticationState>(AuthenticationState.Unauthenticated)
+    override val authenticationState: StateFlow<AuthenticationState> = state
+    private val authentication = Mutex()
+
+    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = authenticate(explicit = false)
+
+    override suspend fun authenticate(): Result<PlayerIdentity> = authenticate(explicit = true).fold(
+        onSuccess = { it?.let(Result.Companion::success) ?: Result.failure(GameServicesException.AuthenticationRequired) },
+        onFailure = Result.Companion::failure,
     )
-    private val mutableAuthenticationState: MutableStateFlow<AuthenticationState> = MutableStateFlow(
-        AuthenticationState.Unauthenticated,
-    )
-    override val authenticationState: StateFlow<AuthenticationState> = mutableAuthenticationState
 
-    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = try {
-        mutableAuthenticationState.value = AuthenticationState.Authenticating
-        val signInClient = PlayGames.getGamesSignInClient(activity)
-        val authentication = signInClient.isAuthenticated().awaitResult()
-            .getOrElse { return authenticationFailed(it) }
-        if (!authentication.isAuthenticated) {
-            mutableAuthenticationState.value = AuthenticationState.Unauthenticated
-            return Result.success(null)
-        }
-        currentPlayer()
-    } catch (cancellation: CancellationException) {
-        mutableAuthenticationState.value = AuthenticationState.Unauthenticated
-        throw cancellation
-    }
-
-    override suspend fun authenticate(): Result<PlayerIdentity> = try {
-        refreshAuthentication().getOrElse { return Result.failure(it) }
-            ?.let { return Result.success(it) }
-        mutableAuthenticationState.value = AuthenticationState.Authenticating
-        val authentication = PlayGames.getGamesSignInClient(activity).signIn().awaitResult()
-            .getOrElse { return authenticationFailed(it) }
-        if (!authentication.isAuthenticated) {
-            return authenticationFailed(GameServicesException.AuthenticationRequired)
-        }
-        currentPlayer()
-    } catch (cancellation: CancellationException) {
-        mutableAuthenticationState.value = AuthenticationState.Unauthenticated
-        throw cancellation
-    }
-
-    private suspend fun currentPlayer(): Result<PlayerIdentity> {
-        val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitResult()
-            .getOrElse { return authenticationFailed(it) }
-        return PlayerIdentity(PlayerId(player.playerId), player.displayName)
-            .also { mutableAuthenticationState.value = AuthenticationState.Authenticated(it) }
-            .let(Result.Companion::success)
-    }
-
-    private fun <T> authenticationFailed(throwable: Throwable): Result<T> {
-        mutableAuthenticationState.value = AuthenticationState.Unauthenticated
-        return Result.failure(throwable as? GameServicesException ?: throwable.toGameServicesException())
-    }
-}
-
-private suspend fun <T> Task<T>.awaitResult(): Result<T> = suspendCancellableCoroutine { continuation ->
-    addOnCompleteListener { task ->
-        if (continuation.isActive) {
-            continuation.resume(task.toResult())
+    private suspend fun authenticate(explicit: Boolean): Result<PlayerIdentity?> = withContext(Dispatchers.Main.immediate) {
+        authentication.withLock {
+            state.value = AuthenticationState.Authenticating
+            try {
+                gameServicesResult {
+                    val client = PlayGames.getGamesSignInClient(activity)
+                    var signedIn = client.isAuthenticated().awaitGameServices().isAuthenticated
+                    if (!signedIn && explicit) signedIn = client.signIn().awaitGameServices().isAuthenticated
+                    if (!signedIn) null else {
+                        val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitGameServices()
+                        PlayerIdentity(PlayerId(player.playerId), player.displayName)
+                    }
+                }.also { result ->
+                    state.value = result.getOrNull()?.let(AuthenticationState::Authenticated) ?: AuthenticationState.Unauthenticated
+                }
+            } catch (cancellation: CancellationException) {
+                state.value = AuthenticationState.Unauthenticated
+                throw cancellation
+            }
         }
     }
-}
-
-private fun <T> Task<T>.toResult(): Result<T> = if (isSuccessful) {
-    Result.success(result)
-} else {
-    Result.failure(exception ?: IllegalStateException("Play Games task failed without an exception"))
-}
-
-private fun Throwable.toGameServicesException(): GameServicesException = when (this) {
-    is ApiException if statusCode == CommonStatusCodes.CANCELED -> GameServicesException.UserCancelled
-    is ApiException if statusCode == GamesClientStatusCodes.SIGN_IN_REQUIRED -> GameServicesException.AuthenticationRequired
-    is ApiException -> GameServicesException.ProviderFailure(
-        provider = GameServicesProvider.GooglePlayGames,
-        code = statusCode.toString(),
-    )
-    else -> GameServicesException.ProviderFailure(
-        provider = GameServicesProvider.GooglePlayGames,
-        code = javaClass.name,
-    )
 }

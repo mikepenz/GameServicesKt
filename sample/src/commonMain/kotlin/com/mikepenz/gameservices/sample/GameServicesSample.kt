@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -16,14 +17,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.mikepenz.gameservices.AuthenticationState
 import com.mikepenz.gameservices.GameServices
 import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.achievements.Achievement
@@ -32,16 +39,21 @@ import com.mikepenz.gameservices.achievements.AchievementProgress
 import com.mikepenz.gameservices.achievements.AchievementsClient
 import com.mikepenz.gameservices.leaderboards.Leaderboard
 import com.mikepenz.gameservices.leaderboards.LeaderboardId
+import com.mikepenz.gameservices.leaderboards.LeaderboardPeriod
+import com.mikepenz.gameservices.leaderboards.LeaderboardQuery
+import com.mikepenz.gameservices.leaderboards.LeaderboardScope
 import com.mikepenz.gameservices.leaderboards.LeaderboardsClient
+import com.mikepenz.gameservices.savedgames.SavedGameConflict
 import com.mikepenz.gameservices.savedgames.SavedGameConflictId
 import com.mikepenz.gameservices.savedgames.SavedGameData
 import com.mikepenz.gameservices.savedgames.SavedGameId
 import com.mikepenz.gameservices.savedgames.SavedGameReadResult
+import com.mikepenz.gameservices.savedgames.SavedGameWriteResult
 import com.mikepenz.gameservices.savedgames.SavedGamesClient
 import com.mikepenz.gameservices.social.AvatarBytes
 import com.mikepenz.gameservices.social.FriendsAccessState
 import com.mikepenz.gameservices.social.SocialClient
-import coil3.compose.AsyncImage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 public enum class SampleAction {
@@ -79,57 +91,122 @@ public fun GameServicesSampleApp(
     sample: GameServicesSample,
     modifier: Modifier = Modifier,
 ) {
-    var state by remember(sample) {
+    var state by rememberSaveable(sample, stateSaver = SampleScreenState.Saver) {
         mutableStateOf(
             SampleScreenState(status = "${sample.services.support.provider}; enter configured IDs before testing."),
         )
     }
     val scope = rememberCoroutineScope()
+    val authentication by sample.services.authenticationState.collectAsState()
+    LaunchedEffect(sample) {
+        if (sample.services.support.isSupported) {
+            state = state.copy(busy = true)
+            try {
+                val result = sample.services.refreshAuthentication()
+                state = state.copy(status = result.message("Authentication refresh"))
+            } finally {
+                state = state.copy(busy = false)
+            }
+        }
+    }
+    LaunchedEffect(authentication) {
+        val player = (authentication as? AuthenticationState.Authenticated)?.player
+        state = state.copy(
+            currentPlayerId = player?.id?.value.orEmpty(),
+            playerId = if (state.playerId.isEmpty() || state.playerId == state.currentPlayerId) player?.id?.value.orEmpty() else state.playerId,
+            avatar = if (player?.id?.value == state.currentPlayerId) state.avatar else null,
+        )
+    }
     GameServicesSampleContent(
         state = state,
         availableActions = sample.availableActions(),
         onFieldChange = { field, value -> state = state.update(field, value) },
         onAction = { operation ->
-            scope.launch {
-                when (operation) {
-                    SampleOperation.Authenticate -> sample.services.authenticate().fold(
-                        onSuccess = { player ->
-                            state = state.copy(
-                                playerId = player.id.value,
-                                currentPlayerId = player.id.value,
-                                status = "Authentication: $player",
+            if (state.isValid(operation)) {
+                val input = state
+                state = state.copy(busy = true, status = "${operation.label}…")
+                scope.launch {
+                    try {
+                        when (operation) {
+                            SampleOperation.Authenticate -> sample.services.authenticate().fold(
+                                onSuccess = { player ->
+                                    state = state.copy(
+                                        playerId = player.id.value,
+                                        currentPlayerId = player.id.value,
+                                        status = "Authentication: $player",
+                                    )
+                                },
+                                onFailure = { state = state.copy(status = "Authentication failed: ${it.message}") },
                             )
-                        },
-                        onFailure = { state = state.copy(status = "Authentication failed: ${it.message}") },
-                    )
-                    SampleOperation.LoadAchievements -> sample.achievements.loadAchievements(forceReload = true).fold(
-                        onSuccess = { achievements ->
-                            state = state.copy(
-                                achievements = achievements,
-                                status = "Loaded ${achievements.size} achievements; choose one to fill its ID.",
+                            SampleOperation.LoadAchievements -> sample.achievements.loadAchievements(forceReload = true).fold(
+                                onSuccess = { achievements ->
+                                    state = state.copy(
+                                        achievements = achievements,
+                                        status = "Loaded ${achievements.size} achievements; choose one to fill its ID.",
+                                    )
+                                },
+                                onFailure = { state = state.copy(status = "Load achievements failed: ${it.message}") },
                             )
-                        },
-                        onFailure = { state = state.copy(status = "Load achievements failed: ${it.message}") },
-                    )
-                    SampleOperation.LoadLeaderboards -> sample.leaderboards.loadLeaderboards().fold(
-                        onSuccess = { leaderboards ->
-                            state = state.copy(
-                                leaderboards = leaderboards,
-                                status = "Loaded ${leaderboards.size} leaderboards; choose one to fill its ID.",
+                            SampleOperation.LoadLeaderboards -> sample.leaderboards.loadLeaderboards().fold(
+                                onSuccess = { leaderboards ->
+                                    state = state.copy(
+                                        leaderboards = leaderboards,
+                                        status = "Loaded ${leaderboards.size} leaderboards; choose one to fill its ID.",
+                                    )
+                                },
+                                onFailure = { state = state.copy(status = "Load leaderboards failed: ${it.message}") },
                             )
-                        },
-                        onFailure = { state = state.copy(status = "Load leaderboards failed: ${it.message}") },
-                    )
-                    SampleOperation.LoadAvatar -> sample.social.loadAvatar(PlayerId(state.playerId)).fold(
-                        onSuccess = { avatar ->
-                            state = state.copy(
-                                avatar = avatar,
-                                status = if (avatar == null) "Avatar: unavailable" else "Avatar loaded",
+                            SampleOperation.LoadAvatar -> sample.social.loadAvatar(PlayerId(input.playerId)).fold(
+                                onSuccess = { avatar ->
+                                    state = state.copy(
+                                        avatar = avatar,
+                                        status = if (avatar == null) "Avatar: unavailable" else "Avatar loaded",
+                                    )
+                                },
+                                onFailure = { state = state.copy(status = "Load avatar failed: ${it.message}") },
                             )
-                        },
-                        onFailure = { state = state.copy(status = "Load avatar failed: ${it.message}") },
-                    )
-                    else -> state = state.copy(status = execute(sample, state, operation))
+                            SampleOperation.ReadSavedGame -> {
+                                val result = sample.savedGames.read(SavedGameId(input.saveId))
+                                state = result.fold(
+                                    onSuccess = { read -> when (read) {
+                                        SavedGameReadResult.NotFound -> state.copy(status = "Saved game not found", conflictVersions = emptyList(), conflictId = "")
+                                        is SavedGameReadResult.Loaded -> state.copy(status = "Saved game loaded", saveData = read.version.data.copyBytes().decodeToString(), conflictVersions = emptyList(), conflictId = "")
+                                        is SavedGameReadResult.Conflict -> state.withConflict(read.conflict)
+                                    } },
+                                    onFailure = { state.copy(status = "Read failed: ${it.message}") },
+                                )
+                            }
+                            SampleOperation.WriteSavedGame, SampleOperation.ResolveConflict -> {
+                                val data = SavedGameData.of(input.saveData.encodeToByteArray())
+                                val result = if (operation == SampleOperation.WriteSavedGame) sample.savedGames.write(SavedGameId(input.saveId), data)
+                                    else sample.savedGames.resolve(SavedGameConflictId(input.conflictId), data)
+                                state = result.fold(
+                                    onSuccess = { write -> when (write) {
+                                        is SavedGameWriteResult.Saved -> state.copy(status = "Saved ${write.metadata.name}", conflictVersions = emptyList(), conflictId = "")
+                                        is SavedGameWriteResult.Conflict -> state.withConflict(write.conflict)
+                                    } },
+                                    onFailure = { state.copy(status = "Save failed: ${it.message}") },
+                                )
+                            }
+                            SampleOperation.SelectSavedGame -> {
+                                val result = sample.savedGames.showSavedGameSelection()
+                                state = result.fold(
+                                    onSuccess = { selected -> state.copy(saveId = selected?.id?.value ?: state.saveId, status = selected?.name ?: "Selection cancelled") },
+                                    onFailure = { state.copy(status = "Selection failed: ${it.message}") },
+                                )
+                            }
+                            else -> {
+                                val message = execute(sample, input, operation)
+                                state = state.copy(status = message)
+                            }
+                        }
+                    } catch (cancellation: CancellationException) {
+                        throw cancellation
+                    } catch (error: Exception) {
+                        state = state.copy(status = "${operation.label} failed: ${error.message}")
+                    } finally {
+                        state = state.copy(busy = false)
+                    }
                 }
             }
         },
@@ -144,6 +221,11 @@ internal enum class SampleField {
     AchievementProgress,
     LeaderboardId,
     Score,
+    StartRank,
+    Limit,
+    Scope,
+    Period,
+    SaveData,
     SaveId,
     ConflictId,
     PlayerId,
@@ -161,6 +243,8 @@ internal enum class SampleOperation(
     ShowLeaderboards("Show leaderboards", SampleAction.Leaderboards),
     ShowLeaderboard("Show leaderboard", SampleAction.Leaderboards),
     SubmitScore("Submit score", SampleAction.Leaderboards),
+    LoadScores("Load scores", SampleAction.Leaderboards),
+    LoadCurrentScore("Load my score", SampleAction.Leaderboards),
     ListSavedGames("List saved games", SampleAction.SavedGames),
     WriteSavedGame("Write saved game", SampleAction.SavedGames),
     ReadSavedGame("Read saved game", SampleAction.SavedGames),
@@ -175,12 +259,19 @@ internal enum class SampleOperation(
 
 internal data class SampleScreenState(
     val status: String = "Ready",
+    val busy: Boolean = false,
     val achievementId: String = "",
     val achievementProgress: String = "100",
     val achievements: List<Achievement> = emptyList(),
     val leaderboardId: String = "",
     val leaderboards: List<Leaderboard> = emptyList(),
     val score: String = "",
+    val startRank: String = "1",
+    val limit: String = "25",
+    val scope: LeaderboardScope = LeaderboardScope.Global,
+    val period: LeaderboardPeriod = LeaderboardPeriod.AllTime,
+    val saveData: String = "sample",
+    val conflictVersions: List<String> = emptyList(),
     val saveId: String = "",
     val conflictId: String = "",
     val playerId: String = "",
@@ -192,24 +283,47 @@ internal data class SampleScreenState(
         SampleField.AchievementProgress -> copy(achievementProgress = value)
         SampleField.LeaderboardId -> copy(leaderboardId = value)
         SampleField.Score -> copy(score = value)
+        SampleField.StartRank -> copy(startRank = value)
+        SampleField.Limit -> copy(limit = value)
+        SampleField.Scope -> copy(scope = LeaderboardScope.valueOf(value))
+        SampleField.Period -> copy(period = LeaderboardPeriod.valueOf(value))
+        SampleField.SaveData -> copy(saveData = value)
         SampleField.SaveId -> copy(saveId = value)
         SampleField.ConflictId -> copy(conflictId = value)
         SampleField.PlayerId -> copy(playerId = value)
     }
 
-    fun isValid(operation: SampleOperation): Boolean = when (operation) {
+    fun isValid(operation: SampleOperation): Boolean = !busy && when (operation) {
         SampleOperation.ReportAchievement -> achievementId.isNotBlank() && achievementProgress.toIntOrNull() in 0..100
-        SampleOperation.ShowLeaderboard -> leaderboardId.isNotBlank()
+        SampleOperation.ShowLeaderboard, SampleOperation.LoadCurrentScore -> leaderboardId.isNotBlank()
+        SampleOperation.LoadScores -> leaderboardId.isNotBlank() && startRank.toIntOrNull() in 1..1000 && limit.toIntOrNull() in 1..25
         SampleOperation.SubmitScore -> leaderboardId.isNotBlank() && score.toLongOrNull() != null
         SampleOperation.WriteSavedGame,
         SampleOperation.ReadSavedGame,
         SampleOperation.DeleteSavedGame,
-        -> saveId.isNotBlank()
+        -> saveId.length in 1..100 && saveId.all { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it in "-._~" }
         SampleOperation.ResolveConflict -> conflictId.isNotBlank()
         SampleOperation.LoadAvatar -> playerId.isNotBlank()
         SampleOperation.ShowPlayerProfile -> playerId.isNotBlank() && playerId != currentPlayerId
         else -> true
     }
+
+    fun withConflict(conflict: SavedGameConflict): SampleScreenState = copy(
+        status = "Choose a conflict version or edit the saved data before resolving",
+        conflictId = conflict.id.value,
+        conflictVersions = conflict.versions.map { it.data.copyBytes().decodeToString() },
+    )
+
+    companion object {
+        val Saver = listSaver<SampleScreenState, String>(
+            save = { listOf(it.achievementId, it.achievementProgress, it.leaderboardId, it.score,
+                it.saveId, it.playerId, it.startRank, it.limit, it.scope.name, it.period.name, it.saveData) },
+            restore = { SampleScreenState(achievementId = it[0], achievementProgress = it[1], leaderboardId = it[2],
+                score = it[3], saveId = it[4], playerId = it[5], startRank = it[6], limit = it[7],
+                scope = LeaderboardScope.valueOf(it[8]), period = LeaderboardPeriod.valueOf(it[9]), saveData = it[10]) },
+        )
+    }
+
 }
 
 @Composable
@@ -242,10 +356,11 @@ internal fun GameServicesSampleContent(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(state.status, style = MaterialTheme.typography.bodyLarge)
+                Text(state.status, style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.heightIn(max = 160.dp).verticalScroll(rememberScrollState()))
                 state.avatar?.let { avatar ->
                     AsyncImage(
-                        model = avatar.copyBytes(),
+                        model = remember(avatar) { avatar.copyBytes() },
                         contentDescription = "Player avatar",
                         modifier = Modifier.size(96.dp),
                     )
@@ -291,9 +406,25 @@ internal fun GameServicesSampleContent(
                     SampleOperation.ShowLeaderboards.button(state, availableActions, onAction)
                     SampleOperation.ShowLeaderboard.button(state, availableActions, onAction)
                     SampleOperation.SubmitScore.button(state, availableActions, onAction)
+                    SampleField.StartRank.input("Start rank (1-1000)", state.startRank, onFieldChange, KeyboardType.Number)
+                    SampleField.Limit.input("Entry limit (1-25)", state.limit, onFieldChange, KeyboardType.Number)
+                    Button(onClick = { onFieldChange(SampleField.Scope, LeaderboardScope.entries[(state.scope.ordinal + 1) % LeaderboardScope.entries.size].name) }) {
+                        Text("Scope: ${state.scope}")
+                    }
+                    Button(onClick = { onFieldChange(SampleField.Period, LeaderboardPeriod.entries[(state.period.ordinal + 1) % LeaderboardPeriod.entries.size].name) }) {
+                        Text("Period: ${state.period}")
+                    }
+                    SampleOperation.LoadScores.button(state, availableActions, onAction)
+                    SampleOperation.LoadCurrentScore.button(state, availableActions, onAction)
 
                     SampleField.SaveId.input("Saved game ID", state.saveId, onFieldChange)
+                    SampleField.SaveData.input("Saved data (UTF-8)", state.saveData, onFieldChange)
                     SampleField.ConflictId.input("Conflict ID", state.conflictId, onFieldChange)
+                    state.conflictVersions.forEachIndexed { index, data ->
+                        Button(onClick = { onFieldChange(SampleField.SaveData, data) }, enabled = !state.busy) {
+                            Text("Use version ${index + 1}: $data")
+                        }
+                    }
                     SampleOperation.ListSavedGames.button(state, availableActions, onAction)
                     SampleOperation.WriteSavedGame.button(state, availableActions, onAction)
                     SampleOperation.ReadSavedGame.button(state, availableActions, onAction)
@@ -365,26 +496,18 @@ private suspend fun execute(
         LeaderboardId(state.leaderboardId),
         requireNotNull(state.score.toLongOrNull()),
     ).message("Score")
+    SampleOperation.LoadScores -> sample.leaderboards.loadScores(
+        LeaderboardId(state.leaderboardId), LeaderboardQuery(state.scope, state.period, state.startRank.toInt(), state.limit.toInt()),
+    ).message("Scores")
+    SampleOperation.LoadCurrentScore -> sample.leaderboards.loadCurrentPlayerScore(
+        LeaderboardId(state.leaderboardId), state.scope, state.period,
+    ).message("My score")
     SampleOperation.ListSavedGames -> sample.savedGames.listSavedGames().message("Saved games")
-    SampleOperation.WriteSavedGame -> sample.savedGames.write(
-        SavedGameId(state.saveId),
-        SavedGameData.of("sample".encodeToByteArray()),
-    ).message("Saved game")
-    SampleOperation.ReadSavedGame -> sample.savedGames.read(SavedGameId(state.saveId)).message()
+    SampleOperation.WriteSavedGame, SampleOperation.ReadSavedGame, SampleOperation.ResolveConflict,
+    SampleOperation.SelectSavedGame -> error("Handled before execute")
     SampleOperation.DeleteSavedGame -> sample.savedGames.delete(SavedGameId(state.saveId)).message("Saved game")
-    SampleOperation.ResolveConflict -> sample.savedGames.resolve(
-        SavedGameConflictId(state.conflictId),
-        SavedGameData.of("sample".encodeToByteArray()),
-    ).message("Conflict")
-    SampleOperation.SelectSavedGame -> sample.savedGames.showSavedGameSelection().message("Selected saved game")
     SampleOperation.RequestFriendsAccess -> sample.social.requestFriendsAccess().message("Friends access")
-    SampleOperation.LoadFriends -> sample.social.requestFriendsAccess().fold(
-        onSuccess = { access ->
-            if (access == FriendsAccessState.Granted) sample.social.loadFriends().message("Friends")
-            else "Friends access: $access"
-        },
-        onFailure = { "Friends failed: ${it.message}" },
-    )
+    SampleOperation.LoadFriends -> sample.social.loadFriends().message("Friends")
     SampleOperation.LoadAvatar -> error("Handled before execute")
     SampleOperation.ShowPlayerProfile -> sample.social.showPlayerProfile(
         PlayerId(state.playerId),
@@ -394,18 +517,4 @@ private suspend fun execute(
 private fun <T> Result<T>.message(action: String): String = fold(
     onSuccess = { "$action: $it" },
     onFailure = { "$action failed: ${it.message}" },
-)
-
-private fun Result<SavedGameReadResult>.message(): String = fold(
-    onSuccess = { result ->
-        when (result) {
-            SavedGameReadResult.NotFound -> "Saved game: not found"
-            is SavedGameReadResult.Loaded -> """
-                Saved game: ${result.version.metadata.name}
-                ${result.version.data.copyBytes().decodeToString()}
-            """.trimIndent()
-            is SavedGameReadResult.Conflict -> "Saved game conflict: ${result.conflict.id.value}"
-        }
-    },
-    onFailure = { "Saved game failed: ${it.message}" },
 )

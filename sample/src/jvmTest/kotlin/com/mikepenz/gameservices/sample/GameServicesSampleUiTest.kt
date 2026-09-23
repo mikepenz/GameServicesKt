@@ -5,14 +5,15 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.mikepenz.gameservices.achievements.Achievement
 import com.mikepenz.gameservices.achievements.AchievementId
 import com.mikepenz.gameservices.achievements.AchievementState
 import com.mikepenz.gameservices.leaderboards.Leaderboard
 import com.mikepenz.gameservices.leaderboards.LeaderboardId
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class GameServicesSampleUiTest {
@@ -83,5 +84,33 @@ class GameServicesSampleUiTest {
         onNodeWithText("Test achievement (test-id)").performClick()
 
         assertEquals("test-id", selectedId)
+    }
+    @Test
+    fun `pending operations disable provider actions`() = runComposeUiTest {
+        setContent {
+            GameServicesSampleContent(
+                state = SampleScreenState(busy = true, leaderboardId = "scores"),
+                availableActions = SampleAction.entries.toSet(),
+                onFieldChange = { _, _ -> }, onAction = {}, onLeaderboardSelected = {}, onAchievementSelected = {},
+            )
+        }
+        onNodeWithText("Authenticate").assertIsNotEnabled()
+        onNodeWithText("Load scores").assertIsNotEnabled()
+        onNodeWithText("Load my score").assertIsNotEnabled()
+    }
+
+    @Test
+    fun `conflict version fills editable save data`() = runComposeUiTest {
+        var chosen = ""
+        setContent {
+            GameServicesSampleContent(
+                state = SampleScreenState(conflictId = "conflict", conflictVersions = listOf("first", "second")),
+                availableActions = setOf(SampleAction.SavedGames),
+                onFieldChange = { field, value -> if (field == SampleField.SaveData) chosen = value },
+                onAction = {}, onLeaderboardSelected = {}, onAchievementSelected = {},
+            )
+        }
+        onNodeWithText("Use version 2: second").performScrollTo().performClick()
+        assertEquals("second", chosen)
     }
 }

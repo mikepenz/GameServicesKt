@@ -1,35 +1,36 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.social
 
 import com.mikepenz.gameservices.GameServicesException
-import com.mikepenz.gameservices.GameServicesProvider
 import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.PlayerIdentity
+import com.mikepenz.gameservices.gameServicesResult
+import com.mikepenz.gameservices.toGameServicesException
+import kotlin.coroutines.resume
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.Foundation.NSError
+import kotlinx.coroutines.withContext
 import platform.GameKit.GKFriendsAuthorizationStatusAuthorized
 import platform.GameKit.GKFriendsAuthorizationStatusDenied
 import platform.GameKit.GKFriendsAuthorizationStatusNotDetermined
 import platform.GameKit.GKFriendsAuthorizationStatusRestricted
-import platform.GameKit.GKGameCenterViewController
 import platform.GameKit.GKGameCenterControllerDelegateProtocol
+import platform.GameKit.GKGameCenterViewController
 import platform.GameKit.GKLocalPlayer
-import platform.GameKit.GKPlayer
 import platform.GameKit.GKPhotoSizeNormal
+import platform.GameKit.GKPlayer
 import platform.GameKit.loadFriends
 import platform.GameKit.loadFriendsAuthorizationStatus
 import platform.GameKit.loadPhotoForSize
-import platform.GameKit.setGameCenterDelegate
+import platform.GameKit.loadPlayersForIdentifiers
 import platform.UIKit.UIImagePNGRepresentation
 import platform.UIKit.UIViewController
-import platform.darwin.dispatch_async
-import platform.darwin.dispatch_get_main_queue
-import kotlin.coroutines.resume
 import platform.darwin.NSObject
 import platform.posix.memcpy
 
@@ -47,9 +48,9 @@ private class IosSocialClient(
     override val isSupported: Boolean = true
     override val friendsAccessState: StateFlow<FriendsAccessState> = mutableFriendsAccessState
 
-    override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = providerResult {
+    override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = gameServicesResult {
         when (authorizationStatus()) {
-            FriendsAccessState.Granted -> loadFriendsInternal().let { FriendsAccessState.Granted }
+            FriendsAccessState.Granted -> FriendsAccessState.Granted
             FriendsAccessState.ConsentRequired -> loadFriendsInternal().let { FriendsAccessState.Granted }
             FriendsAccessState.Denied -> FriendsAccessState.Denied
             FriendsAccessState.Restricted -> FriendsAccessState.Restricted
@@ -57,7 +58,7 @@ private class IosSocialClient(
         }.also { mutableFriendsAccessState.value = it }
     }
 
-    override suspend fun loadFriends(): Result<List<PlayerProfile>> = providerResult {
+    override suspend fun loadFriends(): Result<List<PlayerProfile>> = gameServicesResult {
         val state = authorizationStatus()
         mutableFriendsAccessState.value = state
         when (state) {
@@ -70,20 +71,28 @@ private class IosSocialClient(
         }
     }
 
-    override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = providerResult {
-        val profile = playerFor(playerId) ?: return@providerResult null
-        AvatarBytes.of(requireNotNull(UIImagePNGRepresentation(profile.loadPhotoForSize(GKPhotoSizeNormal))).toByteArray())
+    override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = gameServicesResult {
+        val profile = playerFor(playerId) ?: return@gameServicesResult null
+        val photo = profile.loadPhotoForSize(GKPhotoSizeNormal) ?: return@gameServicesResult null
+        withContext(Dispatchers.Default) { AvatarBytes.of(requireNotNull(UIImagePNGRepresentation(photo)).toByteArray()) }
     }
 
-    override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = providerResult {
+    override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = gameServicesResult {
         val profile = playerFor(playerId)
             ?: throw IllegalArgumentException("Unknown player ${playerId.value}")
         presentPlayerProfile(presentingViewController, gameCenterDelegate, profile)
     }
 
-    private suspend fun playerFor(playerId: PlayerId): GKPlayer? = when (playerId.value) {
-        player.gamePlayerID -> player
-        else -> loadFriendsInternal().firstOrNull { it.gamePlayerID == playerId.value }
+    private suspend fun playerFor(playerId: PlayerId): GKPlayer? {
+        if (playerId.value == player.gamePlayerID) return player
+        return suspendCancellableCoroutine { continuation ->
+            GKPlayer.loadPlayersForIdentifiers(listOf(playerId.value)) { players, error ->
+                if (continuation.isActive) {
+                    if (error != null) continuation.resumeWith(Result.failure(error.toGameServicesException()))
+                    else continuation.resume(players.orEmpty().filterIsInstance<GKPlayer>().firstOrNull())
+                }
+            }
+        }
     }
 
     private suspend fun authorizationStatus(): FriendsAccessState = suspendCancellableCoroutine { continuation ->
@@ -104,10 +113,10 @@ private class IosSocialClient(
         }
     }
 
-    private suspend fun GKPlayer.loadPhotoForSize(size: Long) = suspendCancellableCoroutine { continuation ->
+    private suspend fun GKPlayer.loadPhotoForSize(size: Long): platform.UIKit.UIImage? = suspendCancellableCoroutine { continuation ->
         loadPhotoForSize(size) { image, error ->
             if (continuation.isActive) {
-                if (error == null) continuation.resume(requireNotNull(image))
+                if (error == null) continuation.resume(image)
                 else continuation.resumeWith(Result.failure(error.toGameServicesException()))
             }
         }
@@ -126,28 +135,13 @@ private fun Long.toFriendsAccessState(): FriendsAccessState = when (this) {
     else -> FriendsAccessState.Unknown
 }
 
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, exception.toString()))
-}
-
-private fun NSError.toGameServicesException(): GameServicesException = GameServicesException.ProviderFailure(
-    provider = GameServicesProvider.GameCenter,
-    code = "$domain:$code",
-)
-
 private class GameCenterDelegate : NSObject(), GKGameCenterControllerDelegateProtocol {
     override fun gameCenterViewControllerDidFinish(gameCenterViewController: GKGameCenterViewController) {
         gameCenterViewController.dismissViewControllerAnimated(true, null)
     }
 }
 
-internal expect fun presentPlayerProfile(
+internal expect suspend fun presentPlayerProfile(
     presentingViewController: () -> UIViewController,
     delegate: GKGameCenterControllerDelegateProtocol,
     player: GKPlayer,

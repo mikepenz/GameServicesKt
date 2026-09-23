@@ -1,3 +1,5 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.social
 
 import android.app.Activity
@@ -7,33 +9,41 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.IntentSenderRequest
-import com.google.android.gms.common.api.ApiException
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.android.gms.common.data.DataBufferUtils
 import com.google.android.gms.common.images.ImageManager
 import com.google.android.gms.games.FriendsResolutionRequiredException
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.Player
 import com.google.android.gms.games.PlayerBuffer
 import com.google.android.gms.games.PlayersClient
-import com.google.android.gms.tasks.Task
 import com.mikepenz.gameservices.GameServicesException
-import com.mikepenz.gameservices.GameServicesProvider
 import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.PlayerIdentity
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.channels.Channel
+import com.mikepenz.gameservices.ProviderUiRequest
+import com.mikepenz.gameservices.awaitGameServices
+import com.mikepenz.gameservices.gameServicesResult
+import java.io.ByteArrayOutputStream
+import kotlin.coroutines.resume
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
-import java.io.ByteArrayOutputStream
-import kotlin.coroutines.resume
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 public fun createSocialClient(activity: ComponentActivity): SocialClient {
-    val consentResults = Channel<ActivityResult>(Channel.BUFFERED)
+    val consentResults = ProviderUiRequest<ActivityResult>()
     val consentLauncher = activity.registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-        consentResults.trySend(it)
+        consentResults.complete(it)
     }
+    activity.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) consentResults.close()
+    })
     val profileLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
     return AndroidSocialClient(
         players = PlayGames.getPlayersClient(activity),
@@ -47,40 +57,58 @@ public fun createSocialClient(activity: ComponentActivity): SocialClient {
 private class AndroidSocialClient(
     private val players: PlayersClient,
     private val images: ImageManager,
-    private val consentResults: Channel<ActivityResult>,
+    private val consentResults: ProviderUiRequest<ActivityResult>,
     private val launchConsent: (IntentSenderRequest) -> Unit,
     private val launchProfile: (android.content.Intent) -> Unit,
 ) : SocialClient {
+    private val friendsPaging = Mutex()
     private val mutableFriendsAccessState = MutableStateFlow(FriendsAccessState.Unknown)
     override val isSupported: Boolean = true
     override val friendsAccessState: StateFlow<FriendsAccessState> = mutableFriendsAccessState
 
-    override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = providerResult {
+    override suspend fun requestFriendsAccess(): Result<FriendsAccessState> = gameServicesResult {
         when (mutableFriendsAccessState.value) {
             FriendsAccessState.Denied,
             FriendsAccessState.Restricted,
-            -> return@providerResult mutableFriendsAccessState.value
+            -> return@gameServicesResult mutableFriendsAccessState.value
             else -> Unit
         }
         try {
-            loadFriendsBuffer().release()
+            friendsPaging.withLock { loadFriendsBuffer().release() }
             FriendsAccessState.Granted.also { mutableFriendsAccessState.value = it }
         } catch (exception: FriendsResolutionRequiredException) {
             mutableFriendsAccessState.value = FriendsAccessState.ConsentRequired
-            launchConsent(IntentSenderRequest.Builder(exception.resolution.intentSender).build())
-            if (consentResults.receive().resultCode != Activity.RESULT_OK) {
+            val result = withContext(Dispatchers.Main.immediate) {
+                consentResults.launchAndAwait { launchConsent(IntentSenderRequest.Builder(exception.resolution.intentSender).build()) }
+            }
+            if (result.resultCode != Activity.RESULT_OK) {
                 FriendsAccessState.Denied.also { mutableFriendsAccessState.value = it }
             } else {
-                loadFriendsBuffer().release()
+                friendsPaging.withLock { loadFriendsBuffer().release() }
                 FriendsAccessState.Granted.also { mutableFriendsAccessState.value = it }
             }
         }
     }
 
-    override suspend fun loadFriends(): Result<List<PlayerProfile>> = providerResult {
+    override suspend fun loadFriends(): Result<List<PlayerProfile>> = gameServicesResult {
         try {
-            loadFriendsBuffer().use { buffer ->
-                (0 until buffer.count).map { buffer.get(it).toProfile() }
+            friendsPaging.withLock {
+                var buffer = loadFriendsBuffer()
+                var first = true
+                try {
+                    collectFriends {
+                        if (!first) {
+                            val next = requireNotNull(players.loadMoreFriends(FRIENDS_PAGE_SIZE)
+                                .awaitGameServices { it.get()?.release() }.get())
+                            buffer.release()
+                            buffer = next
+                        }
+                        first = false
+                        FriendPage((0 until buffer.count).map { buffer.get(it).toProfile() }, DataBufferUtils.hasNextPage(buffer))
+                    }
+                } finally {
+                    buffer.release()
+                }
             }.also { mutableFriendsAccessState.value = FriendsAccessState.Granted }
         } catch (exception: FriendsResolutionRequiredException) {
             mutableFriendsAccessState.value = FriendsAccessState.ConsentRequired
@@ -88,39 +116,25 @@ private class AndroidSocialClient(
         }
     }
 
-    override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = providerResult {
-        val player = requireNotNull(players.loadPlayer(playerId.value, false).await().get())
-        val uri = player.hiResImageUri ?: player.iconImageUri ?: return@providerResult null
-        AvatarBytes.of(images.load(uri).toPng())
+    override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = gameServicesResult {
+        val player = requireNotNull(players.loadPlayer(playerId.value, false).awaitGameServices().get())
+        val uri = player.hiResImageUri ?: player.iconImageUri ?: return@gameServicesResult null
+        val drawable = withContext(Dispatchers.Main.immediate) { images.load(uri) }
+        withContext(Dispatchers.Default) { AvatarBytes.of(drawable.toPng()) }
     }
 
-    override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = providerResult {
-        launchProfile(players.getCompareProfileIntent(playerId.value).await())
+    override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = gameServicesResult {
+        withContext(Dispatchers.Main.immediate) { launchProfile(players.getCompareProfileIntent(playerId.value).awaitGameServices()) }
     }
 
-    private suspend fun loadFriendsBuffer(): PlayerBuffer = requireNotNull(players.loadFriends(FRIENDS_PAGE_SIZE, false).await().get())
+    private suspend fun loadFriendsBuffer(): PlayerBuffer = requireNotNull(players.loadFriends(FRIENDS_PAGE_SIZE, false).awaitGameServices { it.get()?.release() }.get())
 
     private fun Player.toProfile(): PlayerProfile = PlayerProfile(
         PlayerIdentity(PlayerId(playerId), displayName),
     )
 
-    private inline fun PlayerBuffer.use(block: (PlayerBuffer) -> List<PlayerProfile>): List<PlayerProfile> = try {
-        block(this)
-    } finally {
-        release()
-    }
-
     private companion object {
         const val FRIENDS_PAGE_SIZE: Int = 100
-    }
-}
-
-private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
-    addOnCompleteListener { task ->
-        if (continuation.isActive) {
-            if (task.isSuccessful) continuation.resume(task.result)
-            else continuation.resumeWith(Result.failure(task.exception ?: IllegalStateException("Play Games task failed")))
-        }
     }
 }
 
@@ -144,16 +158,4 @@ private fun Drawable.toPng(): ByteArray = ByteArrayOutputStream().use { output -
     }
     check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
     output.toByteArray()
-}
-
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: ApiException) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.statusCode.toString()))
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.javaClass.name))
 }

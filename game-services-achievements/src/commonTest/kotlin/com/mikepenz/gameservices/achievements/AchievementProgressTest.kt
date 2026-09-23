@@ -2,8 +2,8 @@ package com.mikepenz.gameservices.achievements
 
 import com.mikepenz.gameservices.GameServicesProvider
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class AchievementProgressTest {
     @Test
@@ -53,5 +53,17 @@ class AchievementProgressTest {
         assertEquals(17, AchievementProgress.Percent(100).stepsFor(17))
         assertEquals(6, AchievementProgress.Steps(2, 5).stepsFor(17))
         assertEquals(40, AchievementProgress.Steps(2, 5).percent())
+    }
+    @Test
+    fun `standard achievements never access incremental metadata`() {
+        assertEquals(null, configuredSteps(false) { error("Standard SDK getter must not be called") })
+        assertEquals(10, configuredSteps(true) { 10 })
+    }
+
+    @Test
+    fun `large progress values do not overflow`() {
+        assertEquals(100, AchievementProgress.Steps(30_000_000, 30_000_000).percent())
+        assertEquals(10_000, AchievementProgress.Steps(1_000_000, 1_000_000).stepsFor(10_000))
+        assertEquals(Int.MAX_VALUE, AchievementProgress.Percent(100).stepsFor(Int.MAX_VALUE))
     }
 }

@@ -1,5 +1,6 @@
 package com.mikepenz.gameservices.sample
 
+import androidx.compose.runtime.saveable.SaverScope
 import com.mikepenz.gameservices.GameServices
 import com.mikepenz.gameservices.GameServicesPlatform
 import com.mikepenz.gameservices.GameServicesProvider
@@ -9,8 +10,8 @@ import com.mikepenz.gameservices.achievements.Achievement
 import com.mikepenz.gameservices.achievements.AchievementId
 import com.mikepenz.gameservices.achievements.AchievementProgress
 import com.mikepenz.gameservices.achievements.AchievementsClient
-import com.mikepenz.gameservices.leaderboards.LeaderboardId
 import com.mikepenz.gameservices.leaderboards.Leaderboard
+import com.mikepenz.gameservices.leaderboards.LeaderboardId
 import com.mikepenz.gameservices.leaderboards.LeaderboardPeriod
 import com.mikepenz.gameservices.leaderboards.LeaderboardQuery
 import com.mikepenz.gameservices.leaderboards.LeaderboardScope
@@ -27,9 +28,11 @@ import com.mikepenz.gameservices.social.AvatarBytes
 import com.mikepenz.gameservices.social.FriendsAccessState
 import com.mikepenz.gameservices.social.PlayerProfile
 import com.mikepenz.gameservices.social.SocialClient
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class GameServicesSampleTest {
     private var achievementsSupported = false
@@ -84,6 +87,31 @@ class GameServicesSampleTest {
                 social,
             ).availableActions(),
         )
+    }
+
+    @Test
+    fun `query limits and portable save names are validated before dispatch`() {
+        val state = SampleScreenState(leaderboardId = "scores", saveId = "slot-1")
+        assertTrue(state.isValid(SampleOperation.LoadScores))
+        assertTrue(state.isValid(SampleOperation.WriteSavedGame))
+        assertFalse(state.copy(startRank = "1001").isValid(SampleOperation.LoadScores))
+        assertFalse(state.copy(limit = "26").isValid(SampleOperation.LoadScores))
+        assertFalse(state.copy(saveId = "bad/name").isValid(SampleOperation.WriteSavedGame))
+        assertFalse(state.copy(busy = true).isValid(SampleOperation.Authenticate))
+    }
+
+    @Test
+    fun `restoring fields clears pending operations and session conflict handles`() {
+        val original = SampleScreenState(achievementId = "achievement", saveId = "slot", saveData = "chosen bytes",
+            leaderboardId = "board", startRank = "20", limit = "10", busy = true, conflictId = "old-session")
+        val scope = object : SaverScope { override fun canBeSaved(value: Any): Boolean = true }
+        val saved = with(SampleScreenState.Saver) { scope.save(original) }
+        val restored = requireNotNull(SampleScreenState.Saver.restore(requireNotNull(saved)))
+        assertEquals(original.saveData, restored.saveData)
+        assertEquals(original.achievementId, restored.achievementId)
+        assertEquals(original.startRank, restored.startRank)
+        assertFalse(restored.busy)
+        assertEquals("", restored.conflictId)
     }
 
     private fun services(supported: Boolean) = object : GameServices {
