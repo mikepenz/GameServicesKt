@@ -24,7 +24,7 @@ void complete(void* context, int success, const char* message) {
     JavaVM* vm = pending->vm;
     JNIEnv* env = nullptr;
     const bool attached = vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK;
-    if (attached && vm->AttachCurrentThread(reinterpret_cast<void**>(&env), nullptr) != JNI_OK) { delete pending; return; }
+    if (attached && vm->AttachCurrentThread(&env, nullptr) != JNI_OK) { delete pending; return; }
     jclass type = env->GetObjectClass(pending->activity);
     jmethodID method = env->GetMethodID(type, "onNativeResult", "(ZLjava/lang/String;)V");
     jstring text = env->NewStringUTF(message);

@@ -244,7 +244,8 @@ Android setup:
    or `./gradlew :sample-host-android:installNativeSdkDebug` for the C SDK. Both flavors use the
    same package, project ID, and signing certificate, so install one at a time with the same PGS
    tester account. The native flavor needs a Linux build host with Android NDK and CMake; its
-   Kotlin/Native linker cannot run on Apple Silicon without Rosetta.
+   Kotlin/Native linker cannot run on Apple Silicon without Rosetta. For 16 KB validation, use a
+   `google_apis_playstore_ps16k` system image; the `google_apis_ps16k` image has no Play Store.
 
 The native flavor calls `NativePlayGamesBackend` through JNI. Open the backend, then check
 authentication, sign in, load achievements, report progress with a configured achievement ID,
