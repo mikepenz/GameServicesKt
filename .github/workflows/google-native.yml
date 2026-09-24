@@ -34,7 +34,7 @@ jobs:
         shell: pwsh
         run: |
           $env:PLAY_PC_BRIDGE = (Resolve-Path game-services-play-games-pc/build/native/Release/gs_play_pc.dll).Path
-          ./gradlew.bat :game-services-play-games-pc:jvmTest :game-services-play-games-pc:mingwX64Test
+          bash ./gradlew :game-services-play-games-pc:jvmTest :game-services-play-games-pc:mingwX64Test
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: play-pc-x64-bridge
