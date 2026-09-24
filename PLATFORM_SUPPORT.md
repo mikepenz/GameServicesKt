@@ -19,8 +19,8 @@ that app's signed provider host has passed the live checks below.
 ## Apple targets
 
 Contract and Game Center artifacts provide `iosArm64`, `iosSimulatorArm64`, `macosArm64`,
-`macosX64`, `tvosArm64`, `tvosSimulatorArm64`, `watchosArm64`, `watchosDeviceArm64`, and
-`watchosSimulatorArm64`. Intel macOS is compatibility support for a deprecated Kotlin target.
+`tvosArm64`, `tvosSimulatorArm64`, `watchosArm64`, `watchosDeviceArm64`, and
+`watchosSimulatorArm64`. Deprecated Kotlin targets are not supported.
 
 On iOS/tvOS, construct `GameCenterBackend { currentUIViewController }`. On macOS, use
 `GameCenterBackend { currentNSViewController }`. On watchOS, use `GameCenterBackend()`.
@@ -65,7 +65,7 @@ are disabled. Test account changes without retaining data or conflict handles fr
 ## macOS JVM / Compose Desktop
 
 The JVM variants of `game-services-game-center-*` use the same GameKit implementation through
-JNI. The core artifact packages Apple Silicon and Intel native libraries. Choose this backend
+JNI. The core artifact packages Apple Silicon native libraries targeting macOS 12+. Choose this backend
 explicitly with `GameCenterBackend()` and close it when the host exits. It requires macOS and
 an AppKit event loop, as provided by Compose Desktop; plain headless JVM processes are not hosts.
 Other desktop operating systems must select the unsupported backend explicitly.
@@ -138,3 +138,5 @@ client secret or server credential belongs in this library or its samples.
 Windows CI checks the real DLL loading and both JVM/Native bindings without a provider account.
 The C++ fake-SDK test checks initialization failures and callback/client lifetime. Real runtime
 initialization and Recall/server operations remain live-provider validation.
+Default checks run iOS/macOS tests and compile all Apple variants. Install tvOS/watchOS simulator
+runtimes and pass `-PappleExtendedSimulatorTests=true` to execute those additional device tests.

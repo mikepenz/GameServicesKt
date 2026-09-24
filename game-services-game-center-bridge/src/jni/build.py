@@ -12,7 +12,7 @@ shutil.copyfile(native, library)
 subprocess.run(["xcrun", "install_name_tool", "-id", "@rpath/libgs_gamecenter.dylib", str(library)], check=True)
 subprocess.run(["codesign", "--force", "--sign", "-", str(library)], check=True)
 subprocess.run([
-    "xcrun", "clang++", "-std=c++17", "-dynamiclib", "-arch", arch,
+    "xcrun", "clang++", "-std=c++17", "-dynamiclib", "-arch", arch, "-mmacosx-version-min=12.0",
     f"-I{java}/include", f"-I{java}/include/darwin", source,
     f"-L{output}", "-lgs_gamecenter", "-Wl,-rpath,@loader_path",
     "-Wl,-install_name,@rpath/libgs_gamecenter_jni.dylib",

@@ -58,3 +58,12 @@ tasks.register("verifyPublishedAndroidMinSdk") {
         }
     }
 }
+
+// CI and most developer hosts ship iOS simulators only. All target variants still compile.
+gradle.projectsEvaluated {
+    subprojects {
+        tasks.matching { it.name in setOf("tvosSimulatorArm64Test", "watchosSimulatorArm64Test") }.configureEach {
+            enabled = providers.gradleProperty("appleExtendedSimulatorTests").orNull == "true"
+        }
+    }
+}

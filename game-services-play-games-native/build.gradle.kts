@@ -26,7 +26,7 @@ kotlin {
     explicitApi()
     @OptIn(ExperimentalAbiValidation::class) abiValidation()
     val targets = listOf(androidNativeArm64() to "arm64-v8a", androidNativeX64() to "x86_64",
-        @Suppress("DEPRECATION") androidNativeArm32() to "armeabi-v7a", @Suppress("DEPRECATION") androidNativeX86() to "x86")
+        androidNativeArm32() to "armeabi-v7a", androidNativeX86() to "x86")
     targets.forEach { (target, abi) ->
         val definition = layout.buildDirectory.file("interop/${target.name}.def")
         val prepare = tasks.register("prepare${target.name}Interop") {
