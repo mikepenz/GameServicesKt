@@ -226,9 +226,15 @@ after recreating a client; session conflict handles are deliberately not restore
 
 Automated regressions cover shared contracts and pagination, Android achievement loading and update
 acknowledgements, Android sign-in and GameKit callback sequences, provider error mappings, and snapshot
-commit/cancellation/descriptor cleanup. Adapter tests use controlled SDK responses; the sample integration
-test drives startup, failure recovery, conflict editing/resolution, and account changes through the app.
+commit/cancellation/descriptor cleanup. Saved-game conflict tests run the real Android and iOS adapters
+against controlled native responses: choosing either version, supplying merged/empty/binary data,
+changing or repeated conflicts, failed resolutions and retries, stale handles, cancellation, and cleanup.
+Google's pair-and-token contract and GameKit's same-name version lists have separate fixtures.
+The library preserves opaque bytes; games provide their own merge policy.
+The sample integration test drives startup, failure recovery, conflict editing/resolution, and account changes through the app.
 
 Live provider acceptance still requires configured Android and iOS devices: sign-in and account changes, consent cancellation,
-score visibility, offline writes, and conflicts between two devices. Device frame time, allocation,
+score visibility, offline writes, and actual cross-device synchronization. Deterministic adapter tests
+validate conflict handling without creating live backend conflicts; device tests check that the provider
+and account configuration behave as expected. Device frame time, allocation,
 and network latency measurements are separate from these tests.

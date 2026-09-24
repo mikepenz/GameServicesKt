@@ -211,7 +211,191 @@ class SnapshotLifecycleTest {
         verify(descriptor).close()
     }
 
-    private class FakeSnapshot(val writes: Boolean = true) {
+    @Test
+    fun eitherVersionMergedAndEmptyBinaryPayloadsResolveAndReadBackExactly() = runTest {
+        for (bytes in listOf(byteArrayOf(1), byteArrayOf(2), byteArrayOf(1, 2), byteArrayOf(), byteArrayOf(0, -1, -128))) {
+            val sdk = ConflictFixture()
+            val client = sdk.client()
+            val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+            assertEquals(listOf(1, 2), conflict.versions.map { it.data.copyBytes().single().toInt() })
+            assertIs<SavedGameWriteResult.Saved>(client.resolve(conflict.id, SavedGameData.of(bytes)).getOrThrow())
+            assertContentEquals(bytes, sdk.resolutionBytes)
+            val loaded = assertIs<SavedGameReadResult.Loaded>(sdk.client().read(SavedGameId("save")).getOrThrow())
+            assertContentEquals(bytes, loaded.version.data.copyBytes())
+            assertTrue(client.resolve(conflict.id, SavedGameData.of(bytes)).isFailure)
+            assertEquals(1, sdk.resolutions)
+            sdk.assertClosed()
+        }
+    }
+
+    @Test
+    fun conflictChangingBetweenReadAndResolveReturnsNewVersionsWithoutOverwriting() = runTest {
+        val sdk = ConflictFixture()
+        val client = sdk.client()
+        val old = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+        sdk.conflictId = "conflict-2"
+        sdk.versions = listOf(byteArrayOf(3), byteArrayOf(4))
+        val next = assertIs<SavedGameWriteResult.Conflict>(client.resolve(old.id, SavedGameData.of(byteArrayOf(9))).getOrThrow()).conflict
+        assertEquals(SavedGameConflictId("conflict-2"), next.id)
+        assertEquals(listOf(3, 4), next.versions.map { it.data.copyBytes().single().toInt() })
+        assertEquals(0, sdk.resolutions)
+        assertTrue(client.resolve(old.id, SavedGameData.of(byteArrayOf(9))).isFailure)
+        assertIs<SavedGameWriteResult.Saved>(client.resolve(next.id, SavedGameData.of(byteArrayOf(3, 4))).getOrThrow())
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun conflictAlreadyResolvedByAnotherDeviceDoesNotOverwriteItsSave() = runTest {
+        val sdk = ConflictFixture()
+        val client = sdk.client()
+        val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+        sdk.conflictId = null
+        sdk.versions = listOf(byteArrayOf(7))
+        assertTrue(client.resolve(conflict.id, SavedGameData.of(byteArrayOf(9))).isFailure)
+        assertEquals(0, sdk.resolutions)
+        assertContentEquals(byteArrayOf(7), assertIs<SavedGameReadResult.Loaded>(client.read(SavedGameId("save")).getOrThrow()).version.data.copyBytes())
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun providerCanReturnAnotherConflictDuringResolution() = runTest {
+        val sdk = ConflictFixture().apply { nextConflictId = "conflict-2" }
+        val client = sdk.client()
+        val initial = assertIs<SavedGameWriteResult.Conflict>(client.write(SavedGameId("save"), SavedGameData.of(byteArrayOf(8))).getOrThrow()).conflict
+        val next = assertIs<SavedGameWriteResult.Conflict>(client.resolve(initial.id, SavedGameData.of(byteArrayOf(9))).getOrThrow()).conflict
+        assertEquals(SavedGameConflictId("conflict-2"), next.id)
+        assertEquals(listOf(9, 3), next.versions.map { it.data.copyBytes().single().toInt() })
+        assertTrue(client.resolve(initial.id, SavedGameData.of(byteArrayOf(0))).isFailure)
+        assertIs<SavedGameWriteResult.Saved>(client.resolve(next.id, SavedGameData.of(byteArrayOf(9, 3))).getOrThrow())
+        assertEquals(2, sdk.resolutions)
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun failedResolutionDiskWriteAndOversizeDataNeverReachTheProvider() = runTest {
+        val sdk = ConflictFixture()
+        val client = sdk.client()
+        val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+        assertTrue(client.resolve(conflict.id, SavedGameData.of(ByteArray(5))).isFailure)
+        sdk.resolutionWriteSucceeds = false
+        assertTrue(client.resolve(conflict.id, SavedGameData.of(byteArrayOf(3))).isFailure)
+        assertEquals(0, sdk.resolutions)
+        sdk.resolutionWriteSucceeds = true
+        assertIs<SavedGameWriteResult.Saved>(client.resolve(conflict.id, SavedGameData.of(byteArrayOf(3))).getOrThrow())
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun readingOneBrokenVersionClosesEverythingAndDoesNotRegisterPartialConflict() = runTest {
+        val sdk = ConflictFixture().apply { failSecondRead = true }
+        val client = sdk.client()
+        assertTrue(client.read(SavedGameId("save")).isFailure)
+        assertTrue(client.resolve(SavedGameConflictId("conflict-1"), SavedGameData.of(byteArrayOf(3))).isFailure)
+        assertEquals(0, sdk.resolutions)
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun unresolvedConflictCannotBeDeletedAndResolvedHandlesCannotBeReused() = runTest {
+        val sdk = ConflictFixture()
+        val client = sdk.client()
+        val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+        assertTrue(client.delete(SavedGameId("save")).isFailure)
+        assertEquals(0, sdk.deletes)
+        client.resolve(conflict.id, SavedGameData.of(byteArrayOf(3))).getOrThrow()
+        client.delete(SavedGameId("save")).getOrThrow()
+        assertTrue(client.resolve(conflict.id, SavedGameData.of(byteArrayOf(4))).isFailure)
+        assertEquals(1, sdk.deletes)
+        sdk.assertClosed()
+    }
+
+    @Test
+    fun cancellationDuringResolutionWaitsForCompletionBeforeAllowingAnotherRead() = runTest {
+        val sdk = ConflictFixture().apply { delayResolution = true }
+        val client = sdk.client()
+        val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(SavedGameId("save")).getOrThrow()).conflict
+        val request = async { client.resolve(conflict.id, SavedGameData.of(byteArrayOf(3))) }
+        // The resolution writes on Dispatchers.IO; wait for its actual SDK invocation.
+        sdk.resolutionStarted.await()
+        val read = async { client.read(SavedGameId("save")) }
+        runCurrent()
+        request.cancel()
+        runCurrent()
+        assertFalse(request.isCompleted)
+        assertFalse(read.isCompleted)
+        requireNotNull(sdk.pendingResolution).finish()
+        request.join()
+        assertTrue(request.isCancelled)
+        assertContentEquals(byteArrayOf(3), assertIs<SavedGameReadResult.Loaded>(read.await().getOrThrow()).version.data.copyBytes())
+        sdk.assertClosed()
+    }
+
+    /** Google exposes a pair, a changing token, and separate writable resolution contents. */
+    private class ConflictFixture {
+        var versions = listOf(byteArrayOf(1), byteArrayOf(2))
+        var conflictId: String? = "conflict-1"
+        var nextConflictId: String? = null
+        var resolutionWriteSucceeds = true
+        var failSecondRead = false
+        var delayResolution = false
+        var resolutions = 0
+        var deletes = 0
+        var resolutionBytes: ByteArray? = null
+        var pendingResolution: ImmediateTask<SnapshotsClient.DataOrConflict<Snapshot>>? = null
+        val resolutionStarted = kotlinx.coroutines.CompletableDeferred<Unit>()
+        private val opened = mutableListOf<FakeSnapshot>()
+        private val descriptors = mutableListOf<ParcelFileDescriptor>()
+        private val sdk = proxy<SnapshotsClient> { method, args -> when (method) {
+            "getMaxDataSize" -> ImmediateTask(Result.success(4))
+            "open" -> {
+                assertEquals(SnapshotsClient.RESOLUTION_POLICY_MANUAL, args[2])
+                ImmediateTask(Result.success(open()))
+            }
+            "discardAndClose" -> {
+                opened.first { it.value === args[0] }.closed = true
+                ImmediateTask(Result.success(null))
+            }
+            "resolveConflict" -> {
+                assertEquals(conflictId, args[0])
+                assertEquals("save", args[1])
+                resolutions++
+                val bytes = requireNotNull(resolutionBytes).copyOf()
+                conflictId = nextConflictId
+                nextConflictId = null
+                versions = if (conflictId == null) listOf(bytes) else listOf(bytes, byteArrayOf(3))
+                ImmediateTask(Result.success(open()), delayResolution).also {
+                    pendingResolution = it
+                    resolutionStarted.complete(Unit)
+                }
+            }
+            "delete" -> { deletes++; ImmediateTask(Result.success("save")) }
+            else -> error("Unexpected SDK call: $method")
+        } }
+
+        fun client() = AndroidSavedGamesClient(sdk, {}, ProviderUiRequest())
+
+        private fun open(): SnapshotsClient.DataOrConflict<Snapshot> {
+            val snapshots = versions.mapIndexed { index, bytes ->
+                FakeSnapshot(bytes = bytes, failRead = failSecondRead && index == 1).also(opened::add)
+            }
+            val token = conflictId ?: return SnapshotsClient.DataOrConflict(snapshots.single().value, null)
+            val descriptor = mock(ParcelFileDescriptor::class.java).also(descriptors::add)
+            val contents = mock(SnapshotContents::class.java)
+            `when`(contents.parcelFileDescriptor).thenReturn(descriptor)
+            `when`(contents.writeBytes(org.mockito.ArgumentMatchers.any())).thenAnswer {
+                resolutionBytes = (it.arguments[0] as ByteArray).copyOf()
+                resolutionWriteSucceeds
+            }
+            return SnapshotsClient.DataOrConflict(null, SnapshotsClient.SnapshotConflict(snapshots[0].value, token, snapshots[1].value, contents))
+        }
+
+        fun assertClosed() {
+            assertTrue(opened.all { it.closed })
+            descriptors.forEach { verify(it).close() }
+        }
+    }
+
+    private class FakeSnapshot(val writes: Boolean = true, val bytes: ByteArray = byteArrayOf(1), val failRead: Boolean = false) {
         var closed = false
         var written: ByteArray? = null
         val metadata = proxy<SnapshotMetadata> { method, _ -> when (method) {
@@ -221,7 +405,7 @@ class SnapshotLifecycleTest {
         val contents = proxy<SnapshotContents> { method, args -> when (method) {
             "isClosed" -> closed
             "writeBytes" -> { written = (args[0] as ByteArray).copyOf(); writes }
-            "readFully" -> byteArrayOf(1)
+            "readFully" -> { check(!failRead) { "Read failed" }; bytes.copyOf() }
             else -> error(method)
         } }
         val value = proxy<Snapshot> { method, _ -> when (method) {

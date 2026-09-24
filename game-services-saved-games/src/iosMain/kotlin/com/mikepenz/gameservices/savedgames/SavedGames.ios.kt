@@ -15,6 +15,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSData
+import platform.Foundation.NSError
 import platform.Foundation.create
 import platform.GameKit.GKLocalPlayer
 import platform.GameKit.GKSavedGame
@@ -24,11 +25,22 @@ import platform.GameKit.resolveConflictingSavedGames
 import platform.GameKit.saveGameData
 import platform.posix.memcpy
 
-public fun createSavedGamesClient(): SavedGamesClient = IosSavedGamesClient(GKLocalPlayer.localPlayer())
+public fun createSavedGamesClient(): SavedGamesClient {
+    val player = GKLocalPlayer.localPlayer()
+    return IosSavedGamesClient(
+        fetch = { player.fetchSavedGamesWithCompletionHandler(it) },
+        save = { data, name, complete -> player.saveGameData(data, name, complete) },
+        resolve = { games, data, complete -> player.resolveConflictingSavedGames(games, data, complete) },
+        delete = { name, complete -> player.deleteSavedGamesWithName(name, complete) },
+    )
+}
 
 @OptIn(ExperimentalForeignApi::class)
-private class IosSavedGamesClient(
-    private val player: GKLocalPlayer,
+internal class IosSavedGamesClient(
+    private val fetch: ((List<*>?, NSError?) -> Unit) -> Unit,
+    private val save: (NSData, String, (GKSavedGame?, NSError?) -> Unit) -> Unit,
+    private val resolve: (List<GKSavedGame>, NSData, (List<*>?, NSError?) -> Unit) -> Unit,
+    private val delete: (String, (NSError?) -> Unit) -> Unit,
 ) : SavedGamesClient {
     private val operations = Mutex()
     private suspend fun <T> savedGameResult(block: suspend () -> T): Result<T> = gameServicesResult { operations.withLock { block() } }
@@ -65,13 +77,14 @@ private class IosSavedGamesClient(
     override suspend fun delete(id: SavedGameId): Result<Unit> = savedGameResult {
         require(savedGames().any { it.name == id.value }) { "Unknown saved game ${id.value}" }
         suspendCancellableCoroutine { continuation ->
-            player.deleteSavedGamesWithName(id.value) { error ->
+            delete(id.value) { error ->
                 if (continuation.isActive) {
                     if (error == null) continuation.resume(Unit)
                     else continuation.resumeWith(Result.failure(error.toGameServicesException()))
                 }
             }
         }
+        conflicts.remove(id.value)
     }
 
     override suspend fun resolve(
@@ -80,10 +93,13 @@ private class IosSavedGamesClient(
     ): Result<SavedGameWriteResult> = savedGameResult {
         val versions = requireNotNull(conflicts[conflictId.value]) { "Unknown saved game conflict" }
         val resolved = resolve(versions, data)
-        conflicts.remove(conflictId.value)
         val matching = resolved.filter { it.name == conflictId.value }
         if (matching.size > 1) SavedGameWriteResult.Conflict(matching.toConflict(SavedGameId(conflictId.value)))
-        else SavedGameWriteResult.Saved(requireNotNull(matching.singleOrNull()).toMetadata())
+        else {
+            val metadata = requireNotNull(matching.singleOrNull()).toMetadata()
+            conflicts.remove(conflictId.value)
+            SavedGameWriteResult.Saved(metadata)
+        }
     }
 
     override suspend fun showSavedGameSelection(): Result<SavedGameMetadata?> = Result.failure(
@@ -91,7 +107,7 @@ private class IosSavedGamesClient(
     )
 
     private suspend fun savedGames(): List<GKSavedGame> = suspendCancellableCoroutine { continuation ->
-        player.fetchSavedGamesWithCompletionHandler { games, error ->
+        fetch { games, error ->
             if (continuation.isActive) {
                 if (error == null) continuation.resume(games.orEmpty().filterIsInstance<GKSavedGame>())
                 else continuation.resumeWith(Result.failure(error.toGameServicesException()))
@@ -100,7 +116,7 @@ private class IosSavedGamesClient(
     }
 
     private suspend fun save(data: SavedGameData, name: String): GKSavedGame = suspendCancellableCoroutine { continuation ->
-        player.saveGameData(data.copyBytes().toNSData(), name) { game, error ->
+        save(data.copyBytes().toNSData(), name) { game, error ->
             if (continuation.isActive) {
                 if (error == null) continuation.resumeWith(runCatching { requireNotNull(game) })
                 else continuation.resumeWith(Result.failure(error.toGameServicesException()))
@@ -110,7 +126,7 @@ private class IosSavedGamesClient(
 
     private suspend fun resolve(versions: List<GKSavedGame>, data: SavedGameData): List<GKSavedGame> =
         suspendCancellableCoroutine { continuation ->
-            player.resolveConflictingSavedGames(versions, data.copyBytes().toNSData()) { games, error ->
+            resolve(versions, data.copyBytes().toNSData()) { games, error ->
                 if (continuation.isActive) {
                     if (error == null) continuation.resume(games.orEmpty().filterIsInstance<GKSavedGame>())
                     else continuation.resumeWith(Result.failure(error.toGameServicesException()))
