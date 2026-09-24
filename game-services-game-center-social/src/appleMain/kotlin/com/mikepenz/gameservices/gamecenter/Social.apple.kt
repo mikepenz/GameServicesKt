@@ -1,4 +1,5 @@
-@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+// GameKit authorization enums use NSInteger, including 32-bit watchOS.
+@file:OptIn(kotlinx.cinterop.UnsafeNumber::class, com.mikepenz.gameservices.InternalGameServicesApi::class)
 
 package com.mikepenz.gameservices.gamecenter
 

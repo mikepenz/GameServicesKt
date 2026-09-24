@@ -1,3 +1,5 @@
+// Apple NSInteger is 32-bit on watchosArm64; conversions stay explicit.
+@file:OptIn(kotlinx.cinterop.UnsafeNumber::class)
 package com.mikepenz.gameservices.gamecenter
 
 import com.mikepenz.gameservices.InternalGameServicesApi

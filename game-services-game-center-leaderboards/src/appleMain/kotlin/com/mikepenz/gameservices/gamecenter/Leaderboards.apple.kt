@@ -1,5 +1,6 @@
+// Apple NSInteger is 32-bit on watchosArm64; conversions stay explicit.
 @file:Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD") // watchOS arm64 uses 32-bit NSInteger.
-@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+@file:OptIn(kotlinx.cinterop.UnsafeNumber::class, com.mikepenz.gameservices.InternalGameServicesApi::class)
 
 package com.mikepenz.gameservices.gamecenter
 
