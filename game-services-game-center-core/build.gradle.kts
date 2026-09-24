@@ -12,8 +12,6 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     macosArm64()
-    @Suppress("DEPRECATION")
-    macosX64()
     tvosArm64()
     tvosSimulatorArm64()
     watchosArm64()
@@ -32,28 +30,20 @@ kotlin {
     }
 }
 
-// Both architectures are shipped so one JVM artifact works on Apple Silicon and Intel.
-val nativeResources = layout.buildDirectory.dir("generated/nativeResources")
-val packageNativeBridge = tasks.register("packageNativeBridge") {
+val nativeResources = layout.buildDirectory.dir("generated/gameCenterArm64Resources")
+val bridgeProject = project(":game-services-game-center-bridge")
+val nativeLibrary = bridgeProject.layout.buildDirectory.file("bin/macosArm64/releaseShared/libgs_gamecenter.dylib")
+val compileArm64Jni = tasks.register<Exec>("compileArm64Jni") {
+    dependsOn(":game-services-game-center-bridge:linkReleaseSharedMacosArm64")
+    inputs.file(bridgeProject.file("src/jni/bridge.cpp"))
+    inputs.file(bridgeProject.file("src/jni/build.py"))
+    inputs.file(nativeLibrary)
     outputs.dir(nativeResources)
-}
-listOf("Arm64" to "arm64", "X64" to "x64").forEach { (target, directory) ->
-    val bridgeProject = project(":game-services-game-center-bridge")
-    val nativeLibrary = bridgeProject.layout.buildDirectory.file("bin/macos$target/releaseShared/libgs_gamecenter.dylib")
-    val output = nativeResources.map { it.dir("native/macos-$directory") }
-    val compile = tasks.register<Exec>("compile${target}Jni") {
-        dependsOn(":game-services-game-center-bridge:linkReleaseSharedMacos$target")
-        inputs.file(bridgeProject.file("src/jni/bridge.cpp"))
-        inputs.file(nativeLibrary)
-        outputs.dir(output)
-        inputs.file(bridgeProject.file("src/jni/build.py"))
-        doFirst {
-            commandLine("python3", bridgeProject.file("src/jni/build.py"),
-                if (target == "Arm64") "arm64" else "x86_64", nativeLibrary.get().asFile,
-                bridgeProject.file("src/jni/bridge.cpp"), System.getProperty("java.home"), output.get().asFile)
-        }
+    doFirst {
+        commandLine("python3", bridgeProject.file("src/jni/build.py"), "arm64", nativeLibrary.get().asFile,
+            bridgeProject.file("src/jni/bridge.cpp"), System.getProperty("java.home"),
+            nativeResources.get().dir("native/macos-arm64").asFile)
     }
-    packageNativeBridge.configure { dependsOn(compile) }
 }
 kotlin.sourceSets.named("jvmMain") { resources.srcDir(nativeResources) }
-tasks.named("jvmProcessResources") { dependsOn(packageNativeBridge) }
+tasks.named("jvmProcessResources") { dependsOn(compileArm64Jni) }
