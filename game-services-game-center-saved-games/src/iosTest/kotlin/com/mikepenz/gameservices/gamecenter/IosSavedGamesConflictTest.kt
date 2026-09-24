@@ -155,11 +155,24 @@ class IosSavedGamesConflictTest {
         assertIs<SavedGameWriteResult.Saved>(client.resolve(conflict.id, data(4)).getOrThrow())
     }
 
+    @Test
+    fun accountChangeInvalidatesConflictHandlesBeforeResolution() = runTest {
+        val sdk = FakeGameKit().apply { games = listOf(Game("slot", byteArrayOf(1)), Game("slot", byteArrayOf(2))) }
+        val client = sdk.client()
+        val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(id).getOrThrow()).conflict
+        sdk.account = "second-player"
+        assertTrue(client.resolve(conflict.id, data(9)).isFailure)
+        assertEquals(0, sdk.resolutions)
+        sdk.account = null
+        assertSame(GameServicesException.AuthenticationRequired, client.read(id).exceptionOrNull())
+    }
+
     private fun data(vararg bytes: Byte) = SavedGameData.of(bytes)
 }
 
 /** GameKit returns a list of same-name versions, not Google's pair plus conflict token. */
 private class FakeGameKit {
+    var account: String? = "first-player"
     var games = emptyList<Game>()
     var fetchError: NSError? = null
     var resolveError: NSError? = null
@@ -174,6 +187,7 @@ private class FakeGameKit {
     var resolutionBytes: ByteArray? = null
 
     fun client(fetch: ((List<*>?, NSError?) -> Unit) -> Unit = { fetches++; it(games, fetchError) }) = IosSavedGamesClient(
+        account = { account },
         fetch = fetch,
         save = { bytes, name, complete ->
             saves++

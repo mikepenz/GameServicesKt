@@ -36,6 +36,13 @@ kotlin {
             implementation(project(":game-services-play-games-saved-games"))
             implementation(project(":game-services-play-games-social"))
         }
+        jvmMain.dependencies {
+            implementation(project(":game-services-game-center-core"))
+            implementation(project(":game-services-game-center-achievements"))
+            implementation(project(":game-services-game-center-leaderboards"))
+            implementation(project(":game-services-game-center-saved-games"))
+            implementation(project(":game-services-game-center-social"))
+        }
         iosMain.dependencies {
             implementation(project(":game-services-game-center-core"))
             implementation(project(":game-services-game-center-achievements"))

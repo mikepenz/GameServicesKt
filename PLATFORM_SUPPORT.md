@@ -61,3 +61,22 @@ startup authentication, refusal, account changes, achievement and score updates,
 advertised system screen. Verify iCloud save round-trip and conflict resolution on iOS/macOS.
 On tvOS/watchOS confirm save actions are disabled; on watchOS also confirm UI/avatar actions
 are disabled. Test account changes without retaining data or conflict handles from another player.
+
+## macOS JVM / Compose Desktop
+
+The JVM variants of `game-services-game-center-*` use the same GameKit implementation through
+JNI. The core artifact packages Apple Silicon and Intel native libraries. Choose this backend
+explicitly with `GameCenterBackend()` and close it when the host exits. It requires macOS and
+an AppKit event loop, as provided by Compose Desktop; plain headless JVM processes are not hosts.
+Other desktop operating systems must select the unsupported backend explicitly.
+
+`sample-host-desktop` is the runnable Compose host. For live authentication, package and sign it
+with the consuming game's bundle identifier and Game Center entitlement. Saved games also need
+iCloud containers/entitlements. Embedded dylibs must be signed with the application's identity
+for hardened-runtime distribution; development ad-hoc signatures are not distribution signatures.
+The optional `nativeLibrary: Path` constructor argument loads a host-packaged JNI library instead
+of extracting the bundled resources. Its sibling Game Center dylib must be present.
+
+Native requests are owned by the backend session. Cancellation ignores late callbacks and
+`close()` cancels the native session. Account changes arrive from GameKit's authentication flow.
+Do not create competing native and JVM sessions inside the same process.

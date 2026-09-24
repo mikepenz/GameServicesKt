@@ -1,0 +1,4 @@
+public final class com/mikepenz/gameservices/gamecenter/Social_jvmKt {
+	public static final fun createSocialClient (Lcom/mikepenz/gameservices/gamecenter/GameCenterBackend;)Lcom/mikepenz/gameservices/social/SocialClient;
+}
+

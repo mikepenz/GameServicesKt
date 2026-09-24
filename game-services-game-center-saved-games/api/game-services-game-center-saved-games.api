@@ -1,0 +1,4 @@
+public final class com/mikepenz/gameservices/gamecenter/SavedGames_jvmKt {
+	public static final fun createSavedGamesClient (Lcom/mikepenz/gameservices/gamecenter/GameCenterBackend;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+}
+

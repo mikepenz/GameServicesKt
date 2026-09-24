@@ -30,6 +30,7 @@ import platform.posix.memcpy
 public fun GameCenterBackend.createSavedGamesClient(): SavedGamesClient {
     val player = GKLocalPlayer.localPlayer()
     return IosSavedGamesClient(
+        account = { if (player.authenticated) player.gamePlayerID else null },
         fetch = { player.fetchSavedGamesWithCompletionHandler(it) },
         save = { data, name, complete -> player.saveGameData(data, name, complete) },
         resolve = { games, data, complete -> player.resolveConflictingSavedGames(games, data, complete) },
@@ -39,13 +40,31 @@ public fun GameCenterBackend.createSavedGamesClient(): SavedGamesClient {
 
 @OptIn(ExperimentalForeignApi::class)
 internal class IosSavedGamesClient(
+    private val account: () -> String? = { "test-account" },
     private val fetch: ((List<*>?, NSError?) -> Unit) -> Unit,
     private val save: (NSData, String, (GKSavedGame?, NSError?) -> Unit) -> Unit,
     private val resolve: (List<GKSavedGame>, NSData, (List<*>?, NSError?) -> Unit) -> Unit,
     private val delete: (String, (NSError?) -> Unit) -> Unit,
 ) : SavedGamesClient {
     private val operations = Mutex()
-    private suspend fun <T> savedGameResult(block: suspend () -> T): Result<T> = gameServicesResult { operations.withLock { block() } }
+    private var conflictAccount: String? = null
+    private suspend fun <T> savedGameResult(block: suspend () -> T): Result<T> = gameServicesResult {
+        operations.withLock {
+            val player = account()
+            if (player != conflictAccount) {
+                conflicts.clear()
+                conflictAccount = player
+            }
+            if (player == null) throw GameServicesException.AuthenticationRequired
+            try {
+                block().also {
+                    if (account() != player) throw GameServicesException.AuthenticationRequired
+                }
+            } finally {
+                if (account() != player) conflicts.clear()
+            }
+        }
+    }
 
     private val conflicts: MutableMap<String, List<GKSavedGame>> = mutableMapOf()
 
