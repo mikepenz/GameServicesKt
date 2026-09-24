@@ -102,5 +102,41 @@ includes are normalized for the C interop parser; declarations remain unchanged.
 checked separately on Linux because Kotlin's bundled Android linker is an Intel executable that
 cannot run on this Apple Silicon host without Rosetta. A signed Android host still needs live SDK
 validation for sign-in, achievement acknowledgement/UI, Activity recreation, and process shutdown.
+
+## Experimental native Windows / JVM Recall
+
+`game-services-play-games-pc` supports Windows x64 through JVM/JNI and `mingwX64`.
+`PlayGamesPcBackend(absoluteDllPath)` implements `RecallClient`; call `initialize()` first,
+then `requestRecallAccess()`, and suspend `close()` at shutdown. This is the native Windows SDK,
+not the Android runtime on Google Play Games for PC. It currently supplies Recall, not the
+common achievements, leaderboard, saved-game, social, or player-identity contracts.
+
+Build its pinned, SHA-256-verified SDK and C/JNI bridge on Windows with Java 21 and Visual Studio:
+
+```shell
+cmake -S game-services-play-games-pc/native -B game-services-play-games-pc/build/native -A x64
+cmake --build game-services-play-games-pc/build/native --config Release
+ctest --test-dir game-services-play-games-pc/build/native -C Release --output-on-failure
+```
+
+Distribute `gs_play_pc.dll`, `play_pc_sdk.dll`, and the copied SDK notices together. The CI artifact
+`play-pc-x64-bridge` contains these files; Kotlin artifacts intentionally require their absolute
+host-packaged DLL path. The DLL remains loaded for the process lifetime so native callback returns
+cannot jump into unloaded code. Cancellation waits for SDK completion before releasing a session.
+
+`PcInitializationException` preserves `ShutdownRequired`, `RuntimeUpdateRequired`,
+`RuntimeUnavailable`, and other failure codes. The host must act on initialization failure and
+must not call provider operations until initialization succeeds. The library never terminates
+the host process. Configure the Play PC manifest, distribution/signing, project, and Play Games
+runtime as required by the SDK before live testing.
+
+A `RecallSession` is an opaque sensitive token to send to the game's server. It is not a player ID,
+a login proof, or a client-side account-linking API. Its string representation is redacted.
+Test server-side linking/unlinking and account recovery in the configured game backend. No
+client secret or server credential belongs in this library or its samples.
+
+Windows CI checks the real DLL loading and both JVM/Native bindings without a provider account.
+The C++ fake-SDK test checks initialization failures and callback/client lifetime. Real runtime
+initialization and Recall/server operations remain live-provider validation.
 Default checks run iOS/macOS tests and compile all Apple variants. Install tvOS/watchOS simulator
 runtimes and pass `-PappleExtendedSimulatorTests=true` to execute those additional device tests.

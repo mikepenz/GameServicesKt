@@ -1,0 +1,39 @@
+// Klib ABI Dump
+// Targets: [mingwX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-play-games-pc>
+final enum class com.mikepenz.gameservices.playgames.pc/PcInitializationStatus : kotlin/Enum<com.mikepenz.gameservices.playgames.pc/PcInitializationStatus> { // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus|null[0]
+    enum entry Error // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.Error|null[0]
+    enum entry NotInitialized // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.NotInitialized|null[0]
+    enum entry RuntimeUnavailable // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.RuntimeUnavailable|null[0]
+    enum entry RuntimeUpdateRequired // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.RuntimeUpdateRequired|null[0]
+    enum entry ShutdownRequired // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.ShutdownRequired|null[0]
+    enum entry Unknown // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.Unknown|null[0]
+
+    final val entries // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices.playgames.pc/PcInitializationStatus> // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices.playgames.pc/PcInitializationStatus // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices.playgames.pc/PcInitializationStatus> // com.mikepenz.gameservices.playgames.pc/PcInitializationStatus.values|values#static(){}[0]
+}
+
+final class com.mikepenz.gameservices.playgames.pc/PcInitializationException : kotlin/Exception { // com.mikepenz.gameservices.playgames.pc/PcInitializationException|null[0]
+    constructor <init>(com.mikepenz.gameservices.playgames.pc/PcInitializationStatus, kotlin/Int) // com.mikepenz.gameservices.playgames.pc/PcInitializationException.<init>|<init>(com.mikepenz.gameservices.playgames.pc.PcInitializationStatus;kotlin.Int){}[0]
+
+    final val code // com.mikepenz.gameservices.playgames.pc/PcInitializationException.code|{}code[0]
+        final fun <get-code>(): kotlin/Int // com.mikepenz.gameservices.playgames.pc/PcInitializationException.code.<get-code>|<get-code>(){}[0]
+    final val status // com.mikepenz.gameservices.playgames.pc/PcInitializationException.status|{}status[0]
+        final fun <get-status>(): com.mikepenz.gameservices.playgames.pc/PcInitializationStatus // com.mikepenz.gameservices.playgames.pc/PcInitializationException.status.<get-status>|<get-status>(){}[0]
+}
+
+final class com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend : com.mikepenz.gameservices.recall/RecallClient { // com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend.<init>|<init>(kotlin.String){}[0]
+
+    final suspend fun close() // com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend.close|close(){}[0]
+    final suspend fun initialize(): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend.initialize|initialize(){}[0]
+    final suspend fun requestRecallAccess(): kotlin/Result<com.mikepenz.gameservices.recall/RecallSession> // com.mikepenz.gameservices.playgames.pc/PlayGamesPcBackend.requestRecallAccess|requestRecallAccess(){}[0]
+}
