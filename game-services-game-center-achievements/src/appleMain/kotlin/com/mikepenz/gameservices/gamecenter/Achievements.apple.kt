@@ -62,7 +62,6 @@ private class AppleAchievementsClient(
         report(achievement)
     }
 
-    @Suppress("DEPRECATION_ERROR")
     override suspend fun showAchievements(): Result<Unit> = gameServicesResult {
         requireGameCenterOperation(supportedOperations, com.mikepenz.gameservices.GameServicesOperation.ShowAchievements)
         presentAchievementsDashboard()

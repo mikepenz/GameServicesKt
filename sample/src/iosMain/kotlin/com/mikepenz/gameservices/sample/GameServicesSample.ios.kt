@@ -16,8 +16,7 @@ public fun createGameServicesSample(
     social = backend.createSocialClient(),
 ) }
 
-@Suppress("FunctionName")
-public fun MainViewController(): UIViewController {
+public fun createMainViewController(): UIViewController {
     lateinit var controller: UIViewController
     controller = ComposeUIViewController {
         val sample = remember {

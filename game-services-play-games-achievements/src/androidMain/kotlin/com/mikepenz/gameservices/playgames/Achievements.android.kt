@@ -19,8 +19,7 @@ import kotlinx.coroutines.withContext
 public fun PlayGamesBackend.createAchievementsClient(
     ids: AchievementIdMappings = AchievementIdMappings.Empty,
 ): AchievementsClient = AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), { intent ->
-    @Suppress("DEPRECATION")
-    activity.startActivityForResult(intent, 0)
+    activity.startActivity(intent)
 }, ids)
 
 internal class AndroidAchievementsClient(
