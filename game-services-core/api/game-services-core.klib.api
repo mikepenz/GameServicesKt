@@ -1,6 +1,5 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, wasmJs]
-// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -11,11 +10,46 @@ open annotation class com.mikepenz.gameservices/InternalGameServicesApi : kotlin
     constructor <init>() // com.mikepenz.gameservices/InternalGameServicesApi.<init>|<init>(){}[0]
 }
 
+final enum class com.mikepenz.gameservices/GameServicesOperation : kotlin/Enum<com.mikepenz.gameservices/GameServicesOperation> { // com.mikepenz.gameservices/GameServicesOperation|null[0]
+    enum entry Authenticate // com.mikepenz.gameservices/GameServicesOperation.Authenticate|null[0]
+    enum entry DeleteSavedGame // com.mikepenz.gameservices/GameServicesOperation.DeleteSavedGame|null[0]
+    enum entry ListSavedGames // com.mikepenz.gameservices/GameServicesOperation.ListSavedGames|null[0]
+    enum entry LoadAchievements // com.mikepenz.gameservices/GameServicesOperation.LoadAchievements|null[0]
+    enum entry LoadAvatar // com.mikepenz.gameservices/GameServicesOperation.LoadAvatar|null[0]
+    enum entry LoadCurrentScore // com.mikepenz.gameservices/GameServicesOperation.LoadCurrentScore|null[0]
+    enum entry LoadFriends // com.mikepenz.gameservices/GameServicesOperation.LoadFriends|null[0]
+    enum entry LoadLeaderboards // com.mikepenz.gameservices/GameServicesOperation.LoadLeaderboards|null[0]
+    enum entry LoadScores // com.mikepenz.gameservices/GameServicesOperation.LoadScores|null[0]
+    enum entry ReadSavedGame // com.mikepenz.gameservices/GameServicesOperation.ReadSavedGame|null[0]
+    enum entry RefreshAuthentication // com.mikepenz.gameservices/GameServicesOperation.RefreshAuthentication|null[0]
+    enum entry ReportAchievement // com.mikepenz.gameservices/GameServicesOperation.ReportAchievement|null[0]
+    enum entry RequestFriendsAccess // com.mikepenz.gameservices/GameServicesOperation.RequestFriendsAccess|null[0]
+    enum entry ResolveConflict // com.mikepenz.gameservices/GameServicesOperation.ResolveConflict|null[0]
+    enum entry SelectSavedGame // com.mikepenz.gameservices/GameServicesOperation.SelectSavedGame|null[0]
+    enum entry ShowAchievements // com.mikepenz.gameservices/GameServicesOperation.ShowAchievements|null[0]
+    enum entry ShowLeaderboard // com.mikepenz.gameservices/GameServicesOperation.ShowLeaderboard|null[0]
+    enum entry ShowLeaderboards // com.mikepenz.gameservices/GameServicesOperation.ShowLeaderboards|null[0]
+    enum entry ShowPlayerProfile // com.mikepenz.gameservices/GameServicesOperation.ShowPlayerProfile|null[0]
+    enum entry SubmitScore // com.mikepenz.gameservices/GameServicesOperation.SubmitScore|null[0]
+    enum entry WriteSavedGame // com.mikepenz.gameservices/GameServicesOperation.WriteSavedGame|null[0]
+
+    final val entries // com.mikepenz.gameservices/GameServicesOperation.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices/GameServicesOperation.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): com.mikepenz.gameservices/GameServicesOperation // com.mikepenz.gameservices/GameServicesOperation.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices/GameServicesOperation.values|values#static(){}[0]
+}
+
 final enum class com.mikepenz.gameservices/GameServicesPlatform : kotlin/Enum<com.mikepenz.gameservices/GameServicesPlatform> { // com.mikepenz.gameservices/GameServicesPlatform|null[0]
     enum entry Android // com.mikepenz.gameservices/GameServicesPlatform.Android|null[0]
+    enum entry AndroidNative // com.mikepenz.gameservices/GameServicesPlatform.AndroidNative|null[0]
     enum entry IOS // com.mikepenz.gameservices/GameServicesPlatform.IOS|null[0]
     enum entry JVM // com.mikepenz.gameservices/GameServicesPlatform.JVM|null[0]
+    enum entry MacOS // com.mikepenz.gameservices/GameServicesPlatform.MacOS|null[0]
+    enum entry TvOS // com.mikepenz.gameservices/GameServicesPlatform.TvOS|null[0]
     enum entry Wasm // com.mikepenz.gameservices/GameServicesPlatform.Wasm|null[0]
+    enum entry WatchOS // com.mikepenz.gameservices/GameServicesPlatform.WatchOS|null[0]
+    enum entry WindowsNative // com.mikepenz.gameservices/GameServicesPlatform.WindowsNative|null[0]
 
     final val entries // com.mikepenz.gameservices/GameServicesPlatform.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<com.mikepenz.gameservices/GameServicesPlatform> // com.mikepenz.gameservices/GameServicesPlatform.entries.<get-entries>|<get-entries>#static(){}[0]
@@ -41,6 +75,8 @@ abstract interface com.mikepenz.gameservices/GameServices { // com.mikepenz.game
         abstract fun <get-authenticationState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices/AuthenticationState> // com.mikepenz.gameservices/GameServices.authenticationState.<get-authenticationState>|<get-authenticationState>(){}[0]
     abstract val support // com.mikepenz.gameservices/GameServices.support|{}support[0]
         abstract fun <get-support>(): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices/GameServices.support.<get-support>|<get-support>(){}[0]
+    open val supportedOperations // com.mikepenz.gameservices/GameServices.supportedOperations|{}supportedOperations[0]
+        open fun <get-supportedOperations>(): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices/GameServices.supportedOperations.<get-supportedOperations>|<get-supportedOperations>(){}[0]
 
     abstract suspend fun authenticate(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity> // com.mikepenz.gameservices/GameServices.authenticate|authenticate(){}[0]
     abstract suspend fun refreshAuthentication(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity?> // com.mikepenz.gameservices/GameServices.refreshAuthentication|refreshAuthentication(){}[0]
@@ -85,6 +121,16 @@ final class <#A: kotlin/Any?> com.mikepenz.gameservices/ProviderUiRequest { // c
     final fun close() // com.mikepenz.gameservices/ProviderUiRequest.close|close(){}[0]
     final fun complete(#A) // com.mikepenz.gameservices/ProviderUiRequest.complete|complete(1:0){}[0]
     final suspend fun launchAndAwait(kotlin/Function0<kotlin/Unit>): #A // com.mikepenz.gameservices/ProviderUiRequest.launchAndAwait|launchAndAwait(kotlin.Function0<kotlin.Unit>){}[0]
+}
+
+final class com.mikepenz.gameservices/AuthenticationSession { // com.mikepenz.gameservices/AuthenticationSession|null[0]
+    constructor <init>() // com.mikepenz.gameservices/AuthenticationSession.<init>|<init>(){}[0]
+
+    final val authenticationState // com.mikepenz.gameservices/AuthenticationSession.authenticationState|{}authenticationState[0]
+        final fun <get-authenticationState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices/AuthenticationState> // com.mikepenz.gameservices/AuthenticationSession.authenticationState.<get-authenticationState>|<get-authenticationState>(){}[0]
+
+    final fun complete(kotlin/Result<com.mikepenz.gameservices/PlayerIdentity?>) // com.mikepenz.gameservices/AuthenticationSession.complete|complete(kotlin.Result<com.mikepenz.gameservices.PlayerIdentity?>){}[0]
+    final suspend fun refresh(kotlin/Function0<kotlin/Unit>, kotlin/Function0<com.mikepenz.gameservices/PlayerIdentity?>): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity?> // com.mikepenz.gameservices/AuthenticationSession.refresh|refresh(kotlin.Function0<kotlin.Unit>;kotlin.Function0<com.mikepenz.gameservices.PlayerIdentity?>){}[0]
 }
 
 final class com.mikepenz.gameservices/GameServicesSupport { // com.mikepenz.gameservices/GameServicesSupport|null[0]
@@ -144,6 +190,15 @@ sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception 
             final fun <get-provider>(): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesException.ProviderFailure.provider.<get-provider>|<get-provider>(){}[0]
     }
 
+    final class UnsupportedOperation : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation|null[0]
+        constructor <init>(com.mikepenz.gameservices/GameServicesProvider, com.mikepenz.gameservices/GameServicesOperation) // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation.<init>|<init>(com.mikepenz.gameservices.GameServicesProvider;com.mikepenz.gameservices.GameServicesOperation){}[0]
+
+        final val operation // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation.operation|{}operation[0]
+            final fun <get-operation>(): com.mikepenz.gameservices/GameServicesOperation // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation.operation.<get-operation>|<get-operation>(){}[0]
+        final val provider // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation.provider|{}provider[0]
+            final fun <get-provider>(): com.mikepenz.gameservices/GameServicesProvider // com.mikepenz.gameservices/GameServicesException.UnsupportedOperation.provider.<get-provider>|<get-provider>(){}[0]
+    }
+
     final class UnsupportedTarget : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget|null[0]
         constructor <init>(com.mikepenz.gameservices/GameServicesPlatform) // com.mikepenz.gameservices/GameServicesException.UnsupportedTarget.<init>|<init>(com.mikepenz.gameservices.GameServicesPlatform){}[0]
 
@@ -176,14 +231,4 @@ sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception 
     }
 }
 
-// Targets: [ios]
-final fun (platform.Foundation/NSError).com.mikepenz.gameservices/toGameServicesException(): com.mikepenz.gameservices/GameServicesException // com.mikepenz.gameservices/toGameServicesException|toGameServicesException@platform.Foundation.NSError(){}[0]
-
-// Targets: [ios]
-final fun com.mikepenz.gameservices/createGameServices(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
-
-// Targets: [ios]
-final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices/gameServicesResult(kotlin.coroutines/SuspendFunction0<#A>): kotlin/Result<#A> // com.mikepenz.gameservices/gameServicesResult|gameServicesResult(kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
-
-// Targets: [wasmJs]
-final fun com.mikepenz.gameservices/createGameServices(): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(){}[0]
+final fun com.mikepenz.gameservices/createUnsupportedGameServices(com.mikepenz.gameservices/GameServicesPlatform): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createUnsupportedGameServices|createUnsupportedGameServices(com.mikepenz.gameservices.GameServicesPlatform){}[0]

@@ -1,6 +1,5 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, wasmJs]
-// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -21,6 +20,8 @@ final enum class com.mikepenz.gameservices.achievements/AchievementState : kotli
 abstract interface com.mikepenz.gameservices.achievements/AchievementsClient { // com.mikepenz.gameservices.achievements/AchievementsClient|null[0]
     abstract val isSupported // com.mikepenz.gameservices.achievements/AchievementsClient.isSupported|{}isSupported[0]
         abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.achievements/AchievementsClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    open val supportedOperations // com.mikepenz.gameservices.achievements/AchievementsClient.supportedOperations|{}supportedOperations[0]
+        open fun <get-supportedOperations>(): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices.achievements/AchievementsClient.supportedOperations.<get-supportedOperations>|<get-supportedOperations>(){}[0]
 
     abstract suspend fun loadAchievements(kotlin/Boolean = ...): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.achievements/Achievement>> // com.mikepenz.gameservices.achievements/AchievementsClient.loadAchievements|loadAchievements(kotlin.Boolean){}[0]
     abstract suspend fun reportProgress(com.mikepenz.gameservices.achievements/AchievementId, com.mikepenz.gameservices.achievements/AchievementProgress): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.achievements/AchievementsClient.reportProgress|reportProgress(com.mikepenz.gameservices.achievements.AchievementId;com.mikepenz.gameservices.achievements.AchievementProgress){}[0]
@@ -120,6 +121,9 @@ final class com.mikepenz.gameservices.achievements/AchievementIdMapping { // com
 final class com.mikepenz.gameservices.achievements/AchievementIdMappings { // com.mikepenz.gameservices.achievements/AchievementIdMappings|null[0]
     constructor <init>(kotlin.collections/List<com.mikepenz.gameservices.achievements/AchievementIdMapping>) // com.mikepenz.gameservices.achievements/AchievementIdMappings.<init>|<init>(kotlin.collections.List<com.mikepenz.gameservices.achievements.AchievementIdMapping>){}[0]
 
+    final fun commonId(com.mikepenz.gameservices/GameServicesProvider, com.mikepenz.gameservices.achievements/AchievementId): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMappings.commonId|commonId(com.mikepenz.gameservices.GameServicesProvider;com.mikepenz.gameservices.achievements.AchievementId){}[0]
+    final fun providerId(com.mikepenz.gameservices/GameServicesProvider, com.mikepenz.gameservices.achievements/AchievementId): com.mikepenz.gameservices.achievements/AchievementId // com.mikepenz.gameservices.achievements/AchievementIdMappings.providerId|providerId(com.mikepenz.gameservices.GameServicesProvider;com.mikepenz.gameservices.achievements.AchievementId){}[0]
+
     final object Companion { // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion|null[0]
         final val Empty // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion.Empty|{}Empty[0]
             final fun <get-Empty>(): com.mikepenz.gameservices.achievements/AchievementIdMappings // com.mikepenz.gameservices.achievements/AchievementIdMappings.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
@@ -155,8 +159,7 @@ final value class com.mikepenz.gameservices.achievements/AchievementId { // com.
     final fun toString(): kotlin/String // com.mikepenz.gameservices.achievements/AchievementId.toString|toString(){}[0]
 }
 
-// Targets: [ios]
-final fun com.mikepenz.gameservices.achievements/createAchievementsClient(kotlin/Function0<platform.UIKit/UIViewController>, com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(kotlin.Function0<platform.UIKit.UIViewController>;com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]
-
-// Targets: [wasmJs]
-final fun com.mikepenz.gameservices.achievements/createAchievementsClient(com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createAchievementsClient|createAchievementsClient(com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]
+final fun (com.mikepenz.gameservices.achievements/AchievementProgress).com.mikepenz.gameservices.achievements/percent(): kotlin/Int // com.mikepenz.gameservices.achievements/percent|percent@com.mikepenz.gameservices.achievements.AchievementProgress(){}[0]
+final fun (com.mikepenz.gameservices.achievements/AchievementProgress).com.mikepenz.gameservices.achievements/stepsFor(kotlin/Int): kotlin/Int // com.mikepenz.gameservices.achievements/stepsFor|stepsFor@com.mikepenz.gameservices.achievements.AchievementProgress(kotlin.Int){}[0]
+final fun com.mikepenz.gameservices.achievements/createUnsupportedAchievementsClient(com.mikepenz.gameservices/GameServicesPlatform): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.achievements/createUnsupportedAchievementsClient|createUnsupportedAchievementsClient(com.mikepenz.gameservices.GameServicesPlatform){}[0]
+final inline fun com.mikepenz.gameservices.achievements/configuredSteps(kotlin/Boolean, kotlin/Function0<kotlin/Int>): kotlin/Int? // com.mikepenz.gameservices.achievements/configuredSteps|configuredSteps(kotlin.Boolean;kotlin.Function0<kotlin.Int>){}[0]

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mikepenz.gameservices.AuthenticationState
 import com.mikepenz.gameservices.GameServices
+import com.mikepenz.gameservices.GameServicesOperation
 import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.achievements.Achievement
 import com.mikepenz.gameservices.achievements.AchievementId
@@ -72,6 +73,12 @@ public class GameServicesSample public constructor(
     public val savedGames: SavedGamesClient,
     public val social: SocialClient,
 ) {
+    internal fun availableOperations(): Set<SampleOperation> {
+        val operations = services.supportedOperations + achievements.supportedOperations + leaderboards.supportedOperations +
+            savedGames.supportedOperations + social.supportedOperations
+        return SampleOperation.entries.filter { GameServicesOperation.valueOf(it.name) in operations }.toSet()
+    }
+
     public fun availableActions(): Set<SampleAction> {
         return buildSet {
             if (services.support.isSupported) add(SampleAction.Authenticate)
@@ -120,9 +127,10 @@ public fun GameServicesSampleApp(
     GameServicesSampleContent(
         state = state,
         availableActions = sample.availableActions(),
+        availableOperations = sample.availableOperations(),
         onFieldChange = { field, value -> state = state.update(field, value) },
         onAction = { operation ->
-            if (state.isValid(operation)) {
+            if (operation in sample.availableOperations() && state.isValid(operation)) {
                 val input = state
                 state = state.copy(busy = true, status = "${operation.label}…")
                 scope.launch {
@@ -354,6 +362,7 @@ internal fun GameServicesSampleContent(
     onLeaderboardSelected: (String) -> Unit,
     onAchievementSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
+    availableOperations: Set<SampleOperation> = SampleOperation.entries.filter { it.capability in availableActions }.toSet(),
 ) {
     MaterialTheme {
         Surface(modifier = modifier.fillMaxSize()) {
@@ -381,7 +390,7 @@ internal fun GameServicesSampleContent(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    SampleOperation.Authenticate.button(state, availableActions, onAction)
+                    SampleOperation.Authenticate.button(state, availableOperations, onAction)
 
                     SampleField.AchievementId.input("Achievement ID", state.achievementId, onFieldChange)
                     SampleField.AchievementProgress.input(
@@ -390,8 +399,8 @@ internal fun GameServicesSampleContent(
                         onFieldChange,
                         KeyboardType.Number,
                     )
-                    SampleOperation.ShowAchievements.button(state, availableActions, onAction)
-                    SampleOperation.LoadAchievements.button(state, availableActions, onAction)
+                    SampleOperation.ShowAchievements.button(state, availableOperations, onAction)
+                    SampleOperation.LoadAchievements.button(state, availableOperations, onAction)
                     state.achievements.forEach { achievement ->
                         Button(
                             onClick = { onAchievementSelected(achievement.id.value) },
@@ -400,11 +409,11 @@ internal fun GameServicesSampleContent(
                             Text("${achievement.title} (${achievement.id.value})")
                         }
                     }
-                    SampleOperation.ReportAchievement.button(state, availableActions, onAction)
+                    SampleOperation.ReportAchievement.button(state, availableOperations, onAction)
 
                     SampleField.LeaderboardId.input("Leaderboard ID", state.leaderboardId, onFieldChange)
                     SampleField.Score.input("Score", state.score, onFieldChange, KeyboardType.Number)
-                    SampleOperation.LoadLeaderboards.button(state, availableActions, onAction)
+                    SampleOperation.LoadLeaderboards.button(state, availableOperations, onAction)
                     state.leaderboards.forEach { leaderboard ->
                         Button(
                             onClick = { onLeaderboardSelected(leaderboard.id.value) },
@@ -413,9 +422,9 @@ internal fun GameServicesSampleContent(
                             Text("${leaderboard.title} (${leaderboard.id.value})")
                         }
                     }
-                    SampleOperation.ShowLeaderboards.button(state, availableActions, onAction)
-                    SampleOperation.ShowLeaderboard.button(state, availableActions, onAction)
-                    SampleOperation.SubmitScore.button(state, availableActions, onAction)
+                    SampleOperation.ShowLeaderboards.button(state, availableOperations, onAction)
+                    SampleOperation.ShowLeaderboard.button(state, availableOperations, onAction)
+                    SampleOperation.SubmitScore.button(state, availableOperations, onAction)
                     SampleField.StartRank.input("Start rank (1-1000)", state.startRank, onFieldChange, KeyboardType.Number)
                     SampleField.Limit.input("Entry limit (1-25)", state.limit, onFieldChange, KeyboardType.Number)
                     Button(onClick = { onFieldChange(SampleField.Scope, LeaderboardScope.entries[(state.scope.ordinal + 1) % LeaderboardScope.entries.size].name) }) {
@@ -424,8 +433,8 @@ internal fun GameServicesSampleContent(
                     Button(onClick = { onFieldChange(SampleField.Period, LeaderboardPeriod.entries[(state.period.ordinal + 1) % LeaderboardPeriod.entries.size].name) }) {
                         Text("Period: ${state.period}")
                     }
-                    SampleOperation.LoadScores.button(state, availableActions, onAction)
-                    SampleOperation.LoadCurrentScore.button(state, availableActions, onAction)
+                    SampleOperation.LoadScores.button(state, availableOperations, onAction)
+                    SampleOperation.LoadCurrentScore.button(state, availableOperations, onAction)
 
                     SampleField.SaveId.input("Saved game ID", state.saveId, onFieldChange)
                     SampleField.SaveData.input("Saved data (UTF-8)", state.saveData, onFieldChange)
@@ -435,18 +444,18 @@ internal fun GameServicesSampleContent(
                             Text("Use version ${index + 1}: $data")
                         }
                     }
-                    SampleOperation.ListSavedGames.button(state, availableActions, onAction)
-                    SampleOperation.WriteSavedGame.button(state, availableActions, onAction)
-                    SampleOperation.ReadSavedGame.button(state, availableActions, onAction)
-                    SampleOperation.DeleteSavedGame.button(state, availableActions, onAction)
-                    SampleOperation.ResolveConflict.button(state, availableActions, onAction)
-                    SampleOperation.SelectSavedGame.button(state, availableActions, onAction)
+                    SampleOperation.ListSavedGames.button(state, availableOperations, onAction)
+                    SampleOperation.WriteSavedGame.button(state, availableOperations, onAction)
+                    SampleOperation.ReadSavedGame.button(state, availableOperations, onAction)
+                    SampleOperation.DeleteSavedGame.button(state, availableOperations, onAction)
+                    SampleOperation.ResolveConflict.button(state, availableOperations, onAction)
+                    SampleOperation.SelectSavedGame.button(state, availableOperations, onAction)
 
                     SampleField.PlayerId.input("Player ID", state.playerId, onFieldChange)
-                    SampleOperation.RequestFriendsAccess.button(state, availableActions, onAction)
-                    SampleOperation.LoadFriends.button(state, availableActions, onAction)
-                    SampleOperation.LoadAvatar.button(state, availableActions, onAction)
-                    SampleOperation.ShowPlayerProfile.button(state, availableActions, onAction)
+                    SampleOperation.RequestFriendsAccess.button(state, availableOperations, onAction)
+                    SampleOperation.LoadFriends.button(state, availableOperations, onAction)
+                    SampleOperation.LoadAvatar.button(state, availableOperations, onAction)
+                    SampleOperation.ShowPlayerProfile.button(state, availableOperations, onAction)
                 }
             }
         }
@@ -473,13 +482,13 @@ private fun SampleField.input(
 @Composable
 private fun SampleOperation.button(
     state: SampleScreenState,
-    availableActions: Set<SampleAction>,
+    availableOperations: Set<SampleOperation>,
     onAction: (SampleOperation) -> Unit,
 ) {
     Button(
         onClick = { onAction(this) },
         modifier = Modifier.fillMaxWidth(),
-        enabled = capability in availableActions && state.isValid(this),
+        enabled = this in availableOperations && state.isValid(this),
     ) {
         Text(label)
     }

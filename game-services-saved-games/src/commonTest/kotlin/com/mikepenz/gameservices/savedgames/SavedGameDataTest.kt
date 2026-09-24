@@ -1,3 +1,5 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.savedgames
 
 import kotlin.test.Test

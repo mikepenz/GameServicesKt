@@ -133,6 +133,7 @@ public final class com/mikepenz/gameservices/savedgames/SavedGameWriteResult$Sav
 
 public abstract interface class com/mikepenz/gameservices/savedgames/SavedGamesClient {
 	public abstract fun delete-D5Paxtk (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getSupportedOperations ()Ljava/util/Set;
 	public abstract fun isSelectionPresenterSupported ()Z
 	public abstract fun isSupported ()Z
 	public abstract fun listSavedGames-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -142,7 +143,13 @@ public abstract interface class com/mikepenz/gameservices/savedgames/SavedGamesC
 	public abstract fun write-Qn6bZSI (Ljava/lang/String;Lcom/mikepenz/gameservices/savedgames/SavedGameData;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/mikepenz/gameservices/savedgames/SavedGames_androidKt {
-	public static final fun createSavedGamesClient (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+public final class com/mikepenz/gameservices/savedgames/SavedGamesClient$DefaultImpls {
+	public static fun getSupportedOperations (Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;)Ljava/util/Set;
+}
+
+public final class com/mikepenz/gameservices/savedgames/SavedGamesKt {
+	public static final fun createUnsupportedSavedGamesClient (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+	public static final fun requirePortableName-eCzODks (Ljava/lang/String;)V
+	public static final fun writeAndCommit (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

@@ -1,23 +1,20 @@
 package com.mikepenz.gameservices.sample
 
+import com.mikepenz.gameservices.gamecenter.*
+
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
-import com.mikepenz.gameservices.createGameServices
-import com.mikepenz.gameservices.achievements.createAchievementsClient
-import com.mikepenz.gameservices.leaderboards.createLeaderboardsClient
-import com.mikepenz.gameservices.savedgames.createSavedGamesClient
-import com.mikepenz.gameservices.social.createSocialClient
 import platform.UIKit.UIViewController
 
 public fun createGameServicesSample(
     presentingViewController: () -> UIViewController,
-): GameServicesSample = GameServicesSample(
-    services = createGameServices(presentingViewController),
-    achievements = createAchievementsClient(presentingViewController),
-    leaderboards = createLeaderboardsClient(presentingViewController),
-    savedGames = createSavedGamesClient(),
-    social = createSocialClient(presentingViewController),
-)
+): GameServicesSample = GameCenterBackend(presentingViewController).let { backend -> GameServicesSample(
+    services = backend,
+    achievements = backend.createAchievementsClient(),
+    leaderboards = backend.createLeaderboardsClient(),
+    savedGames = backend.createSavedGamesClient(),
+    social = backend.createSocialClient(),
+) }
 
 @Suppress("FunctionName")
 public fun MainViewController(): UIViewController {

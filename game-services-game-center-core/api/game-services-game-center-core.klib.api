@@ -1,0 +1,26 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-game-center-core>
+final class com.mikepenz.gameservices.gamecenter/GameCenterBackend : com.mikepenz.gameservices/GameServices { // com.mikepenz.gameservices.gamecenter/GameCenterBackend|null[0]
+    constructor <init>(kotlin/Function0<platform.UIKit/UIViewController>) // com.mikepenz.gameservices.gamecenter/GameCenterBackend.<init>|<init>(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+
+    final val authenticationState // com.mikepenz.gameservices.gamecenter/GameCenterBackend.authenticationState|{}authenticationState[0]
+        final fun <get-authenticationState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices/AuthenticationState> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.authenticationState.<get-authenticationState>|<get-authenticationState>(){}[0]
+    final val presentingViewController // com.mikepenz.gameservices.gamecenter/GameCenterBackend.presentingViewController|{}presentingViewController[0]
+        final fun <get-presentingViewController>(): kotlin/Function0<platform.UIKit/UIViewController> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.presentingViewController.<get-presentingViewController>|<get-presentingViewController>(){}[0]
+    final val support // com.mikepenz.gameservices.gamecenter/GameCenterBackend.support|{}support[0]
+        final fun <get-support>(): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices.gamecenter/GameCenterBackend.support.<get-support>|<get-support>(){}[0]
+    final val supportedOperations // com.mikepenz.gameservices.gamecenter/GameCenterBackend.supportedOperations|{}supportedOperations[0]
+        final fun <get-supportedOperations>(): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.supportedOperations.<get-supportedOperations>|<get-supportedOperations>(){}[0]
+
+    final suspend fun authenticate(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.authenticate|authenticate(){}[0]
+    final suspend fun refreshAuthentication(): kotlin/Result<com.mikepenz.gameservices/PlayerIdentity?> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.refreshAuthentication|refreshAuthentication(){}[0]
+}
+
+final fun (platform.Foundation/NSError).com.mikepenz.gameservices.gamecenter/toGameServicesException(): com.mikepenz.gameservices/GameServicesException // com.mikepenz.gameservices.gamecenter/toGameServicesException|toGameServicesException@platform.Foundation.NSError(){}[0]
+final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices.gamecenter/gameServicesResult(kotlin.coroutines/SuspendFunction0<#A>): kotlin/Result<#A> // com.mikepenz.gameservices.gamecenter/gameServicesResult|gameServicesResult(kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]

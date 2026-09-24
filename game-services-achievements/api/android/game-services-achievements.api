@@ -56,6 +56,8 @@ public final class com/mikepenz/gameservices/achievements/AchievementIdMapping {
 public final class com/mikepenz/gameservices/achievements/AchievementIdMappings {
 	public static final field Companion Lcom/mikepenz/gameservices/achievements/AchievementIdMappings$Companion;
 	public fun <init> (Ljava/util/List;)V
+	public final fun commonId-OLTyvnU (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)Ljava/lang/String;
+	public final fun providerId-OLTyvnU (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class com/mikepenz/gameservices/achievements/AchievementIdMappings$Companion {
@@ -119,6 +121,7 @@ public final class com/mikepenz/gameservices/achievements/AchievementSteps {
 }
 
 public abstract interface class com/mikepenz/gameservices/achievements/AchievementsClient {
+	public fun getSupportedOperations ()Ljava/util/Set;
 	public abstract fun isSupported ()Z
 	public abstract fun loadAchievements-gIAlu-s (ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun loadAchievements-gIAlu-s$default (Lcom/mikepenz/gameservices/achievements/AchievementsClient;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
@@ -127,11 +130,14 @@ public abstract interface class com/mikepenz/gameservices/achievements/Achieveme
 }
 
 public final class com/mikepenz/gameservices/achievements/AchievementsClient$DefaultImpls {
+	public static fun getSupportedOperations (Lcom/mikepenz/gameservices/achievements/AchievementsClient;)Ljava/util/Set;
 	public static synthetic fun loadAchievements-gIAlu-s$default (Lcom/mikepenz/gameservices/achievements/AchievementsClient;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
-public final class com/mikepenz/gameservices/achievements/Achievements_androidKt {
-	public static final fun createAchievementsClient (Landroidx/activity/ComponentActivity;Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
-	public static synthetic fun createAchievementsClient$default (Landroidx/activity/ComponentActivity;Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;ILjava/lang/Object;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+public final class com/mikepenz/gameservices/achievements/AchievementsKt {
+	public static final fun configuredSteps (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Integer;
+	public static final fun createUnsupportedAchievementsClient (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+	public static final fun percent (Lcom/mikepenz/gameservices/achievements/AchievementProgress;)I
+	public static final fun stepsFor (Lcom/mikepenz/gameservices/achievements/AchievementProgress;I)I
 }
 

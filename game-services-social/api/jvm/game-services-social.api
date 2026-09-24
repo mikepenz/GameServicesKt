@@ -7,6 +7,19 @@ public final class com/mikepenz/gameservices/social/AvatarBytes$Companion {
 	public final fun of ([B)Lcom/mikepenz/gameservices/social/AvatarBytes;
 }
 
+public final class com/mikepenz/gameservices/social/FriendPage {
+	public fun <init> (Ljava/util/List;Z)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Z
+	public final fun copy (Ljava/util/List;Z)Lcom/mikepenz/gameservices/social/FriendPage;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/social/FriendPage;Ljava/util/List;ZILjava/lang/Object;)Lcom/mikepenz/gameservices/social/FriendPage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHasMore ()Z
+	public final fun getProfiles ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class com/mikepenz/gameservices/social/FriendsAccessState : java/lang/Enum {
 	public static final field ConsentRequired Lcom/mikepenz/gameservices/social/FriendsAccessState;
 	public static final field Denied Lcom/mikepenz/gameservices/social/FriendsAccessState;
@@ -31,6 +44,7 @@ public final class com/mikepenz/gameservices/social/PlayerProfile {
 
 public abstract interface class com/mikepenz/gameservices/social/SocialClient {
 	public abstract fun getFriendsAccessState ()Lkotlinx/coroutines/flow/StateFlow;
+	public fun getSupportedOperations ()Ljava/util/Set;
 	public abstract fun isSupported ()Z
 	public abstract fun loadAvatar-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun loadFriends-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -38,7 +52,12 @@ public abstract interface class com/mikepenz/gameservices/social/SocialClient {
 	public abstract fun showPlayerProfile-6yxssJU (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/mikepenz/gameservices/social/Social_jvmKt {
-	public static final fun createSocialClient ()Lcom/mikepenz/gameservices/social/SocialClient;
+public final class com/mikepenz/gameservices/social/SocialClient$DefaultImpls {
+	public static fun getSupportedOperations (Lcom/mikepenz/gameservices/social/SocialClient;)Ljava/util/Set;
+}
+
+public final class com/mikepenz/gameservices/social/SocialKt {
+	public static final fun collectFriends (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun createUnsupportedSocialClient (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/social/SocialClient;
 }
 

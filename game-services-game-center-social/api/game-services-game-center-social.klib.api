@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-game-center-social>
+final fun (com.mikepenz.gameservices.gamecenter/GameCenterBackend).com.mikepenz.gameservices.gamecenter/createSocialClient(): com.mikepenz.gameservices.social/SocialClient // com.mikepenz.gameservices.gamecenter/createSocialClient|createSocialClient@com.mikepenz.gameservices.gamecenter.GameCenterBackend(){}[0]

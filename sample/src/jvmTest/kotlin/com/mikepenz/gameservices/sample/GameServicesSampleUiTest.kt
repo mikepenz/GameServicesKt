@@ -25,6 +25,25 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class GameServicesSampleUiTest {
     @Test
+    fun `partial backend enables data operations but disables provider UI`() = runComposeUiTest {
+        var loads = 0
+        setContent {
+            GameServicesSampleContent(
+                state = SampleScreenState(),
+                availableActions = setOf(SampleAction.Achievements),
+                availableOperations = setOf(SampleOperation.LoadAchievements),
+                onFieldChange = { _, _ -> },
+                onAction = { loads++ },
+                onLeaderboardSelected = {},
+                onAchievementSelected = {},
+            )
+        }
+        onNodeWithText("Show achievements").assertIsNotEnabled()
+        onNodeWithText("Load achievement IDs").assertIsEnabled().performClick()
+        runOnIdle { assertEquals(1, loads) }
+    }
+
+    @Test
     fun `app awaits startup then recovers from failure and resolves the selected conflict bytes`() = runComposeUiTest {
         val base = createGameServicesSample()
         val refresh = CompletableDeferred<Result<PlayerIdentity?>>()
@@ -46,6 +65,7 @@ class GameServicesSampleUiTest {
         var resolutions = 0
         val saves = object : SavedGamesClient by base.savedGames {
             override val isSupported = true
+            override val supportedOperations = setOf(GameServicesOperation.ReadSavedGame, GameServicesOperation.ResolveConflict)
             override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> {
                 assertEquals(metadata.id, id)
                 reads++

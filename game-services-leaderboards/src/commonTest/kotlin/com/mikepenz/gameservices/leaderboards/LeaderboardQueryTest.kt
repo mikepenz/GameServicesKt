@@ -1,3 +1,5 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.leaderboards
 
 import com.mikepenz.gameservices.GameServicesProvider

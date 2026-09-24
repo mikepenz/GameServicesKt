@@ -1,4 +1,9 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.leaderboards
+
+import com.mikepenz.gameservices.GameServicesOperation
+import com.mikepenz.gameservices.InternalGameServicesApi
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
@@ -33,13 +38,15 @@ public class LeaderboardIdMappings public constructor(
         require(byGameCenterId.size == this.mappings.size) { "Game Center leaderboard IDs must be unique" }
     }
 
-    internal fun providerId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
+    @InternalGameServicesApi
+    public fun providerId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
         GameServicesProvider.GooglePlayGames -> byId[id]?.googlePlayGamesId ?: id
         GameServicesProvider.GameCenter -> byId[id]?.gameCenterId ?: id
         GameServicesProvider.None -> id
     }
 
-    internal fun commonId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
+    @InternalGameServicesApi
+    public fun commonId(provider: GameServicesProvider, id: LeaderboardId): LeaderboardId = when (provider) {
         GameServicesProvider.GooglePlayGames -> byGooglePlayGamesId[id]?.id ?: id
         GameServicesProvider.GameCenter -> byGameCenterId[id]?.id ?: id
         GameServicesProvider.None -> id
@@ -94,6 +101,9 @@ public data class LeaderboardQuery public constructor(
 }
 
 public interface LeaderboardsClient {
+    public val supportedOperations: Set<GameServicesOperation>
+        get() = if (isSupported) setOf(GameServicesOperation.LoadLeaderboards, GameServicesOperation.SubmitScore, GameServicesOperation.LoadCurrentScore, GameServicesOperation.LoadScores, GameServicesOperation.ShowLeaderboards, GameServicesOperation.ShowLeaderboard) else emptySet()
+
     public val isSupported: Boolean
 
     public suspend fun loadLeaderboards(): Result<List<Leaderboard>>
@@ -149,9 +159,11 @@ internal class UnsupportedLeaderboardsClient(
 }
 
 /** The SDK replaces the previous buffer with an expanded snapshot. */
-internal data class ScorePage(val scores: List<LeaderboardScore>, val hasMore: Boolean)
+@InternalGameServicesApi
+public data class ScorePage(public val scores: List<LeaderboardScore>, public val hasMore: Boolean)
 
-internal suspend fun collectLeaderboardScores(query: LeaderboardQuery, loadPage: suspend () -> ScorePage): List<LeaderboardScore> {
+@InternalGameServicesApi
+public suspend fun collectLeaderboardScores(query: LeaderboardQuery, loadPage: suspend () -> ScorePage): List<LeaderboardScore> {
     // ponytail: bound sequential Android SDK work; use provider UI for deeper or heavily tied boards.
     repeat(41) {
         val page = loadPage()
@@ -161,3 +173,5 @@ internal suspend fun collectLeaderboardScores(query: LeaderboardQuery, loadPage:
     }
     error("Leaderboard query exceeds 41 provider pages; use the provider leaderboard screen")
 }
+
+public fun createUnsupportedLeaderboardsClient(target: GameServicesPlatform): LeaderboardsClient = UnsupportedLeaderboardsClient(target)

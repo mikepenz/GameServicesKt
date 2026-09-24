@@ -1,6 +1,5 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, wasmJs]
-// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -26,6 +25,8 @@ abstract interface com.mikepenz.gameservices.social/SocialClient { // com.mikepe
         abstract fun <get-friendsAccessState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices.social/FriendsAccessState> // com.mikepenz.gameservices.social/SocialClient.friendsAccessState.<get-friendsAccessState>|<get-friendsAccessState>(){}[0]
     abstract val isSupported // com.mikepenz.gameservices.social/SocialClient.isSupported|{}isSupported[0]
         abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.social/SocialClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    open val supportedOperations // com.mikepenz.gameservices.social/SocialClient.supportedOperations|{}supportedOperations[0]
+        open fun <get-supportedOperations>(): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices.social/SocialClient.supportedOperations.<get-supportedOperations>|<get-supportedOperations>(){}[0]
 
     abstract suspend fun loadAvatar(com.mikepenz.gameservices/PlayerId): kotlin/Result<com.mikepenz.gameservices.social/AvatarBytes?> // com.mikepenz.gameservices.social/SocialClient.loadAvatar|loadAvatar(com.mikepenz.gameservices.PlayerId){}[0]
     abstract suspend fun loadFriends(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile>> // com.mikepenz.gameservices.social/SocialClient.loadFriends|loadFriends(){}[0]
@@ -41,6 +42,22 @@ final class com.mikepenz.gameservices.social/AvatarBytes { // com.mikepenz.games
     }
 }
 
+final class com.mikepenz.gameservices.social/FriendPage { // com.mikepenz.gameservices.social/FriendPage|null[0]
+    constructor <init>(kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile>, kotlin/Boolean) // com.mikepenz.gameservices.social/FriendPage.<init>|<init>(kotlin.collections.List<com.mikepenz.gameservices.social.PlayerProfile>;kotlin.Boolean){}[0]
+
+    final val hasMore // com.mikepenz.gameservices.social/FriendPage.hasMore|{}hasMore[0]
+        final fun <get-hasMore>(): kotlin/Boolean // com.mikepenz.gameservices.social/FriendPage.hasMore.<get-hasMore>|<get-hasMore>(){}[0]
+    final val profiles // com.mikepenz.gameservices.social/FriendPage.profiles|{}profiles[0]
+        final fun <get-profiles>(): kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile> // com.mikepenz.gameservices.social/FriendPage.profiles.<get-profiles>|<get-profiles>(){}[0]
+
+    final fun component1(): kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile> // com.mikepenz.gameservices.social/FriendPage.component1|component1(){}[0]
+    final fun component2(): kotlin/Boolean // com.mikepenz.gameservices.social/FriendPage.component2|component2(){}[0]
+    final fun copy(kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile> = ..., kotlin/Boolean = ...): com.mikepenz.gameservices.social/FriendPage // com.mikepenz.gameservices.social/FriendPage.copy|copy(kotlin.collections.List<com.mikepenz.gameservices.social.PlayerProfile>;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices.social/FriendPage.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.mikepenz.gameservices.social/FriendPage.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.social/FriendPage.toString|toString(){}[0]
+}
+
 final class com.mikepenz.gameservices.social/PlayerProfile { // com.mikepenz.gameservices.social/PlayerProfile|null[0]
     constructor <init>(com.mikepenz.gameservices/PlayerIdentity) // com.mikepenz.gameservices.social/PlayerProfile.<init>|<init>(com.mikepenz.gameservices.PlayerIdentity){}[0]
 
@@ -54,8 +71,5 @@ final class com.mikepenz.gameservices.social/PlayerProfile { // com.mikepenz.gam
     final fun toString(): kotlin/String // com.mikepenz.gameservices.social/PlayerProfile.toString|toString(){}[0]
 }
 
-// Targets: [ios]
-final fun com.mikepenz.gameservices.social/createSocialClient(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.social/SocialClient // com.mikepenz.gameservices.social/createSocialClient|createSocialClient(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
-
-// Targets: [wasmJs]
-final fun com.mikepenz.gameservices.social/createSocialClient(): com.mikepenz.gameservices.social/SocialClient // com.mikepenz.gameservices.social/createSocialClient|createSocialClient(){}[0]
+final fun com.mikepenz.gameservices.social/createUnsupportedSocialClient(com.mikepenz.gameservices/GameServicesPlatform): com.mikepenz.gameservices.social/SocialClient // com.mikepenz.gameservices.social/createUnsupportedSocialClient|createUnsupportedSocialClient(com.mikepenz.gameservices.GameServicesPlatform){}[0]
+final suspend fun com.mikepenz.gameservices.social/collectFriends(kotlin.coroutines/SuspendFunction0<com.mikepenz.gameservices.social/FriendPage>): kotlin.collections/List<com.mikepenz.gameservices.social/PlayerProfile> // com.mikepenz.gameservices.social/collectFriends|collectFriends(kotlin.coroutines.SuspendFunction0<com.mikepenz.gameservices.social.FriendPage>){}[0]

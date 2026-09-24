@@ -1,0 +1,5 @@
+public final class com/mikepenz/gameservices/playgames/Achievements_androidKt {
+	public static final fun createAchievementsClient (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+	public static synthetic fun createAchievementsClient$default (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;Lcom/mikepenz/gameservices/achievements/AchievementIdMappings;ILjava/lang/Object;)Lcom/mikepenz/gameservices/achievements/AchievementsClient;
+}
+
