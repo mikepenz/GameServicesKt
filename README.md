@@ -1,6 +1,142 @@
-# GameServicesKt
+<h1 align="center">GameServicesKt</h1>
 
-Kotlin Multiplatform, provider-neutral game-services APIs for Google Play Games and Game Center.
+<p align="center">Kotlin Multiplatform, provider-neutral game-services APIs for Google Play Games and Game Center.</p>
+
+<p align="center">
+  <a href="https://github.com/mikepenz/GameServicesKt/actions/workflows/ci.yml"><img src="https://github.com/mikepenz/GameServicesKt/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI status"></a>
+  <a href="#modules"><img src="https://img.shields.io/badge/version-0.1.0--SNAPSHOT-6750A4" alt="Version 0.1.0-SNAPSHOT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-6750A4" alt="Apache 2.0 license"></a>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/hero-dark.svg">
+    <img src="assets/readme/hero-light.svg" width="100%" alt="GameServicesKt connects your shared Kotlin game code to Google Play Games and Game Center through explicit backends.">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#sample-app">Sample app</a> ·
+  <a href="PLATFORM_SUPPORT.md">Platform support</a> ·
+  <a href="#reference">Reference</a>
+</p>
+
+| In your game | Shared API |
+| --- | --- |
+| Sign-in and account changes | `GameServices` with observable `authenticationState` |
+| Achievement progress | `AchievementsClient` with shared-to-provider ID mappings |
+| Score submission and queries | `LeaderboardsClient` with rank, scope, and period controls |
+| Saved games | `SavedGamesClient` with opaque bytes and explicit conflict resolution |
+| Friends and profiles | `SocialClient` with permission and capability checks |
+
+Choose your backend at the app boundary, then pass the service interfaces into shared code.
+Each client exposes `supportedOperations`; check it before offering an action.
+Android and Apple backends have different capabilities. See the [platform matrix](PLATFORM_SUPPORT.md)
+for target coverage, experimental adapters, and live-validation requirements.
+
+## Quickstart
+
+### 1. Add the features you need
+
+Add the [snapshot repository](#modules) to dependency resolution, then declare contracts in
+`commonMain` and provider adapters in the corresponding platform source sets. For achievements:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("com.mikepenz:game-services-achievements:0.1.0-SNAPSHOT")
+        }
+        androidMain.dependencies {
+            implementation("com.mikepenz:game-services-play-games-achievements:0.1.0-SNAPSHOT")
+        }
+        iosMain.dependencies {
+            implementation("com.mikepenz:game-services-game-center-achievements:0.1.0-SNAPSHOT")
+        }
+    }
+}
+```
+
+Each feature adapter brings its backend core and matching contract transitively.
+Add leaderboard, saved-game, and social artifacts only when your game uses them.
+
+### 2. Create one backend and its clients
+
+Complete [Android setup](#android-setup) or [iOS setup](#ios-setup) first.
+On Android, create clients in your `ComponentActivity.onCreate`, before it starts:
+
+```kotlin
+import com.mikepenz.gameservices.playgames.PlayGamesBackend
+import com.mikepenz.gameservices.playgames.createAchievementsClient
+
+val backend = PlayGamesBackend(this)
+val achievements = backend.createAchievementsClient()
+```
+
+On iOS, keep one backend for the app and supply its current presenter:
+
+```kotlin
+import com.mikepenz.gameservices.gamecenter.GameCenterBackend
+import com.mikepenz.gameservices.gamecenter.createAchievementsClient
+
+val backend = GameCenterBackend { currentViewController }
+val achievements = backend.createAchievementsClient()
+```
+
+Pass `backend` as `GameServices` and `achievements` as `AchievementsClient` to shared code.
+Call `refreshAuthentication()` from a coroutine at startup and handle its `Result`.
+
+### 3. Call the shared API
+
+For example, call this suspending function from a player's sign-in action and display its result:
+
+```kotlin
+import com.mikepenz.gameservices.GameServices
+
+suspend fun signIn(services: GameServices): String =
+    services.authenticate().fold(
+        onSuccess = { player -> "Signed in as ${player.displayName}" },
+        onFailure = { error -> "Could not sign in: ${error.message}" },
+    )
+```
+
+Observe `authenticationState` for later account changes. Feature operations also return `Result`;
+handle failures and check [operation support](#modules) before displaying controls.
+
+## Sample app
+
+The Android and iOS validation hosts render the same Compose Multiplatform screen.
+Use it to exercise authentication, achievements, leaderboards, saves, and friends with your own
+provider configuration. See [host setup](#provider-validation-host).
+
+<p align="center">
+  <img src="sample-host-android/src/test/snapshots/images/Paparazzi_Preview_Test_com.mikepenz.gameservices.sample.host.gameservicessamplepreviewkt.samplepreview.w412dp_h915dp_with_background.png" width="360" alt="Generated sample preview with authentication, achievement ID and progress inputs, and leaderboard controls. Actions requiring IDs are disabled until values are entered.">
+</p>
+
+`GameServicesSamplePreview()` renders the shared sample UI. This is a deterministic preview,
+not a signed-in provider session. [Preview source](sample-host-android/src/main/kotlin/com/mikepenz/gameservices/sample/host/GameServicesSamplePreview.kt)
+· [Shared screen](sample/src/commonMain/kotlin/com/mikepenz/gameservices/sample/GameServicesSample.kt).
+
+The image links directly to the tracked Paparazzi baseline. To refresh it after a UI change,
+run `./gradlew :sample-host-android:recordPaparazziDebug`, review the image, and commit the baseline.
+CI checks it with `./gradlew :sample-host-android:verifyPaparazziDebug`.
+
+---
+
+## Reference
+
+| Topic | Details |
+| --- | --- |
+| [Modules](#modules) | Artifacts, snapshot repository, capabilities, and shared usage |
+| [Android setup](#android-setup) · [iOS setup](#ios-setup) | Provider configuration and client creation |
+| [Additional platforms](#additional-platforms-and-runtimes) | Desktop, other Apple targets, and experimental adapters |
+| [Authentication](#authentication) · [Shared IDs](#shared-service-ids) | Session ownership and provider ID mappings |
+| [Operation contracts](#operation-contracts) | Lifecycles, cancellation, acknowledgements, and errors |
+| [Leaderboard queries](#leaderboard-queries) | Ranking, pagination, and privacy |
+| [Saves and friends](#saved-games-and-friends-setup) | Conflicts, iCloud, and consent |
+| [Validation hosts](#provider-validation-host) · [Validation limits](#validation-limits) | Local setup and live-provider checks |
+| [Snapshot migration](#snapshot-migration-explicit-backends) | Moving to explicit provider backends |
 
 ## Modules
 
