@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSData
 import platform.Foundation.NSError
+import platform.Foundation.NSUUID
 import platform.Foundation.create
 import platform.GameKit.GKLocalPlayer
 import platform.GameKit.GKSavedGame
@@ -66,7 +67,7 @@ internal class IosSavedGamesClient(
         }
     }
 
-    private val conflicts: MutableMap<String, List<GKSavedGame>> = mutableMapOf()
+    private val conflicts: MutableMap<String, Pair<String, List<GKSavedGame>>> = mutableMapOf()
 
     override val isSupported: Boolean = true
     override val isSelectionPresenterSupported: Boolean = false
@@ -105,17 +106,20 @@ internal class IosSavedGamesClient(
                 }
             }
         }
-        conflicts.remove(id.value)
+        conflicts.keys.filter { conflicts[it]?.first == id.value }.forEach(conflicts::remove)
     }
 
     override suspend fun resolve(
         conflictId: SavedGameConflictId,
         data: SavedGameData,
     ): Result<SavedGameWriteResult> = savedGameResult {
-        val versions = requireNotNull(conflicts[conflictId.value]) { "Unknown saved game conflict" }
+        val (name, versions) = requireNotNull(conflicts[conflictId.value]) { "Unknown saved game conflict" }
         val resolved = resolve(versions, data)
-        val matching = resolved.filter { it.name == conflictId.value }
-        if (matching.size > 1) SavedGameWriteResult.Conflict(matching.toConflict(SavedGameId(conflictId.value)))
+        val matching = resolved.filter { it.name == name }
+        if (matching.size > 1) {
+            conflicts.remove(conflictId.value)
+            SavedGameWriteResult.Conflict(matching.toConflict(SavedGameId(name)))
+        }
         else {
             val metadata = requireNotNull(matching.singleOrNull()).toMetadata()
             conflicts.remove(conflictId.value)
@@ -157,9 +161,11 @@ internal class IosSavedGamesClient(
 
     private suspend fun List<GKSavedGame>.toConflict(id: SavedGameId): SavedGameConflict {
         val versions = map { it.toVersion() }
-        conflicts[id.value] = this
+        conflicts.keys.filter { conflicts[it]?.first == id.value }.forEach(conflicts::remove)
+        val token = NSUUID().UUIDString
+        conflicts[token] = id.value to this
         return SavedGameConflict(
-            id = SavedGameConflictId(id.value),
+            id = SavedGameConflictId(token),
             versions = versions,
         )
     }

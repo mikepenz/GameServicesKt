@@ -4,7 +4,7 @@ import kotlin.test.*
 
 class NativeBindingsTest {
     @Test fun packagedLibraryLoadsAndSessionCanClose() {
-        if (System.getProperty("os.name") != "Mac OS X") return
+        if (System.getProperty("os.name") != "Mac OS X" || System.getProperty("os.arch") !in setOf("aarch64", "arm64")) return
         NativeBindings.load(null)
         val handle = NativeBindings.create()
         assertNotEquals(0L, handle)

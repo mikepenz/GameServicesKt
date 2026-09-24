@@ -110,6 +110,25 @@ val services: GameServices = backend
 val achievements = backend.createAchievementsClient()
 ```
 
+## Additional platforms and runtimes
+
+Android on ChromeOS and Google Play Games for PC uses `PlayGamesBackend` from the Android
+artifact. Game Center also provides macOS, tvOS, watchOS, and macOS JVM variants. On macOS JVM,
+construct `GameCenterBackend()` explicitly and close it when the Compose Desktop host exits.
+Use the same Game Center feature artifact names; Gradle selects the JVM variant.
+
+Experimental adapters require `@OptIn(ExperimentalGameServicesApi::class)`:
+
+- `game-services-play-games-native`: Android Kotlin/Native C SDK, boolean authentication,
+  achievements, and Recall; the host supplies its Activity/JavaVM.
+- `game-services-play-games-pc`: Windows x64 JVM/Native SDK, initialization and Recall;
+  the host packages its native DLLs and supplies an absolute path.
+- `game-services-recall`: the opaque server-facing Recall session contract.
+
+These Google SDKs expose different feature sets. Recall is not player authentication.
+See [the platform matrix and host setup](PLATFORM_SUPPORT.md) for supported operations,
+native packaging, signing, and the distinction between compile checks and live validation.
+
 ## Authentication
 
 Call `refreshAuthentication()` once at app startup after creating the client. On Android it checks

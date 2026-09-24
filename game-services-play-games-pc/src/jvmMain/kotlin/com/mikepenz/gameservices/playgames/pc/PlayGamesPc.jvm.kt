@@ -27,9 +27,9 @@ public actual class PlayGamesPcBackend public actual constructor(nativeLibrary: 
     }
     public actual suspend fun initialize(): Result<Unit> = call(0).map { }
     actual override suspend fun requestRecallAccess(): Result<RecallSession> = call(1).mapCatching(::RecallSession)
-    public actual suspend fun close(): Unit = operations.withLock {
+    public actual suspend fun close(): Unit = withContext(NonCancellable) { operations.withLock {
         if (handle != 0L) { PcBindings.close(handle); handle = 0L }
-    }
+    } }
     private suspend fun call(operation: Int): Result<String> = try {
         val result = operations.withLock {
             check(handle != 0L) { "Play PC backend is closed" }
