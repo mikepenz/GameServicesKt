@@ -68,7 +68,7 @@ are disabled. Test account changes without retaining data or conflict handles fr
 ## macOS JVM / Compose Desktop
 
 The JVM variants of `game-services-game-center-*` use the same GameKit implementation through
-JNI. The core artifact packages Apple Silicon and Intel native libraries. Choose this backend
+JNI. The core artifact packages Apple Silicon and Intel native libraries targeting macOS 12+. Choose this backend
 explicitly with `GameCenterBackend()` and close it when the host exits. It requires macOS and
 an AppKit event loop, as provided by Compose Desktop; plain headless JVM processes are not hosts.
 Other desktop operating systems must select the unsupported backend explicitly.
@@ -155,3 +155,8 @@ live check; merely running the console host is not proof of runtime/store config
 
 SDK archive versions and checksums are pinned in the native adapter builds. Treat downloaded
 headers as the binding source of truth: language choice (C/C++/Java) does not itself add an OS target.
+
+Default checks execute iOS/macOS tests and compile all Apple variants. To execute tvOS/watchOS
+simulator tests, install those simulator runtimes/devices and pass
+`-PappleExtendedSimulatorTests=true`. Those device tests are not silently represented as passing
+when their runtimes are absent.

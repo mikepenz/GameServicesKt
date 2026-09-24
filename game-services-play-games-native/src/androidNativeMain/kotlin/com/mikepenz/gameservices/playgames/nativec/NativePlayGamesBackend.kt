@@ -36,8 +36,10 @@ public class NativePlayGamesBackend public constructor(javaVm: COpaquePointer, p
 
     init {
         check(activeSession.compareAndSet(false, true)) { "Only one native PGS session may be active" }
+        var initialized = false
         try {
             check(Pgs_initialize(javaVm.reinterpret(), activity.reinterpret()) == 0) { "PGS initialization failed" }
+            initialized = true
             signIn = requireNotNull(PgsGamesSignInClient_create(activity.reinterpret()))
             achievements = requireNotNull(PgsAchievementsClient_create(activity.reinterpret()))
             recall = requireNotNull(PgsRecallClient_create(activity.reinterpret()))
@@ -45,7 +47,7 @@ public class NativePlayGamesBackend public constructor(javaVm: COpaquePointer, p
             recall?.let { PgsRecallClient_destroy(it) }
             achievements?.let { PgsAchievementsClient_destroy(it) }
             signIn?.let { PgsGamesSignInClient_destroy(it) }
-            Pgs_destroy()
+            if (initialized) Pgs_destroy()
             activeSession.store(false)
             throw error
         }
