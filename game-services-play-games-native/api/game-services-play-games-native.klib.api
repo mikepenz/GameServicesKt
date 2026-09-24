@@ -1,0 +1,17 @@
+// Klib ABI Dump
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-play-games-native>
+final class com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend : com.mikepenz.gameservices.recall/RecallClient { // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend|null[0]
+    constructor <init>(kotlinx.cinterop/CPointer<out kotlinx.cinterop/CPointed>, kotlinx.cinterop/CPointer<out kotlinx.cinterop/CPointed>) // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.<init>|<init>(kotlinx.cinterop.CPointer<out|kotlinx.cinterop.CPointed>;kotlinx.cinterop.CPointer<out|kotlinx.cinterop.CPointed>){}[0]
+
+    final fun createAchievementsClient(com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.createAchievementsClient|createAchievementsClient(com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]
+    final suspend fun close() // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.close|close(){}[0]
+    final suspend fun isAuthenticated(): kotlin/Result<kotlin/Boolean> // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.isAuthenticated|isAuthenticated(){}[0]
+    final suspend fun requestRecallAccess(): kotlin/Result<com.mikepenz.gameservices.recall/RecallSession> // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.requestRecallAccess|requestRecallAccess(){}[0]
+    final suspend fun signIn(): kotlin/Result<kotlin/Boolean> // com.mikepenz.gameservices.playgames.nativec/NativePlayGamesBackend.signIn|signIn(){}[0]
+}

@@ -57,3 +57,6 @@ include(
 include(":game-services-game-center-bridge")
 
 include(":sample-host-desktop")
+
+include(":game-services-recall", ":game-services-play-games-native")
+

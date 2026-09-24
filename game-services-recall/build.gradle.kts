@@ -35,13 +35,13 @@ kotlin {
     }
 
     android {
-        namespace = "com.mikepenz.gameservices.achievements"
+        namespace = "com.mikepenz.gameservices.recall"
         withHostTest {}
     }
 
     sourceSets {
         commonMain.dependencies {
-            api(projects.gameServicesCore)
+            api(project(":game-services-core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

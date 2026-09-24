@@ -1,0 +1,18 @@
+name: Experimental Google native SDKs
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android-native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: zulu
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+      - name: Link all Android native ABIs
+        run: ./gradlew :game-services-play-games-native:linkDebugSharedAndroidNativeArm64 :game-services-play-games-native:linkDebugSharedAndroidNativeX64 :game-services-play-games-native:linkDebugSharedAndroidNativeArm32 :game-services-play-games-native:linkDebugSharedAndroidNativeX86

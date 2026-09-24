@@ -40,6 +40,9 @@ public final class com/mikepenz/gameservices/AuthenticationState$Unsupported : c
 	public fun toString ()Ljava/lang/String;
 }
 
+public abstract interface annotation class com/mikepenz/gameservices/ExperimentalGameServicesApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class com/mikepenz/gameservices/GameServices {
 	public abstract fun authenticate-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
