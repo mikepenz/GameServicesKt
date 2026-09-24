@@ -23,19 +23,23 @@ val prepareSdk = tasks.register<Sync>("preparePlayGamesSdk") {
     }
 }
 val atomicShim = layout.buildDirectory.dir("pgs-atomic/arm64-v8a")
+val arm64SdkArchive = sdkDirectory.map { it.file("prefab/modules/games_static/libs/android.arm64-v8a/libgames_static.a") }
 val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64")
 val compileAtomicShim = tasks.register("compilePlayGamesArm64AtomicShim") {
+    dependsOn(prepareSdk)
     val source = file("src/atomic/arm64_atomic_shim.c")
     inputs.file(source)
-    outputs.file(atomicShim.map { it.file("libpgs_atomic_shim.a") })
+    inputs.file(arm64SdkArchive)
+    outputs.file(atomicShim.map { it.file("libgames_with_atomic.a") })
     doLast {
         val ndk = ndkToolchain.resolve("bin")
         val objectFile = atomicShim.get().file("arm64_atomic_shim.o").asFile
-        val archive = atomicShim.get().file("libpgs_atomic_shim.a").asFile
+        val archive = atomicShim.get().file("libgames_with_atomic.a").asFile
         objectFile.parentFile.mkdirs()
         providers.exec {
             commandLine(ndk.resolve("clang"), "--target=aarch64-linux-android30", "-mno-outline-atomics", "-c", source, "-o", objectFile)
         }.result.get().assertNormalExitValue()
+        arm64SdkArchive.get().asFile.copyTo(archive, overwrite = true)
         providers.exec { commandLine(ndk.resolve("llvm-ar"), "rcs", archive, objectFile) }.result.get().assertNormalExitValue()
     }
 }
@@ -55,7 +59,7 @@ kotlin {
                 definition.get().asFile.apply { parentFile.mkdirs(); writeText("""
                     headers = pgs_games_sign_in_client.h pgs_achievements_client.h pgs_recall_client.h
                     package = com.mikepenz.gameservices.playgames.nativeinterop
-                    staticLibraries = libgames_static.a${if (abi == "arm64-v8a") " libpgs_atomic_shim.a" else ""}
+                    staticLibraries = ${if (abi == "arm64-v8a") "libgames_with_atomic.a" else "libgames_static.a"}
                     libraryPaths = ${root.resolve("libs/android.$abi")} ${if (abi == "arm64-v8a") atomicShim.get().asFile else ""}
                     compilerOpts = -I${root.resolve("include")}
                     linkerOpts = -llog -landroid -lc++_static -lc++abi
