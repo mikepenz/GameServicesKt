@@ -22,6 +22,18 @@ android {
     buildFeatures {
         resValues = true
     }
+    externalNativeBuild {
+        cmake { path = file("src/nativeSdk/cpp/CMakeLists.txt") }
+    }
+
+    flavorDimensions += "backend"
+    productFlavors {
+        create("javaSdk") { dimension = "backend" }
+        create("nativeSdk") {
+            dimension = "backend"
+            externalNativeBuild.cmake.arguments += "-DNATIVE_VALIDATION=ON"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.mikepenz.gameservices.sample.host"
@@ -51,8 +63,32 @@ android {
     }
 }
 
+val nativeBridge = project(":sample-host-android-native-bridge")
+val nativeLibraries = layout.buildDirectory.dir("generated/nativeValidationJniLibs")
+val stageNativeLibraries = tasks.register<Sync>("stageNativeValidationLibraries") {
+    val abis = mapOf(
+        "AndroidNativeArm64" to "arm64-v8a",
+        "AndroidNativeX64" to "x86_64",
+        "AndroidNativeArm32" to "armeabi-v7a",
+        "AndroidNativeX86" to "x86",
+    )
+    abis.forEach { (target, abi) ->
+        dependsOn(":sample-host-android-native-bridge:linkDebugShared$target")
+        from(nativeBridge.layout.buildDirectory.file("bin/${target.replaceFirstChar(Char::lowercaseChar)}/debugShared/libgs_play_validation.so")) {
+            into(abi)
+        }
+    }
+    into(nativeLibraries)
+}
+android.sourceSets.getByName("nativeSdk").jniLibs.directories.add(nativeLibraries.get().asFile.absolutePath)
+tasks.matching { it.name.startsWith("mergeNativeSdk") && it.name.endsWith("JniLibFolders") }.configureEach {
+    dependsOn(stageNativeLibraries)
+}
+
 dependencies {
     implementation(projects.sample)
+    implementation(baseLibs.jetbrains.compose.material3)
+    add("nativeSdkImplementation", "com.google.android.gms:play-services-games-v2-native-c:21.0.0-beta1")
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation(baseLibs.jetbrains.compose.ui.tooling)
     testImplementation(baseLibs.jetbrains.compose.foundation)
@@ -63,7 +99,7 @@ composablePreviewPaparazzi {
     packages = listOf("com.mikepenz.gameservices.sample.host")
 }
 
-// The preview scanner generates a test source consumed by AGP lint tasks.
-tasks.matching { it.name.contains("lint", ignoreCase = true) && it.name.contains("UnitTest") }.configureEach {
+// The preview scanner generates a test source consumed by unit-test compilation and lint.
+tasks.matching { it.name.endsWith("UnitTestKotlin") || (it.name.contains("lint", ignoreCase = true) && it.name.contains("UnitTest")) }.configureEach {
     dependsOn("generateComposablePreviewPaparazziTests")
 }

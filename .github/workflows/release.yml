@@ -42,7 +42,7 @@ jobs:
       - name: Verify release
         run: |
           ./gradlew publishToMavenLocal
-          ./gradlew check checkKotlinAbi lint :sample-host-android:verifyPaparazziDebug verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
+          ./gradlew check checkKotlinAbi lint :sample-host-android:verifyPaparazziJavaSdkDebug verifyPublishedAndroidMinSdk :local-maven-consumer:assemble
 
       - name: Publish to Maven Central
         env:

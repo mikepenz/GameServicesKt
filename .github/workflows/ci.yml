@@ -38,7 +38,7 @@ jobs:
           ./gradlew check checkKotlinAbi verifyAndroidMinSdk
 
       - name: Verify screenshots
-        run: ./gradlew :sample-host-android:verifyPaparazziDebug
+        run: ./gradlew :sample-host-android:verifyPaparazziJavaSdkDebug
 
       - name: Run Android lint
         run: ./gradlew lint
