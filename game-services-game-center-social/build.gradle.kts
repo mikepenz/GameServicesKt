@@ -12,8 +12,6 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     macosArm64()
-    @Suppress("DEPRECATION")
-    macosX64()
     tvosArm64()
     tvosSimulatorArm64()
     watchosArm64()

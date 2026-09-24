@@ -19,6 +19,7 @@ public class GameCenterTransport(nativeLibrary: Path?) : AutoCloseable {
 
     init {
         if (System.getProperty("os.name") != "Mac OS X") throw GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, "macOS required")
+        if (System.getProperty("os.arch") !in setOf("aarch64", "arm64")) throw GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, "Apple Silicon required")
         try { NativeBindings.load(nativeLibrary) }
         catch (error: LinkageError) {
             throw GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, "NATIVE_LIBRARY_UNAVAILABLE", error)
@@ -70,16 +71,11 @@ internal object NativeBindings {
     @Synchronized fun load(path: Path?) {
         if (loaded) return
         val library = path ?: run {
-            val arch = when (System.getProperty("os.arch")) {
-                "aarch64", "arm64" -> "arm64"
-                "x86_64", "amd64" -> "x64"
-                else -> throw GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, "unsupported macOS architecture")
-            }
             val directory = Files.createTempDirectory("gameservices-gamecenter-")
             directory.toFile().deleteOnExit()
             for (name in listOf("libgs_gamecenter.dylib", "libgs_gamecenter_jni.dylib")) {
                 val destination = directory.resolve(name)
-                val resource = requireNotNull(javaClass.getResourceAsStream("/native/macos-$arch/$name")) { "Missing Game Center native library: $name" }
+                val resource = requireNotNull(javaClass.getResourceAsStream("/native/macos-arm64/$name")) { "Missing Game Center native library: $name" }
                 resource.use { Files.copy(it, destination) }
                 destination.toFile().deleteOnExit()
             }
