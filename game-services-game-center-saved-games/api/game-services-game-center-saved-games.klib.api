@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-game-center-saved-games>
+final fun (com.mikepenz.gameservices.gamecenter/GameCenterBackend).com.mikepenz.gameservices.gamecenter/createSavedGamesClient(): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.gamecenter/createSavedGamesClient|createSavedGamesClient@com.mikepenz.gameservices.gamecenter.GameCenterBackend(){}[0]

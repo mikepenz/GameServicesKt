@@ -1,4 +1,9 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.achievements
+
+import com.mikepenz.gameservices.GameServicesOperation
+import com.mikepenz.gameservices.InternalGameServicesApi
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
@@ -32,13 +37,15 @@ public class AchievementIdMappings public constructor(
         require(byGameCenterId.size == this.mappings.size) { "Game Center achievement IDs must be unique" }
     }
 
-    internal fun providerId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
+    @InternalGameServicesApi
+    public fun providerId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
         GameServicesProvider.GooglePlayGames -> byId[id]?.googlePlayGamesId ?: id
         GameServicesProvider.GameCenter -> byId[id]?.gameCenterId ?: id
         GameServicesProvider.None -> id
     }
 
-    internal fun commonId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
+    @InternalGameServicesApi
+    public fun commonId(provider: GameServicesProvider, id: AchievementId): AchievementId = when (provider) {
         GameServicesProvider.GooglePlayGames -> byGooglePlayGamesId[id]?.id ?: id
         GameServicesProvider.GameCenter -> byGameCenterId[id]?.id ?: id
         GameServicesProvider.None -> id
@@ -103,13 +110,15 @@ public sealed interface AchievementProgress {
     }
 }
 
-internal fun AchievementProgress.percent(): Int = when (this) {
+@InternalGameServicesApi
+public fun AchievementProgress.percent(): Int = when (this) {
     AchievementProgress.Unlocked -> 100
     is AchievementProgress.Percent -> value
     is AchievementProgress.Steps -> (current.toLong() * 100 / total).toInt()
 }
 
-internal fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
+@InternalGameServicesApi
+public fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
     require(configuredTotal > 0)
     return when (this) {
         AchievementProgress.Unlocked -> configuredTotal
@@ -119,6 +128,9 @@ internal fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
 }
 
 public interface AchievementsClient {
+    public val supportedOperations: Set<GameServicesOperation>
+        get() = if (isSupported) setOf(GameServicesOperation.LoadAchievements, GameServicesOperation.ReportAchievement, GameServicesOperation.ShowAchievements) else emptySet()
+
     public val isSupported: Boolean
 
     public suspend fun loadAchievements(forceReload: Boolean = false): Result<List<Achievement>>
@@ -150,5 +162,8 @@ internal class UnsupportedAchievementsClient(
     override suspend fun showAchievements(): Result<Unit> = Result.failure(unsupported)
 }
 
-internal inline fun configuredSteps(incremental: Boolean, readSteps: () -> Int): Int? =
+@InternalGameServicesApi
+public inline fun configuredSteps(incremental: Boolean, readSteps: () -> Int): Int? =
     if (incremental) readSteps() else null
+
+public fun createUnsupportedAchievementsClient(target: GameServicesPlatform): AchievementsClient = UnsupportedAchievementsClient(target)

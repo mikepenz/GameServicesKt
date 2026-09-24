@@ -43,6 +43,8 @@ public final class com/mikepenz/gameservices/leaderboards/LeaderboardIdMapping {
 public final class com/mikepenz/gameservices/leaderboards/LeaderboardIdMappings {
 	public static final field Companion Lcom/mikepenz/gameservices/leaderboards/LeaderboardIdMappings$Companion;
 	public fun <init> (Ljava/util/List;)V
+	public final fun commonId-ajrYnd4 (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)Ljava/lang/String;
+	public final fun providerId-ajrYnd4 (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class com/mikepenz/gameservices/leaderboards/LeaderboardIdMappings$Companion {
@@ -105,6 +107,7 @@ public final class com/mikepenz/gameservices/leaderboards/LeaderboardScore {
 }
 
 public abstract interface class com/mikepenz/gameservices/leaderboards/LeaderboardsClient {
+	public fun getSupportedOperations ()Ljava/util/Set;
 	public abstract fun isSupported ()Z
 	public abstract fun loadCurrentPlayerScore-RuZBKsI (Ljava/lang/String;Lcom/mikepenz/gameservices/leaderboards/LeaderboardScope;Lcom/mikepenz/gameservices/leaderboards/LeaderboardPeriod;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun loadLeaderboards-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -114,8 +117,25 @@ public abstract interface class com/mikepenz/gameservices/leaderboards/Leaderboa
 	public abstract fun submitScore-ayMChJ4 (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/mikepenz/gameservices/leaderboards/Leaderboards_androidKt {
-	public static final fun createLeaderboardsClient (Landroidx/activity/ComponentActivity;Lcom/mikepenz/gameservices/leaderboards/LeaderboardIdMappings;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
-	public static synthetic fun createLeaderboardsClient$default (Landroidx/activity/ComponentActivity;Lcom/mikepenz/gameservices/leaderboards/LeaderboardIdMappings;ILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardsClient$DefaultImpls {
+	public static fun getSupportedOperations (Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;)Ljava/util/Set;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/LeaderboardsKt {
+	public static final fun collectLeaderboardScores (Lcom/mikepenz/gameservices/leaderboards/LeaderboardQuery;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun createUnsupportedLeaderboardsClient (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
+}
+
+public final class com/mikepenz/gameservices/leaderboards/ScorePage {
+	public fun <init> (Ljava/util/List;Z)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Z
+	public final fun copy (Ljava/util/List;Z)Lcom/mikepenz/gameservices/leaderboards/ScorePage;
+	public static synthetic fun copy$default (Lcom/mikepenz/gameservices/leaderboards/ScorePage;Ljava/util/List;ZILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/ScorePage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHasMore ()Z
+	public final fun getScores ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 

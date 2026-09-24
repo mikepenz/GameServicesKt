@@ -1,0 +1,4 @@
+public final class com/mikepenz/gameservices/playgames/SavedGames_androidKt {
+	public static final fun createSavedGamesClient (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+}
+

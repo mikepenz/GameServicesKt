@@ -1,4 +1,9 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.savedgames
+
+import com.mikepenz.gameservices.GameServicesOperation
+import com.mikepenz.gameservices.InternalGameServicesApi
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
@@ -70,6 +75,9 @@ public sealed interface SavedGameWriteResult {
 }
 
 public interface SavedGamesClient {
+    public val supportedOperations: Set<GameServicesOperation>
+        get() = if (isSupported) setOf(GameServicesOperation.ListSavedGames, GameServicesOperation.ReadSavedGame, GameServicesOperation.WriteSavedGame, GameServicesOperation.DeleteSavedGame, GameServicesOperation.ResolveConflict, GameServicesOperation.SelectSavedGame) - if (isSelectionPresenterSupported) emptySet() else setOf(GameServicesOperation.SelectSavedGame) else emptySet()
+
     public val isSupported: Boolean
 
     public val isSelectionPresenterSupported: Boolean
@@ -123,13 +131,17 @@ internal class UnsupportedSavedGamesClient(
     )
 }
 
-internal suspend fun <T> writeAndCommit(write: suspend () -> Boolean, commit: suspend () -> T): T {
+@InternalGameServicesApi
+public suspend fun <T> writeAndCommit(write: suspend () -> Boolean, commit: suspend () -> T): T {
     check(write()) { "Writing saved game bytes to disk failed" }
     return commit()
 }
 
-internal fun SavedGameId.requirePortableName() {
+@InternalGameServicesApi
+public fun SavedGameId.requirePortableName() {
     require(value.length in 1..100 && value.all { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it in "-._~" }) {
         "Android saved game names must contain 1-100 URL-safe ASCII characters"
     }
 }
+
+public fun createUnsupportedSavedGamesClient(target: GameServicesPlatform): SavedGamesClient = UnsupportedSavedGamesClient(target)

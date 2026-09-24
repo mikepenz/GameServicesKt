@@ -1,3 +1,5 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices
 
 import kotlinx.coroutines.flow.MutableStateFlow

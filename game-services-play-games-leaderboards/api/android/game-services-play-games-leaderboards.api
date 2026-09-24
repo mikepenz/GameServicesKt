@@ -1,0 +1,5 @@
+public final class com/mikepenz/gameservices/playgames/Leaderboards_androidKt {
+	public static final fun createLeaderboardsClient (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;Lcom/mikepenz/gameservices/leaderboards/LeaderboardIdMappings;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
+	public static synthetic fun createLeaderboardsClient$default (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;Lcom/mikepenz/gameservices/leaderboards/LeaderboardIdMappings;ILjava/lang/Object;)Lcom/mikepenz/gameservices/leaderboards/LeaderboardsClient;
+}
+

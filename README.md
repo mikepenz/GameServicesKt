@@ -23,11 +23,21 @@ repositories {
 }
 ```
 
-Every module compiles for Android API 30+, iOS, JVM, and Wasm. The core runtime uses Google Play
-Games on Android and Game Center on iOS. JVM and Wasm factories return a client whose support
-provider is `None`, whose `isSupported` is false, and whose operations fail with
-`GameServicesException.UnsupportedTarget`. Check `services.support.isSupported` before showing
-game-services controls.
+The five modules above contain provider-neutral contracts. Add the backend feature artifacts
+for the features your app uses. For example, Android achievements require
+`game-services-play-games-core` and `game-services-play-games-achievements`; Game Center uses
+`game-services-game-center-core` and `game-services-game-center-achievements`.
+Use the same `0.1.0-SNAPSHOT` version for all artifacts.
+
+Backends are selected explicitly at the app edge. Kotlin target and provider are separate:
+a JVM client can use a native backend where one is available. No backend is selected or switched
+automatically. For an intentionally disabled client use `createUnsupportedGameServices(target)`
+and the corresponding `createUnsupported…Client(target)` factories.
+
+Each client exposes `supportedOperations`. Check the specific operation before displaying a
+control; a backend may support achievement data while lacking provider-owned UI. `isSupported`
+only indicates that some feature operations exist. Authentication and permission failures remain
+separate from capability reporting.
 
 Wire the platform client at the app edge, then pass `GameServices` and feature clients into shared
 code. Do not treat `PlayerId` as an in-game account ID; it is scoped to the provider.
@@ -83,7 +93,9 @@ Create the Android client from the lifecycle-owned `ComponentActivity` during `o
 activity-result registration closes:
 
 ```kotlin
-val services = createGameServices(this)
+val backend = PlayGamesBackend(this)
+val services: GameServices = backend
+val achievements = backend.createAchievementsClient()
 ```
 
 ## iOS setup
@@ -93,7 +105,9 @@ requested achievements/leaderboards in App Store Connect, and create the client 
 presenter:
 
 ```kotlin
-val services = createGameServices { currentViewController }
+val backend = GameCenterBackend { currentViewController }
+val services: GameServices = backend
+val achievements = backend.createAchievementsClient()
 ```
 
 ## Authentication
@@ -128,10 +142,10 @@ val achievementIds = AchievementIdMappings.of(
 )
 
 // Android
-val achievements = createAchievementsClient(this, achievementIds)
+val achievements = backend.createAchievementsClient(achievementIds)
 
 // iOS
-val achievements = createAchievementsClient({ currentViewController }, achievementIds)
+val achievements = backend.createAchievementsClient(achievementIds)
 ```
 
 `LeaderboardIdMappings` works the same way. IDs absent from a mapping pass through unchanged.
@@ -238,3 +252,15 @@ score visibility, offline writes, and actual cross-device synchronization. Deter
 validate conflict handling without creating live backend conflicts; device tests check that the provider
 and account configuration behave as expected. Device frame time, allocation,
 and network latency measurements are separate from these tests.
+
+## Snapshot migration: explicit backends
+
+Platform factories moved out of contract modules. Import Android factories and `PlayGamesBackend`
+from `com.mikepenz.gameservices.playgames`, or Game Center factories and `GameCenterBackend` from
+`com.mikepenz.gameservices.gamecenter`. Create one backend, then call its feature factory extensions.
+Construct Android UI clients during `onCreate` before Activity result registration closes.
+
+Feature suffixes are `core`, `achievements`, `leaderboards`, `saved-games`, and `social`.
+A backend feature artifact brings its matching contract and backend core transitively; unused
+feature adapters do not need to be installed. Existing ID mappings and suspend feature contracts
+remain available. Old implicit platform factories have been removed from this snapshot.

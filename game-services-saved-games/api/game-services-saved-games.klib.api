@@ -11,6 +11,8 @@ abstract interface com.mikepenz.gameservices.savedgames/SavedGamesClient { // co
         abstract fun <get-isSelectionPresenterSupported>(): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSelectionPresenterSupported.<get-isSelectionPresenterSupported>|<get-isSelectionPresenterSupported>(){}[0]
     abstract val isSupported // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSupported|{}isSupported[0]
         abstract fun <get-isSupported>(): kotlin/Boolean // com.mikepenz.gameservices.savedgames/SavedGamesClient.isSupported.<get-isSupported>|<get-isSupported>(){}[0]
+    open val supportedOperations // com.mikepenz.gameservices.savedgames/SavedGamesClient.supportedOperations|{}supportedOperations[0]
+        open fun <get-supportedOperations>(): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices.savedgames/SavedGamesClient.supportedOperations.<get-supportedOperations>|<get-supportedOperations>(){}[0]
 
     abstract suspend fun delete(com.mikepenz.gameservices.savedgames/SavedGameId): kotlin/Result<kotlin/Unit> // com.mikepenz.gameservices.savedgames/SavedGamesClient.delete|delete(com.mikepenz.gameservices.savedgames.SavedGameId){}[0]
     abstract suspend fun listSavedGames(): kotlin/Result<kotlin.collections/List<com.mikepenz.gameservices.savedgames/SavedGameMetadata>> // com.mikepenz.gameservices.savedgames/SavedGamesClient.listSavedGames|listSavedGames(){}[0]
@@ -160,4 +162,6 @@ final value class com.mikepenz.gameservices.savedgames/SavedGameId { // com.mike
     final fun toString(): kotlin/String // com.mikepenz.gameservices.savedgames/SavedGameId.toString|toString(){}[0]
 }
 
-final fun com.mikepenz.gameservices.savedgames/createSavedGamesClient(): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createSavedGamesClient|createSavedGamesClient(){}[0]
+final fun (com.mikepenz.gameservices.savedgames/SavedGameId).com.mikepenz.gameservices.savedgames/requirePortableName() // com.mikepenz.gameservices.savedgames/requirePortableName|requirePortableName@com.mikepenz.gameservices.savedgames.SavedGameId(){}[0]
+final fun com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient(com.mikepenz.gameservices/GameServicesPlatform): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient|createUnsupportedSavedGamesClient(com.mikepenz.gameservices.GameServicesPlatform){}[0]
+final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices.savedgames/writeAndCommit(kotlin.coroutines/SuspendFunction0<kotlin/Boolean>, kotlin.coroutines/SuspendFunction0<#A>): #A // com.mikepenz.gameservices.savedgames/writeAndCommit|writeAndCommit(kotlin.coroutines.SuspendFunction0<kotlin.Boolean>;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]

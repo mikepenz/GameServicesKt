@@ -1,16 +1,13 @@
 package com.mikepenz.gameservices.sample
 
-import androidx.activity.ComponentActivity
-import com.mikepenz.gameservices.createGameServices
-import com.mikepenz.gameservices.achievements.createAchievementsClient
-import com.mikepenz.gameservices.leaderboards.createLeaderboardsClient
-import com.mikepenz.gameservices.savedgames.createSavedGamesClient
-import com.mikepenz.gameservices.social.createSocialClient
+import com.mikepenz.gameservices.playgames.*
 
-public fun createGameServicesSample(activity: ComponentActivity): GameServicesSample = GameServicesSample(
-    services = createGameServices(activity),
-    achievements = createAchievementsClient(activity),
-    leaderboards = createLeaderboardsClient(activity),
-    savedGames = createSavedGamesClient(activity),
-    social = createSocialClient(activity),
-)
+import androidx.activity.ComponentActivity
+
+public fun createGameServicesSample(activity: ComponentActivity): GameServicesSample = PlayGamesBackend (activity).let { backend -> GameServicesSample(
+    services = backend,
+    achievements = backend.createAchievementsClient(),
+    leaderboards = backend.createLeaderboardsClient(),
+    savedGames = backend.createSavedGamesClient(),
+    social = backend.createSocialClient(),
+) }

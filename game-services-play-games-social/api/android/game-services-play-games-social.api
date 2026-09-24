@@ -1,0 +1,4 @@
+public final class com/mikepenz/gameservices/playgames/Social_androidKt {
+	public static final fun createSocialClient (Lcom/mikepenz/gameservices/playgames/PlayGamesBackend;)Lcom/mikepenz/gameservices/social/SocialClient;
+}
+

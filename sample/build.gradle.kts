@@ -29,6 +29,21 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(project(":game-services-play-games-core"))
+            implementation(project(":game-services-play-games-achievements"))
+            implementation(project(":game-services-play-games-leaderboards"))
+            implementation(project(":game-services-play-games-saved-games"))
+            implementation(project(":game-services-play-games-social"))
+        }
+        iosMain.dependencies {
+            implementation(project(":game-services-game-center-core"))
+            implementation(project(":game-services-game-center-achievements"))
+            implementation(project(":game-services-game-center-leaderboards"))
+            implementation(project(":game-services-game-center-saved-games"))
+            implementation(project(":game-services-game-center-social"))
+        }
+
         commonMain.dependencies {
             implementation(baseLibs.jetbrains.compose.foundation)
             implementation(baseLibs.jetbrains.compose.material3)

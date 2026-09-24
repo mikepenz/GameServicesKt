@@ -9,6 +9,11 @@ public enum class GameServicesPlatform {
     IOS,
     JVM,
     Wasm,
+    MacOS,
+    TvOS,
+    WatchOS,
+    AndroidNative,
+    WindowsNative,
 }
 
 public enum class GameServicesProvider {
@@ -46,6 +51,9 @@ public sealed interface AuthenticationState {
 }
 
 public interface GameServices {
+    public val supportedOperations: Set<GameServicesOperation>
+        get() = if (support.isSupported) setOf(GameServicesOperation.Authenticate, GameServicesOperation.RefreshAuthentication) else emptySet()
+
     public val support: GameServicesSupport
 
     public val authenticationState: StateFlow<AuthenticationState>
@@ -84,6 +92,11 @@ public sealed class GameServicesException protected constructor(
         public val target: GameServicesPlatform,
     ) : GameServicesException("Game services are unsupported on $target")
 
+    public class UnsupportedOperation public constructor(
+        public val provider: GameServicesProvider,
+        public val operation: GameServicesOperation,
+    ) : GameServicesException("$provider does not support $operation")
+
     public data object AuthenticationRequired : GameServicesException("Authentication is required")
 
     public data object ConfigurationMissing : GameServicesException("Game services configuration is missing")
@@ -99,4 +112,31 @@ public sealed class GameServicesException protected constructor(
     ) : GameServicesException("$provider failed with code $code", cause) {
         public constructor(provider: GameServicesProvider, code: String) : this(provider, code, null)
     }
+}
+
+public fun createUnsupportedGameServices(target: GameServicesPlatform): GameServices = UnsupportedGameServices(target)
+
+/** Operations supported by a backend, independent of authentication and permissions. */
+public enum class GameServicesOperation {
+    Authenticate,
+    RefreshAuthentication,
+    LoadAchievements,
+    ReportAchievement,
+    ShowAchievements,
+    LoadLeaderboards,
+    SubmitScore,
+    LoadCurrentScore,
+    LoadScores,
+    ShowLeaderboards,
+    ShowLeaderboard,
+    ListSavedGames,
+    ReadSavedGame,
+    WriteSavedGame,
+    DeleteSavedGame,
+    ResolveConflict,
+    SelectSavedGame,
+    RequestFriendsAccess,
+    LoadFriends,
+    LoadAvatar,
+    ShowPlayerProfile,
 }

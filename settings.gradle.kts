@@ -40,3 +40,16 @@ include(
     ":sample-host-android",
     ":local-maven-consumer",
 )
+
+include(
+    ":game-services-play-games-core",
+    ":game-services-play-games-achievements",
+    ":game-services-play-games-leaderboards",
+    ":game-services-play-games-saved-games",
+    ":game-services-play-games-social",
+    ":game-services-game-center-core",
+    ":game-services-game-center-achievements",
+    ":game-services-game-center-leaderboards",
+    ":game-services-game-center-saved-games",
+    ":game-services-game-center-social",
+)

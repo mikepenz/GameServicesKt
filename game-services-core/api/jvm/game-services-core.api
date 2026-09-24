@@ -1,3 +1,10 @@
+public final class com/mikepenz/gameservices/AuthenticationSession {
+	public fun <init> ()V
+	public final fun complete (Ljava/lang/Object;)V
+	public final fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun refresh-0E7RQCE (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public abstract interface class com/mikepenz/gameservices/AuthenticationState {
 }
 
@@ -37,7 +44,12 @@ public abstract interface class com/mikepenz/gameservices/GameServices {
 	public abstract fun authenticate-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
 	public abstract fun getSupport ()Lcom/mikepenz/gameservices/GameServicesSupport;
+	public fun getSupportedOperations ()Ljava/util/Set;
 	public abstract fun refreshAuthentication-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/GameServices$DefaultImpls {
+	public static fun getSupportedOperations (Lcom/mikepenz/gameservices/GameServices;)Ljava/util/Set;
 }
 
 public abstract class com/mikepenz/gameservices/GameServicesException : java/lang/Exception {
@@ -72,6 +84,12 @@ public final class com/mikepenz/gameservices/GameServicesException$ProviderFailu
 	public final fun getProvider ()Lcom/mikepenz/gameservices/GameServicesProvider;
 }
 
+public final class com/mikepenz/gameservices/GameServicesException$UnsupportedOperation : com/mikepenz/gameservices/GameServicesException {
+	public fun <init> (Lcom/mikepenz/gameservices/GameServicesProvider;Lcom/mikepenz/gameservices/GameServicesOperation;)V
+	public final fun getOperation ()Lcom/mikepenz/gameservices/GameServicesOperation;
+	public final fun getProvider ()Lcom/mikepenz/gameservices/GameServicesProvider;
+}
+
 public final class com/mikepenz/gameservices/GameServicesException$UnsupportedTarget : com/mikepenz/gameservices/GameServicesException {
 	public fun <init> (Lcom/mikepenz/gameservices/GameServicesPlatform;)V
 	public final fun getTarget ()Lcom/mikepenz/gameservices/GameServicesPlatform;
@@ -84,11 +102,47 @@ public final class com/mikepenz/gameservices/GameServicesException$UserCancelled
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class com/mikepenz/gameservices/GameServicesKt {
+	public static final fun createUnsupportedGameServices (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/GameServices;
+}
+
+public final class com/mikepenz/gameservices/GameServicesOperation : java/lang/Enum {
+	public static final field Authenticate Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field DeleteSavedGame Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ListSavedGames Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadAchievements Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadAvatar Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadCurrentScore Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadFriends Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadLeaderboards Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field LoadScores Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ReadSavedGame Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field RefreshAuthentication Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ReportAchievement Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field RequestFriendsAccess Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ResolveConflict Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field SelectSavedGame Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ShowAchievements Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ShowLeaderboard Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ShowLeaderboards Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field ShowPlayerProfile Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field SubmitScore Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static final field WriteSavedGame Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/GameServicesOperation;
+	public static fun values ()[Lcom/mikepenz/gameservices/GameServicesOperation;
+}
+
 public final class com/mikepenz/gameservices/GameServicesPlatform : java/lang/Enum {
 	public static final field Android Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field AndroidNative Lcom/mikepenz/gameservices/GameServicesPlatform;
 	public static final field IOS Lcom/mikepenz/gameservices/GameServicesPlatform;
 	public static final field JVM Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field MacOS Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field TvOS Lcom/mikepenz/gameservices/GameServicesPlatform;
 	public static final field Wasm Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field WatchOS Lcom/mikepenz/gameservices/GameServicesPlatform;
+	public static final field WindowsNative Lcom/mikepenz/gameservices/GameServicesPlatform;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/GameServicesPlatform;
 	public static fun values ()[Lcom/mikepenz/gameservices/GameServicesPlatform;
@@ -116,10 +170,6 @@ public final class com/mikepenz/gameservices/GameServicesSupport {
 	public fun hashCode ()I
 	public final fun isSupported ()Z
 	public fun toString ()Ljava/lang/String;
-}
-
-public final class com/mikepenz/gameservices/GameServices_jvmKt {
-	public static final fun createGameServices ()Lcom/mikepenz/gameservices/GameServices;
 }
 
 public abstract interface annotation class com/mikepenz/gameservices/InternalGameServicesApi : java/lang/annotation/Annotation {

@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-game-center-achievements>
+final fun (com.mikepenz.gameservices.gamecenter/GameCenterBackend).com.mikepenz.gameservices.gamecenter/createAchievementsClient(com.mikepenz.gameservices.achievements/AchievementIdMappings = ...): com.mikepenz.gameservices.achievements/AchievementsClient // com.mikepenz.gameservices.gamecenter/createAchievementsClient|createAchievementsClient@com.mikepenz.gameservices.gamecenter.GameCenterBackend(com.mikepenz.gameservices.achievements.AchievementIdMappings){}[0]

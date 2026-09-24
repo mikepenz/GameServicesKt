@@ -1,4 +1,9 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.social
+
+import com.mikepenz.gameservices.GameServicesOperation
+import com.mikepenz.gameservices.InternalGameServicesApi
 
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
@@ -30,6 +35,9 @@ public enum class FriendsAccessState {
 }
 
 public interface SocialClient {
+    public val supportedOperations: Set<GameServicesOperation>
+        get() = if (isSupported) setOf(GameServicesOperation.RequestFriendsAccess, GameServicesOperation.LoadFriends, GameServicesOperation.LoadAvatar, GameServicesOperation.ShowPlayerProfile) else emptySet()
+
     public val isSupported: Boolean
 
     public val friendsAccessState: StateFlow<FriendsAccessState>
@@ -62,9 +70,11 @@ internal class UnsupportedSocialClient(
     override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = Result.failure(unsupported)
 }
 
-internal data class FriendPage(val profiles: List<PlayerProfile>, val hasMore: Boolean)
+@InternalGameServicesApi
+public data class FriendPage(public val profiles: List<PlayerProfile>, public val hasMore: Boolean)
 
-internal suspend fun collectFriends(loadPage: suspend () -> FriendPage): List<PlayerProfile> {
+@InternalGameServicesApi
+public suspend fun collectFriends(loadPage: suspend () -> FriendPage): List<PlayerProfile> {
     val profiles = linkedMapOf<PlayerId, PlayerProfile>()
     while (true) {
         val page = loadPage()
@@ -74,3 +84,5 @@ internal suspend fun collectFriends(loadPage: suspend () -> FriendPage): List<Pl
         check(profiles.size > previousSize) { "Provider friend pagination made no progress" }
     }
 }
+
+public fun createUnsupportedSocialClient(target: GameServicesPlatform): SocialClient = UnsupportedSocialClient(target)

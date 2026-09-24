@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-game-center-leaderboards>
+final fun (com.mikepenz.gameservices.gamecenter/GameCenterBackend).com.mikepenz.gameservices.gamecenter/createLeaderboardsClient(com.mikepenz.gameservices.leaderboards/LeaderboardIdMappings = ...): com.mikepenz.gameservices.leaderboards/LeaderboardsClient // com.mikepenz.gameservices.gamecenter/createLeaderboardsClient|createLeaderboardsClient@com.mikepenz.gameservices.gamecenter.GameCenterBackend(com.mikepenz.gameservices.leaderboards.LeaderboardIdMappings){}[0]
