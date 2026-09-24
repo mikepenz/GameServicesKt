@@ -20,7 +20,7 @@ class AuthenticationAdapterTest {
             var player: PlayerIdentity? = null
             var installs = 0
             val presentations = mutableListOf<UIViewController>()
-            val client = IosGameServices(presentations::add, { installs++; callback = it }, { player }, { it() })
+            val client = NativeGameServices(presentations::add, { installs++; callback = it }, { player }, GameServicesPlatform.IOS, { it() })
             val first = async { client.refreshAuthentication() }
             val second = async { client.authenticate() }
             runCurrent()
@@ -48,9 +48,9 @@ class AuthenticationAdapterTest {
     fun cancelledProviderLoginReturnsTypedFailure() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         try {
-            val client = IosGameServices({ error("Unexpected UI") }, {
+            val client = NativeGameServices<UIViewController>({ error("Unexpected UI") }, {
                 it(null, NSError.errorWithDomain(GKErrorDomain, GKErrorCancelled, null))
-            }, { null }, { it() })
+            }, { null }, GameServicesPlatform.IOS, { it() })
             assertSame(GameServicesException.UserCancelled, client.authenticate().exceptionOrNull())
             assertIs<AuthenticationState.Unauthenticated>(client.authenticationState.value)
         } finally { Dispatchers.resetMain() }

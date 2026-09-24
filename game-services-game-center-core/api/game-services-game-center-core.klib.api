@@ -1,5 +1,9 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64]
+// Targets: [iosArm64, iosSimulatorArm64, macosArm64, macosX64, tvosArm64, tvosSimulatorArm64, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
+// Alias: macos => [macosArm64, macosX64]
+// Alias: tvos => [tvosArm64, tvosSimulatorArm64]
+// Alias: watchos => [watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -7,12 +11,8 @@
 
 // Library unique name: <com.mikepenz:game-services-game-center-core>
 final class com.mikepenz.gameservices.gamecenter/GameCenterBackend : com.mikepenz.gameservices/GameServices { // com.mikepenz.gameservices.gamecenter/GameCenterBackend|null[0]
-    constructor <init>(kotlin/Function0<platform.UIKit/UIViewController>) // com.mikepenz.gameservices.gamecenter/GameCenterBackend.<init>|<init>(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
-
     final val authenticationState // com.mikepenz.gameservices.gamecenter/GameCenterBackend.authenticationState|{}authenticationState[0]
         final fun <get-authenticationState>(): kotlinx.coroutines.flow/StateFlow<com.mikepenz.gameservices/AuthenticationState> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.authenticationState.<get-authenticationState>|<get-authenticationState>(){}[0]
-    final val presentingViewController // com.mikepenz.gameservices.gamecenter/GameCenterBackend.presentingViewController|{}presentingViewController[0]
-        final fun <get-presentingViewController>(): kotlin/Function0<platform.UIKit/UIViewController> // com.mikepenz.gameservices.gamecenter/GameCenterBackend.presentingViewController.<get-presentingViewController>|<get-presentingViewController>(){}[0]
     final val support // com.mikepenz.gameservices.gamecenter/GameCenterBackend.support|{}support[0]
         final fun <get-support>(): com.mikepenz.gameservices/GameServicesSupport // com.mikepenz.gameservices.gamecenter/GameCenterBackend.support.<get-support>|<get-support>(){}[0]
     final val supportedOperations // com.mikepenz.gameservices.gamecenter/GameCenterBackend.supportedOperations|{}supportedOperations[0]
@@ -23,4 +23,17 @@ final class com.mikepenz.gameservices.gamecenter/GameCenterBackend : com.mikepen
 }
 
 final fun (platform.Foundation/NSError).com.mikepenz.gameservices.gamecenter/toGameServicesException(): com.mikepenz.gameservices/GameServicesException // com.mikepenz.gameservices.gamecenter/toGameServicesException|toGameServicesException@platform.Foundation.NSError(){}[0]
+final fun (platform.GameKit/GKPlayer).com.mikepenz.gameservices.gamecenter/gameCenterPlayerId(): kotlin/String // com.mikepenz.gameservices.gamecenter/gameCenterPlayerId|gameCenterPlayerId@platform.GameKit.GKPlayer(){}[0]
+final fun com.mikepenz.gameservices.gamecenter/gameCenterOsMajor(): kotlin/Long // com.mikepenz.gameservices.gamecenter/gameCenterOsMajor|gameCenterOsMajor(){}[0]
+final fun com.mikepenz.gameservices.gamecenter/gameCenterSupportedOperations(com.mikepenz.gameservices/GameServicesPlatform, kotlin/Long, kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation>): kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation> // com.mikepenz.gameservices.gamecenter/gameCenterSupportedOperations|gameCenterSupportedOperations(com.mikepenz.gameservices.GameServicesPlatform;kotlin.Long;kotlin.collections.Set<com.mikepenz.gameservices.GameServicesOperation>){}[0]
+final fun com.mikepenz.gameservices.gamecenter/requireGameCenterOperation(kotlin.collections/Set<com.mikepenz.gameservices/GameServicesOperation>, com.mikepenz.gameservices/GameServicesOperation) // com.mikepenz.gameservices.gamecenter/requireGameCenterOperation|requireGameCenterOperation(kotlin.collections.Set<com.mikepenz.gameservices.GameServicesOperation>;com.mikepenz.gameservices.GameServicesOperation){}[0]
 final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices.gamecenter/gameServicesResult(kotlin.coroutines/SuspendFunction0<#A>): kotlin/Result<#A> // com.mikepenz.gameservices.gamecenter/gameServicesResult|gameServicesResult(kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
+
+// Targets: [ios, tvos]
+final fun com.mikepenz.gameservices.gamecenter/GameCenterBackend(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices.gamecenter/GameCenterBackend // com.mikepenz.gameservices.gamecenter/GameCenterBackend|GameCenterBackend(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+
+// Targets: [watchos]
+final fun com.mikepenz.gameservices.gamecenter/GameCenterBackend(): com.mikepenz.gameservices.gamecenter/GameCenterBackend // com.mikepenz.gameservices.gamecenter/GameCenterBackend|GameCenterBackend(){}[0]
+
+// Targets: [macos]
+final fun com.mikepenz.gameservices.gamecenter/GameCenterBackend(kotlin/Function0<platform.AppKit/NSViewController>): com.mikepenz.gameservices.gamecenter/GameCenterBackend // com.mikepenz.gameservices.gamecenter/GameCenterBackend|GameCenterBackend(kotlin.Function0<platform.AppKit.NSViewController>){}[0]

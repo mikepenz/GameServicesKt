@@ -11,8 +11,19 @@ kotlin {
     explicitApi()
     iosArm64()
     iosSimulatorArm64()
+    macosArm64()
+    @Suppress("DEPRECATION")
+    macosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
 
     sourceSets {
+        val appleSavedGamesMain = create("appleSavedGamesMain") { dependsOn(appleMain.get()) }
+        iosMain.get().dependsOn(appleSavedGamesMain)
+        macosMain.get().dependsOn(appleSavedGamesMain)
         commonMain.dependencies {
             api(project(":game-services-saved-games"))
             api(project(":game-services-game-center-core"))

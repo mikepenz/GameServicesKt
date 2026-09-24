@@ -11,6 +11,14 @@ kotlin {
     explicitApi()
     iosArm64()
     iosSimulatorArm64()
+    macosArm64()
+    @Suppress("DEPRECATION")
+    macosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
