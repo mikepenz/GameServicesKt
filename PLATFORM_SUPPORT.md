@@ -9,6 +9,9 @@ Backends are selected explicitly. Contract artifacts do not install provider SDK
 | Android on Google Play Games for Windows | PlayGamesBackend | Same Android API | PC runtime validation pending |
 | iOS | GameCenterBackend | Authentication, achievements, leaderboards, saves, social | Compile and simulator regression tests |
 | macOS Native | GameCenterBackend | Authentication, achievements, leaderboards, saves, social | Compile and native capability tests |
+| macOS JVM / Compose Desktop | GameCenterBackend | Same features as macOS Native | Both architectures compile; packaged JNI load test |
+| Android Native (4 ABIs) | NativePlayGamesBackend (experimental) | Boolean authentication, achievements, Recall | Compile; Linux link CI |
+| Windows x64 JVM / Native | PlayGamesPcBackend (experimental) | Initialization and Recall | Compile; Windows DLL CI |
 | tvOS | GameCenterBackend | Authentication, achievements, leaderboards, social; no saves | Compile |
 | watchOS | GameCenterBackend | Authentication, achievements, leaderboards, friends; no saves, avatars, or provider UI | Compile |
 
@@ -138,3 +141,17 @@ client secret or server credential belongs in this library or its samples.
 Windows CI checks the real DLL loading and both JVM/Native bindings without a provider account.
 The C++ fake-SDK test checks initialization failures and callback/client lifetime. Real runtime
 initialization and Recall/server operations remain live-provider validation.
+
+The Windows console validation host is `:sample-host-pc:run` with
+`-PplayPcLibrary=C:\absolute\path\gs_play_pc.dll`. It exits on initialization failure and never
+prints the Recall token. Launch/configure the packaged host through the Play Games runtime for a
+live check; merely running the console host is not proof of runtime/store configuration.
+
+## Upstream references
+
+- [Play Games Services overview](https://developer.android.com/games/pgs/overview)
+- [Play Games SDK entry points](https://developer.android.com/games/pgs/start)
+- [GameKit](https://developer.apple.com/documentation/gamekit)
+
+SDK archive versions and checksums are pinned in the native adapter builds. Treat downloaded
+headers as the binding source of truth: language choice (C/C++/Java) does not itself add an OS target.

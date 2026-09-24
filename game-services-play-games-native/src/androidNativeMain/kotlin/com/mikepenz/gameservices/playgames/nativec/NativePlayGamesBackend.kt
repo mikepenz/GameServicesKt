@@ -86,7 +86,7 @@ public class NativePlayGamesBackend public constructor(javaVm: COpaquePointer, p
     }
 
     /** Waits for pending SDK operations before destroying their client handles. */
-    public suspend fun close(): Unit = operations.withLock {
+    public suspend fun close(): Unit = withContext(NonCancellable) { operations.withLock {
         if (!closed) {
             closed = true
             PgsRecallClient_destroy(recall)
@@ -95,7 +95,7 @@ public class NativePlayGamesBackend public constructor(javaVm: COpaquePointer, p
             Pgs_destroy()
             activeSession.store(false)
         }
-    }
+    } }
 
     private suspend fun load(forceReload: Boolean): List<Achievement> = awaitCallback {
         PgsAchievementsClient_load(achievements, forceReload, staticCFunction(::achievementsResult), it)

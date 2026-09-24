@@ -149,10 +149,10 @@ class IosSavedGamesConflictTest {
         resolve.cancel()
         runCurrent()
         assertTrue(resolve.isCancelled)
-        assertIs<SavedGameReadResult.Conflict>(read.await().getOrThrow())
+        val refreshed = assertIs<SavedGameReadResult.Conflict>(read.await().getOrThrow()).conflict
         requireNotNull(sdk.pendingResolution)(null, NSError.errorWithDomain("TestProvider", 19, null))
         sdk.delayResolution = false
-        assertIs<SavedGameWriteResult.Saved>(client.resolve(conflict.id, data(4)).getOrThrow())
+        assertIs<SavedGameWriteResult.Saved>(client.resolve(refreshed.id, data(4)).getOrThrow())
     }
 
     @Test
@@ -161,6 +161,8 @@ class IosSavedGamesConflictTest {
         val client = sdk.client()
         val conflict = assertIs<SavedGameReadResult.Conflict>(client.read(id).getOrThrow()).conflict
         sdk.account = "second-player"
+        val next = assertIs<SavedGameReadResult.Conflict>(client.read(id).getOrThrow()).conflict
+        assertNotEquals(conflict.id, next.id)
         assertTrue(client.resolve(conflict.id, data(9)).isFailure)
         assertEquals(0, sdk.resolutions)
         sdk.account = null
