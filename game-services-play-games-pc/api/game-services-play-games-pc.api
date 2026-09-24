@@ -1,0 +1,25 @@
+public final class com/mikepenz/gameservices/playgames/pc/PcInitializationException : java/lang/Exception {
+	public fun <init> (Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;I)V
+	public final fun getCode ()I
+	public final fun getStatus ()Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+}
+
+public final class com/mikepenz/gameservices/playgames/pc/PcInitializationStatus : java/lang/Enum {
+	public static final field Error Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static final field NotInitialized Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static final field RuntimeUnavailable Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static final field RuntimeUpdateRequired Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static final field ShutdownRequired Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static final field Unknown Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+	public static fun values ()[Lcom/mikepenz/gameservices/playgames/pc/PcInitializationStatus;
+}
+
+public final class com/mikepenz/gameservices/playgames/pc/PlayGamesPcBackend : com/mikepenz/gameservices/recall/RecallClient {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun initialize-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun requestRecallAccess-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

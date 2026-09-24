@@ -16,3 +16,28 @@ jobs:
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
       - name: Link all Android native ABIs
         run: ./gradlew :game-services-play-games-native:linkDebugSharedAndroidNativeArm64 :game-services-play-games-native:linkDebugSharedAndroidNativeX64 :game-services-play-games-native:linkDebugSharedAndroidNativeArm32 :game-services-play-games-native:linkDebugSharedAndroidNativeX86
+  windows-recall:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: zulu
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+      - name: Build pinned Play PC bridge
+        run: |
+          cmake -S game-services-play-games-pc/native -B game-services-play-games-pc/build/native -A x64
+          cmake --build game-services-play-games-pc/build/native --config Release
+          ctest --test-dir game-services-play-games-pc/build/native -C Release --output-on-failure
+      - name: Test both Windows bindings without a provider account
+        shell: pwsh
+        run: |
+          $env:PLAY_PC_BRIDGE = (Resolve-Path game-services-play-games-pc/build/native/Release/gs_play_pc.dll).Path
+          ./gradlew.bat :game-services-play-games-pc:jvmTest :game-services-play-games-pc:mingwX64Test
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: play-pc-x64-bridge
+          path: |
+            game-services-play-games-pc/build/native/Release/*.dll
+            game-services-play-games-pc/build/native/Release/PLAY_PC_*

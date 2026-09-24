@@ -60,3 +60,4 @@ include(":sample-host-desktop")
 
 include(":game-services-recall", ":game-services-play-games-native")
 
+include(":game-services-play-games-pc")
