@@ -2,6 +2,7 @@
 
 package com.mikepenz.gameservices.savedgames
 
+import com.mikepenz.gameservices.GameServicesProvider
 import com.mikepenz.gameservices.GameServicesOperation
 import com.mikepenz.gameservices.InternalGameServicesApi
 
@@ -103,31 +104,33 @@ public interface SavedGamesClient {
 
 internal class UnsupportedSavedGamesClient(
     private val target: GameServicesPlatform,
+    private val provider: GameServicesProvider = GameServicesProvider.None,
 ) : SavedGamesClient {
     override val isSupported: Boolean = false
 
     override val isSelectionPresenterSupported: Boolean = false
 
-    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = unsupported()
+    override suspend fun listSavedGames(): Result<List<SavedGameMetadata>> = unsupported(GameServicesOperation.ListSavedGames)
 
-    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = unsupported()
+    override suspend fun read(id: SavedGameId): Result<SavedGameReadResult> = unsupported(GameServicesOperation.ReadSavedGame)
 
     override suspend fun write(
         id: SavedGameId,
         data: SavedGameData,
-    ): Result<SavedGameWriteResult> = unsupported()
+    ): Result<SavedGameWriteResult> = unsupported(GameServicesOperation.WriteSavedGame)
 
-    override suspend fun delete(id: SavedGameId): Result<Unit> = unsupported()
+    override suspend fun delete(id: SavedGameId): Result<Unit> = unsupported(GameServicesOperation.DeleteSavedGame)
 
     override suspend fun resolve(
         conflictId: SavedGameConflictId,
         data: SavedGameData,
-    ): Result<SavedGameWriteResult> = unsupported()
+    ): Result<SavedGameWriteResult> = unsupported(GameServicesOperation.ResolveConflict)
 
-    override suspend fun showSavedGameSelection(): Result<SavedGameMetadata?> = unsupported()
+    override suspend fun showSavedGameSelection(): Result<SavedGameMetadata?> = unsupported(GameServicesOperation.SelectSavedGame)
 
-    private fun <T> unsupported(): Result<T> = Result.failure(
-        GameServicesException.UnsupportedTarget(target),
+    private fun <T> unsupported(operation: GameServicesOperation): Result<T> = Result.failure(
+        if (provider == GameServicesProvider.None) GameServicesException.UnsupportedTarget(target)
+        else GameServicesException.UnsupportedOperation(provider, operation),
     )
 }
 
@@ -144,4 +147,7 @@ public fun SavedGameId.requirePortableName() {
     }
 }
 
-public fun createUnsupportedSavedGamesClient(target: GameServicesPlatform): SavedGamesClient = UnsupportedSavedGamesClient(target)
+public fun createUnsupportedSavedGamesClient(
+    target: GameServicesPlatform,
+    provider: GameServicesProvider = GameServicesProvider.None,
+): SavedGamesClient = UnsupportedSavedGamesClient(target, provider)

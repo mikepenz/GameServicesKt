@@ -148,7 +148,8 @@ public final class com/mikepenz/gameservices/savedgames/SavedGamesClient$Default
 }
 
 public final class com/mikepenz/gameservices/savedgames/SavedGamesKt {
-	public static final fun createUnsupportedSavedGamesClient (Lcom/mikepenz/gameservices/GameServicesPlatform;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+	public static final fun createUnsupportedSavedGamesClient (Lcom/mikepenz/gameservices/GameServicesPlatform;Lcom/mikepenz/gameservices/GameServicesProvider;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
+	public static synthetic fun createUnsupportedSavedGamesClient$default (Lcom/mikepenz/gameservices/GameServicesPlatform;Lcom/mikepenz/gameservices/GameServicesProvider;ILjava/lang/Object;)Lcom/mikepenz/gameservices/savedgames/SavedGamesClient;
 	public static final fun requirePortableName-eCzODks (Ljava/lang/String;)V
 	public static final fun writeAndCommit (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }

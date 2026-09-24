@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, wasmJs]
+// Targets: [iosArm64, iosSimulatorArm64, macosArm64, tvosArm64, tvosSimulatorArm64, wasmJs, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -163,5 +163,5 @@ final value class com.mikepenz.gameservices.savedgames/SavedGameId { // com.mike
 }
 
 final fun (com.mikepenz.gameservices.savedgames/SavedGameId).com.mikepenz.gameservices.savedgames/requirePortableName() // com.mikepenz.gameservices.savedgames/requirePortableName|requirePortableName@com.mikepenz.gameservices.savedgames.SavedGameId(){}[0]
-final fun com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient(com.mikepenz.gameservices/GameServicesPlatform): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient|createUnsupportedSavedGamesClient(com.mikepenz.gameservices.GameServicesPlatform){}[0]
+final fun com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient(com.mikepenz.gameservices/GameServicesPlatform, com.mikepenz.gameservices/GameServicesProvider = ...): com.mikepenz.gameservices.savedgames/SavedGamesClient // com.mikepenz.gameservices.savedgames/createUnsupportedSavedGamesClient|createUnsupportedSavedGamesClient(com.mikepenz.gameservices.GameServicesPlatform;com.mikepenz.gameservices.GameServicesProvider){}[0]
 final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices.savedgames/writeAndCommit(kotlin.coroutines/SuspendFunction0<kotlin/Boolean>, kotlin.coroutines/SuspendFunction0<#A>): #A // com.mikepenz.gameservices.savedgames/writeAndCommit|writeAndCommit(kotlin.coroutines.SuspendFunction0<kotlin.Boolean>;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]

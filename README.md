@@ -264,3 +264,5 @@ Feature suffixes are `core`, `achievements`, `leaderboards`, `saved-games`, and 
 A backend feature artifact brings its matching contract and backend core transitively; unused
 feature adapters do not need to be installed. Existing ID mappings and suspend feature contracts
 remain available. Old implicit platform factories have been removed from this snapshot.
+
+See [platform support and live validation](PLATFORM_SUPPORT.md) for Apple targets, partial capabilities, and Android deployment environments.

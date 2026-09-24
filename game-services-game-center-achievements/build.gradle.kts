@@ -11,8 +11,18 @@ kotlin {
     explicitApi()
     iosArm64()
     iosSimulatorArm64()
+    macosArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
 
     sourceSets {
+        val appleUiMain = create("appleUiMain") { dependsOn(appleMain.get()) }
+        iosMain.get().dependsOn(appleUiMain)
+        tvosMain.get().dependsOn(appleUiMain)
+        macosMain.get().dependsOn(appleUiMain)
         commonMain.dependencies {
             api(project(":game-services-achievements"))
             api(project(":game-services-game-center-core"))
