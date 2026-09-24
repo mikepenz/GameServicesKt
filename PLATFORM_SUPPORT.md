@@ -19,8 +19,8 @@ that app's signed provider host has passed the live checks below.
 ## Apple targets
 
 Contract and Game Center artifacts provide `iosArm64`, `iosSimulatorArm64`, `macosArm64`,
-`macosX64`, `tvosArm64`, `tvosSimulatorArm64`, `watchosArm64`, `watchosDeviceArm64`, and
-`watchosSimulatorArm64`. Intel macOS is compatibility support for a deprecated Kotlin target.
+`tvosArm64`, `tvosSimulatorArm64`, `watchosArm64`, `watchosDeviceArm64`, and
+`watchosSimulatorArm64`. Deprecated Kotlin targets are not supported.
 
 On iOS/tvOS, construct `GameCenterBackend { currentUIViewController }`. On macOS, use
 `GameCenterBackend { currentNSViewController }`. On watchOS, use `GameCenterBackend()`.
@@ -61,3 +61,6 @@ startup authentication, refusal, account changes, achievement and score updates,
 advertised system screen. Verify iCloud save round-trip and conflict resolution on iOS/macOS.
 On tvOS/watchOS confirm save actions are disabled; on watchOS also confirm UI/avatar actions
 are disabled. Test account changes without retaining data or conflict handles from another player.
+
+Default checks run iOS/macOS tests and compile all Apple variants. Install tvOS/watchOS simulator
+runtimes and pass `-PappleExtendedSimulatorTests=true` to execute those additional device tests.
