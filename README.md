@@ -224,8 +224,11 @@ after recreating a client; session conflict handles are deliberately not restore
 
 ## Validation limits
 
-Automated regressions cover shared contracts, pagination, authentication callbacks, cancellation,
-sample interactions, and Android snapshot lifecycle using a fake SDK. Live provider acceptance still
-requires configured Android and iOS devices: sign-in and account changes, consent cancellation,
+Automated regressions cover shared contracts and pagination, Android achievement loading and update
+acknowledgements, Android sign-in and GameKit callback sequences, provider error mappings, and snapshot
+commit/cancellation/descriptor cleanup. Adapter tests use controlled SDK responses; the sample integration
+test drives startup, failure recovery, conflict editing/resolution, and account changes through the app.
+
+Live provider acceptance still requires configured Android and iOS devices: sign-in and account changes, consent cancellation,
 score visibility, offline writes, and conflicts between two devices. Device frame time, allocation,
 and network latency measurements are separate from these tests.

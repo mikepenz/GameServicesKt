@@ -4,6 +4,7 @@ package com.mikepenz.gameservices
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import platform.Foundation.NSError
 import platform.GameKit.GKLocalPlayer
 import platform.GameKit.setAuthenticateHandler
 import platform.UIKit.UIViewController
@@ -12,11 +13,23 @@ import platform.darwin.dispatch_get_main_queue
 
 /** Create one client for the app; GameKit owns one authentication handler. */
 public fun createGameServices(presentingViewController: () -> UIViewController): GameServices =
-    IosGameServices(presentingViewController)
+    IosGameServices(
+        present = { presentingViewController().presentViewController(it, true, null) },
+        installHandler = { GKLocalPlayer.localPlayer().setAuthenticateHandler(it) },
+        currentPlayer = {
+            GKLocalPlayer.localPlayer().let { player ->
+                if (player.authenticated) PlayerIdentity(PlayerId(player.gamePlayerID), player.displayName ?: player.gamePlayerID) else null
+            }
+        },
+    )
 
-private class IosGameServices(private val presentingViewController: () -> UIViewController) : GameServices {
+internal class IosGameServices(
+    private val present: (UIViewController) -> Unit,
+    private val installHandler: ((UIViewController?, NSError?) -> Unit) -> Unit,
+    private val currentPlayer: () -> PlayerIdentity?,
+    private val onMain: (() -> Unit) -> Unit = { dispatch_async(dispatch_get_main_queue(), it) },
+) : GameServices {
     override val support = GameServicesSupport(GameServicesPlatform.IOS, GameServicesProvider.GameCenter, true)
-    private val localPlayer = GKLocalPlayer.localPlayer()
     private val session = AuthenticationSession()
     override val authenticationState = session.authenticationState
 
@@ -24,26 +37,27 @@ private class IosGameServices(private val presentingViewController: () -> UIView
         withContext(Dispatchers.Main.immediate) {
             session.refresh(
                 install = {
-                    localPlayer.setAuthenticateHandler { controller, error ->
-                        dispatch_async(dispatch_get_main_queue()) {
+                    installHandler { controller, error ->
+                        onMain {
+                            val player = currentPlayer()
                             when {
                                 controller != null -> {
                                     try {
-                                        presentingViewController().presentViewController(controller, true, null)
+                                        present(controller)
                                     } catch (error: Exception) {
                                         session.complete(Result.failure(GameServicesException.ProviderFailure(
                                             GameServicesProvider.GameCenter, error::class.simpleName.orEmpty(), error,
                                         )))
                                     }
                                 }
-                                localPlayer.authenticated -> session.complete(Result.success(localPlayer.toIdentity()))
+                                player != null -> session.complete(Result.success(player))
                                 error != null -> session.complete(Result.failure(error.toGameServicesException()))
                                 else -> session.complete(Result.success(null))
                             }
                         }
                     }
                 },
-                current = { if (localPlayer.authenticated) localPlayer.toIdentity() else null },
+                current = currentPlayer,
             ).getOrThrow()
         }
     }
@@ -53,6 +67,4 @@ private class IosGameServices(private val presentingViewController: () -> UIView
             ?: Result.failure(GameServicesException.AuthenticationRequired) },
         onFailure = Result.Companion::failure,
     )
-
-    private fun GKLocalPlayer.toIdentity() = PlayerIdentity(PlayerId(gamePlayerID), displayName ?: gamePlayerID)
 }

@@ -17,11 +17,14 @@ import kotlinx.coroutines.withContext
 public fun createAchievementsClient(
     activity: ComponentActivity,
     ids: AchievementIdMappings = AchievementIdMappings.Empty,
-): AchievementsClient = AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), activity, ids)
+): AchievementsClient = AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), { intent ->
+    @Suppress("DEPRECATION")
+    activity.startActivityForResult(intent, 0)
+}, ids)
 
-private class AndroidAchievementsClient(
+internal class AndroidAchievementsClient(
     private val achievements: GoogleAchievementsClient,
-    private val activity: ComponentActivity,
+    private val launch: (android.content.Intent) -> Unit,
     private val ids: AchievementIdMappings,
 ) : AchievementsClient {
     override val isSupported: Boolean = true
@@ -50,9 +53,8 @@ private class AndroidAchievementsClient(
     ): Result<Unit> = gameServicesResult { reportConfiguredProgress(id, progress) }
 
     override suspend fun showAchievements(): Result<Unit> = gameServicesResult {
-        @Suppress("DEPRECATION")
         withContext(Dispatchers.Main.immediate) {
-            activity.startActivityForResult(achievements.achievementsIntent.awaitGameServices(), 0)
+            launch(achievements.achievementsIntent.awaitGameServices())
         }
     }
 

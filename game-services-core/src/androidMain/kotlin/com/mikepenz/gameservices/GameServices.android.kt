@@ -3,6 +3,8 @@
 package com.mikepenz.gameservices
 
 import androidx.activity.ComponentActivity
+import com.google.android.gms.games.GamesSignInClient
+import com.google.android.gms.games.PlayersClient
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
 import kotlinx.coroutines.CancellationException
@@ -15,10 +17,13 @@ import kotlinx.coroutines.withContext
 
 public fun createGameServices(activity: ComponentActivity): GameServices {
     PlayGamesSdk.initialize(activity.applicationContext)
-    return AndroidGameServices(activity)
+    return AndroidGameServices(PlayGames.getGamesSignInClient(activity), PlayGames.getPlayersClient(activity))
 }
 
-private class AndroidGameServices(private val activity: ComponentActivity) : GameServices {
+internal class AndroidGameServices(
+    private val signIn: GamesSignInClient,
+    private val players: PlayersClient,
+) : GameServices {
     override val support = GameServicesSupport(GameServicesPlatform.Android, GameServicesProvider.GooglePlayGames, true)
     private val state = MutableStateFlow<AuthenticationState>(AuthenticationState.Unauthenticated)
     override val authenticationState: StateFlow<AuthenticationState> = state
@@ -36,11 +41,10 @@ private class AndroidGameServices(private val activity: ComponentActivity) : Gam
             state.value = AuthenticationState.Authenticating
             try {
                 gameServicesResult {
-                    val client = PlayGames.getGamesSignInClient(activity)
-                    var signedIn = client.isAuthenticated().awaitGameServices().isAuthenticated
-                    if (!signedIn && explicit) signedIn = client.signIn().awaitGameServices().isAuthenticated
+                    var signedIn = signIn.isAuthenticated().awaitGameServices().isAuthenticated
+                    if (!signedIn && explicit) signedIn = signIn.signIn().awaitGameServices().isAuthenticated
                     if (!signedIn) null else {
-                        val player = PlayGames.getPlayersClient(activity).currentPlayer.awaitGameServices()
+                        val player = players.currentPlayer.awaitGameServices()
                         PlayerIdentity(PlayerId(player.playerId), player.displayName)
                     }
                 }.also { result ->

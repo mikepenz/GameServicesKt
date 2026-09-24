@@ -3,6 +3,12 @@
 package com.mikepenz.gameservices.savedgames
 
 import android.app.Activity
+import android.os.ParcelFileDescriptor
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
+import kotlin.test.assertContentEquals
+import kotlin.test.assertFalse
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.Snapshot
 import com.google.android.gms.games.snapshot.SnapshotContents
@@ -57,12 +63,17 @@ class SnapshotLifecycleTest {
     fun resolutionCanRetryAfterProviderFailureAndClosesEveryOpenedVersion() = runTest {
         val opened = mutableListOf<FakeSnapshot>()
         var resolutions = 0
+        val resolutionDescriptors = mutableListOf<ParcelFileDescriptor>()
         val sdk = proxy<SnapshotsClient> { method, args -> when (method) {
             "getMaxDataSize" -> ImmediateTask(Result.success(1024))
             "open" -> {
                 val first = FakeSnapshot().also(opened::add)
                 val second = FakeSnapshot().also(opened::add)
-                val conflict = SnapshotsClient.SnapshotConflict(first.value, "conflict", second.value, first.contents)
+                val resolution = mock(SnapshotContents::class.java)
+                val descriptor = mock(ParcelFileDescriptor::class.java).also(resolutionDescriptors::add)
+                `when`(resolution.parcelFileDescriptor).thenReturn(descriptor)
+                `when`(resolution.writeBytes(org.mockito.ArgumentMatchers.any())).thenReturn(true)
+                val conflict = SnapshotsClient.SnapshotConflict(first.value, "conflict", second.value, resolution)
                 ImmediateTask(Result.success(SnapshotsClient.DataOrConflict<Snapshot>(null, conflict)))
             }
             "discardAndClose" -> {
@@ -83,6 +94,7 @@ class SnapshotLifecycleTest {
         assertTrue(client.resolve(conflict.conflict.id, data).isFailure)
         assertIs<SavedGameWriteResult.Saved>(client.resolve(conflict.conflict.id, data).getOrThrow())
         assertEquals(2, resolutions)
+        resolutionDescriptors.forEach { verify(it).close() }
         assertTrue(opened.all { it.closed })
     }
 
@@ -105,15 +117,110 @@ class SnapshotLifecycleTest {
         assertTrue(snapshot.closed)
     }
 
+    @Test
+    fun successfulWriteWaitsForCommitAndPreservesBytes() = runTest {
+        val snapshot = FakeSnapshot()
+        val commit = ImmediateTask(Result.success(snapshot.metadata), delayed = true)
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val sdk = proxy<SnapshotsClient> { method, _ -> when (method) {
+            "getMaxDataSize" -> ImmediateTask(Result.success(1024))
+            "open" -> ImmediateTask(Result.success(SnapshotsClient.DataOrConflict<Snapshot>(snapshot.value, null)))
+            "commitAndClose" -> { started.complete(Unit); commit }
+            "discardAndClose" -> { snapshot.closed = true; ImmediateTask(Result.success(null)) }
+            else -> error(method)
+        } }
+        val client = AndroidSavedGamesClient(sdk, {}, ProviderUiRequest())
+        val bytes = byteArrayOf(0, -1, 42)
+        val request = async { client.write(SavedGameId("save"), SavedGameData.of(bytes)) }
+        started.await()
+        assertContentEquals(bytes, snapshot.written)
+        assertFalse(request.isCompleted)
+        snapshot.closed = true // SDK commit closes the native contents.
+        commit.finish()
+        assertIs<SavedGameWriteResult.Saved>(request.await().getOrThrow())
+    }
+
+    @Test
+    fun failedCommitReturnsFailureAndClosesSnapshot() = runTest {
+        val snapshot = FakeSnapshot()
+        val failure = IllegalStateException("Commit failed")
+        val sdk = proxy<SnapshotsClient> { method, _ -> when (method) {
+            "getMaxDataSize" -> ImmediateTask(Result.success(1024))
+            "open" -> ImmediateTask(Result.success(SnapshotsClient.DataOrConflict<Snapshot>(snapshot.value, null)))
+            "commitAndClose" -> ImmediateTask<SnapshotMetadata>(Result.failure(failure))
+            "discardAndClose" -> { snapshot.closed = true; ImmediateTask(Result.success(null)) }
+            else -> error(method)
+        } }
+        val client = AndroidSavedGamesClient(sdk, {}, ProviderUiRequest())
+        val result = client.write(SavedGameId("save"), SavedGameData.of(byteArrayOf(1)))
+        assertTrue(generateSequence(result.exceptionOrNull()?.cause) { it.cause }.any { it === failure })
+        assertTrue(snapshot.closed)
+    }
+
+    @Test
+    fun cancellationDuringCommitWaitsForNativeCompletion() = runTest {
+        val snapshot = FakeSnapshot()
+        val commit = ImmediateTask(Result.success(snapshot.metadata), delayed = true)
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var discards = 0
+        val sdk = proxy<SnapshotsClient> { method, _ -> when (method) {
+            "getMaxDataSize" -> ImmediateTask(Result.success(1024))
+            "open" -> ImmediateTask(Result.success(SnapshotsClient.DataOrConflict<Snapshot>(snapshot.value, null)))
+            "commitAndClose" -> { started.complete(Unit); commit }
+            "discardAndClose" -> { discards++; snapshot.closed = true; ImmediateTask(Result.success(null)) }
+            else -> error(method)
+        } }
+        val client = AndroidSavedGamesClient(sdk, {}, ProviderUiRequest())
+        val request = async { client.write(SavedGameId("save"), SavedGameData.of(byteArrayOf(1))) }
+        started.await()
+        request.cancel()
+        runCurrent()
+        assertFalse(request.isCompleted)
+        assertEquals(0, discards)
+        snapshot.closed = true
+        commit.finish()
+        request.join()
+        assertTrue(request.isCancelled)
+        assertEquals(0, discards)
+    }
+
+    @Test
+    fun cancelledConflictOpenClosesSeparateResolutionContents() = runTest {
+        val first = FakeSnapshot()
+        val second = FakeSnapshot()
+        val descriptor = mock(ParcelFileDescriptor::class.java)
+        val contents = mock(SnapshotContents::class.java)
+        `when`(contents.parcelFileDescriptor).thenReturn(descriptor)
+        val conflict = SnapshotsClient.SnapshotConflict(first.value, "conflict", second.value, contents)
+        val task = ImmediateTask(Result.success(SnapshotsClient.DataOrConflict<Snapshot>(null, conflict)), delayed = true)
+        val sdk = proxy<SnapshotsClient> { method, args -> when (method) {
+            "open" -> task
+            "discardAndClose" -> {
+                (if (args[0] === first.value) first else second).closed = true
+                ImmediateTask(Result.success(null))
+            }
+            else -> error(method)
+        } }
+        val client = AndroidSavedGamesClient(sdk, {}, ProviderUiRequest())
+        val request = async { client.read(SavedGameId("save")) }
+        runCurrent()
+        request.cancel()
+        runCurrent()
+        task.finish()
+        assertTrue(first.closed && second.closed)
+        verify(descriptor).close()
+    }
+
     private class FakeSnapshot(val writes: Boolean = true) {
         var closed = false
+        var written: ByteArray? = null
         val metadata = proxy<SnapshotMetadata> { method, _ -> when (method) {
             "getUniqueName", "getSnapshotId" -> "save"
             else -> error(method)
         } }
-        val contents = proxy<SnapshotContents> { method, _ -> when (method) {
+        val contents = proxy<SnapshotContents> { method, args -> when (method) {
             "isClosed" -> closed
-            "writeBytes" -> writes
+            "writeBytes" -> { written = (args[0] as ByteArray).copyOf(); writes }
             "readFully" -> byteArrayOf(1)
             else -> error(method)
         } }
