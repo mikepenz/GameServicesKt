@@ -7,6 +7,10 @@
 // - Show declarations: true
 
 // Library unique name: <com.mikepenz:game-services-core>
+open annotation class com.mikepenz.gameservices/InternalGameServicesApi : kotlin/Annotation { // com.mikepenz.gameservices/InternalGameServicesApi|null[0]
+    constructor <init>() // com.mikepenz.gameservices/InternalGameServicesApi.<init>|<init>(){}[0]
+}
+
 final enum class com.mikepenz.gameservices/GameServicesPlatform : kotlin/Enum<com.mikepenz.gameservices/GameServicesPlatform> { // com.mikepenz.gameservices/GameServicesPlatform|null[0]
     enum entry Android // com.mikepenz.gameservices/GameServicesPlatform.Android|null[0]
     enum entry IOS // com.mikepenz.gameservices/GameServicesPlatform.IOS|null[0]
@@ -75,6 +79,14 @@ sealed interface com.mikepenz.gameservices/AuthenticationState { // com.mikepenz
     }
 }
 
+final class <#A: kotlin/Any?> com.mikepenz.gameservices/ProviderUiRequest { // com.mikepenz.gameservices/ProviderUiRequest|null[0]
+    constructor <init>() // com.mikepenz.gameservices/ProviderUiRequest.<init>|<init>(){}[0]
+
+    final fun close() // com.mikepenz.gameservices/ProviderUiRequest.close|close(){}[0]
+    final fun complete(#A) // com.mikepenz.gameservices/ProviderUiRequest.complete|complete(1:0){}[0]
+    final suspend fun launchAndAwait(kotlin/Function0<kotlin/Unit>): #A // com.mikepenz.gameservices/ProviderUiRequest.launchAndAwait|launchAndAwait(kotlin.Function0<kotlin.Unit>){}[0]
+}
+
 final class com.mikepenz.gameservices/GameServicesSupport { // com.mikepenz.gameservices/GameServicesSupport|null[0]
     constructor <init>(com.mikepenz.gameservices/GameServicesPlatform, com.mikepenz.gameservices/GameServicesProvider, kotlin/Boolean) // com.mikepenz.gameservices/GameServicesSupport.<init>|<init>(com.mikepenz.gameservices.GameServicesPlatform;com.mikepenz.gameservices.GameServicesProvider;kotlin.Boolean){}[0]
 
@@ -124,6 +136,7 @@ final value class com.mikepenz.gameservices/PlayerId { // com.mikepenz.gameservi
 sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception { // com.mikepenz.gameservices/GameServicesException|null[0]
     final class ProviderFailure : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.ProviderFailure|null[0]
         constructor <init>(com.mikepenz.gameservices/GameServicesProvider, kotlin/String) // com.mikepenz.gameservices/GameServicesException.ProviderFailure.<init>|<init>(com.mikepenz.gameservices.GameServicesProvider;kotlin.String){}[0]
+        constructor <init>(com.mikepenz.gameservices/GameServicesProvider, kotlin/String, kotlin/Throwable?) // com.mikepenz.gameservices/GameServicesException.ProviderFailure.<init>|<init>(com.mikepenz.gameservices.GameServicesProvider;kotlin.String;kotlin.Throwable?){}[0]
 
         final val code // com.mikepenz.gameservices/GameServicesException.ProviderFailure.code|{}code[0]
             final fun <get-code>(): kotlin/String // com.mikepenz.gameservices/GameServicesException.ProviderFailure.code.<get-code>|<get-code>(){}[0]
@@ -164,7 +177,13 @@ sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception 
 }
 
 // Targets: [ios]
+final fun (platform.Foundation/NSError).com.mikepenz.gameservices/toGameServicesException(): com.mikepenz.gameservices/GameServicesException // com.mikepenz.gameservices/toGameServicesException|toGameServicesException@platform.Foundation.NSError(){}[0]
+
+// Targets: [ios]
 final fun com.mikepenz.gameservices/createGameServices(kotlin/Function0<platform.UIKit/UIViewController>): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(kotlin.Function0<platform.UIKit.UIViewController>){}[0]
+
+// Targets: [ios]
+final suspend fun <#A: kotlin/Any?> com.mikepenz.gameservices/gameServicesResult(kotlin.coroutines/SuspendFunction0<#A>): kotlin/Result<#A> // com.mikepenz.gameservices/gameServicesResult|gameServicesResult(kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
 
 // Targets: [wasmJs]
 final fun com.mikepenz.gameservices/createGameServices(): com.mikepenz.gameservices/GameServices // com.mikepenz.gameservices/createGameServices|createGameServices(){}[0]

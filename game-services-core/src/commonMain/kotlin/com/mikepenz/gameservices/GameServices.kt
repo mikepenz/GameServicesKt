@@ -1,8 +1,8 @@
 package com.mikepenz.gameservices
 
+import kotlin.jvm.JvmInline
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.jvm.JvmInline
 
 public enum class GameServicesPlatform {
     Android,
@@ -95,5 +95,8 @@ public sealed class GameServicesException protected constructor(
     public class ProviderFailure public constructor(
         public val provider: GameServicesProvider,
         public val code: String,
-    ) : GameServicesException("$provider failed with code $code")
+        cause: Throwable?,
+    ) : GameServicesException("$provider failed with code $code", cause) {
+        public constructor(provider: GameServicesProvider, code: String) : this(provider, code, null)
+    }
 }

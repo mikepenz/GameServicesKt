@@ -1,23 +1,24 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.leaderboards
 
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.data.DataBufferUtils
 import com.google.android.gms.games.LeaderboardsClient as GoogleLeaderboardsClient
 import com.google.android.gms.games.PageDirection
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.leaderboard.Leaderboard as GoogleLeaderboard
 import com.google.android.gms.games.leaderboard.LeaderboardScore as GoogleLeaderboardScore
 import com.google.android.gms.games.leaderboard.LeaderboardVariant
-import com.google.android.gms.tasks.Task
-import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesProvider
 import com.mikepenz.gameservices.PlayerId
 import com.mikepenz.gameservices.PlayerIdentity
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import com.mikepenz.gameservices.awaitGameServices
+import com.mikepenz.gameservices.gameServicesResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 public fun createLeaderboardsClient(
     activity: ComponentActivity,
@@ -35,8 +36,8 @@ private class AndroidLeaderboardsClient(
 ) : LeaderboardsClient {
     override val isSupported: Boolean = true
 
-    override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = providerResult {
-        val metadata = requireNotNull(leaderboards.loadLeaderboardMetadata(false).await().get())
+    override suspend fun loadLeaderboards(): Result<List<Leaderboard>> = gameServicesResult {
+        val metadata = requireNotNull(leaderboards.loadLeaderboardMetadata(false).awaitGameServices { it.get()?.release() }.get())
         try {
             (0 until metadata.count).map { toLeaderboard(metadata.get(it)) }
         } finally {
@@ -44,59 +45,59 @@ private class AndroidLeaderboardsClient(
         }
     }
 
-    override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = providerResult {
-        leaderboards.submitScore(ids.providerId(GameServicesProvider.GooglePlayGames, id).value, score)
+    override suspend fun submitScore(id: LeaderboardId, score: Long): Result<Unit> = gameServicesResult {
+        leaderboards.submitScoreImmediate(ids.providerId(GameServicesProvider.GooglePlayGames, id).value, score).awaitGameServices()
     }
 
     override suspend fun loadCurrentPlayerScore(
         id: LeaderboardId,
         scope: LeaderboardScope,
         period: LeaderboardPeriod,
-    ): Result<LeaderboardScore?> = providerResult {
+    ): Result<LeaderboardScore?> = gameServicesResult {
         leaderboards.loadCurrentPlayerLeaderboardScore(
             ids.providerId(GameServicesProvider.GooglePlayGames, id).value,
             period.googleValue(),
             scope.googleValue(),
         )
-            .await().get()?.toLeaderboardScore()
+            .awaitGameServices().get()?.toLeaderboardScore()
     }
 
     override suspend fun loadScores(
         id: LeaderboardId,
         query: LeaderboardQuery,
-    ): Result<List<LeaderboardScore>> = providerResult {
+    ): Result<List<LeaderboardScore>> = gameServicesResult {
         var scores = requireNotNull(leaderboards.loadTopScores(
             ids.providerId(GameServicesProvider.GooglePlayGames, id).value,
-            query.period.googleValue(),
-            query.scope.googleValue(),
-            query.limit,
-        ).await().get())
+            query.period.googleValue(), query.scope.googleValue(), 25,
+        ).awaitGameServices { it.get()?.release() }.get())
+        var first = true
         try {
-            while (scores.scores.lastRank() < query.startRank) {
-                val next = requireNotNull(
-                    leaderboards.loadMoreScores(scores.scores, query.limit, PageDirection.NEXT).await().get(),
-                )
-                if (next.scores.lastRank() <= scores.scores.lastRank()) {
-                    next.release()
-                    break
+            collectLeaderboardScores(query) {
+                if (!first) {
+                    val next = requireNotNull(leaderboards.loadMoreScores(scores.scores, 25, PageDirection.NEXT)
+                        .awaitGameServices { it.get()?.release() }.get())
+                    scores.release()
+                    scores = next
                 }
-                scores.release()
-                scores = next
+                first = false
+                ScorePage(
+                    (0 until scores.scores.count).map { scores.scores.get(it).toLeaderboardScore() },
+                    DataBufferUtils.hasNextPage(scores.scores),
+                )
             }
-            (0 until scores.scores.count)
-                .map { scores.scores.get(it).toLeaderboardScore() }
-                .filter { it.rank in query.startRank until (query.startRank.toLong() + query.limit).coerceAtMost(Int.MAX_VALUE.toLong()).toInt() }
         } finally {
             scores.release()
         }
     }
 
-    override suspend fun showLeaderboards(): Result<Unit> = providerResult {
-        launcher.launch(leaderboards.allLeaderboardsIntent.await())
+    override suspend fun showLeaderboards(): Result<Unit> = gameServicesResult {
+        withContext(Dispatchers.Main.immediate) { launcher.launch(leaderboards.allLeaderboardsIntent.awaitGameServices()) }
     }
 
-    override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = providerResult {
-        launcher.launch(leaderboards.getLeaderboardIntent(ids.providerId(GameServicesProvider.GooglePlayGames, id).value).await())
+    override suspend fun showLeaderboard(id: LeaderboardId): Result<Unit> = gameServicesResult {
+        withContext(Dispatchers.Main.immediate) {
+            launcher.launch(leaderboards.getLeaderboardIntent(ids.providerId(GameServicesProvider.GooglePlayGames, id).value).awaitGameServices())
+        }
     }
 
     private fun toLeaderboard(leaderboard: GoogleLeaderboard): Leaderboard = Leaderboard(
@@ -104,9 +105,6 @@ private class AndroidLeaderboardsClient(
         title = leaderboard.displayName,
     )
 }
-
-private fun com.google.android.gms.games.leaderboard.LeaderboardScoreBuffer.lastRank(): Int =
-    if (count == 0) Int.MAX_VALUE else get(count - 1).rank.toInt()
 
 private fun LeaderboardScope.googleValue(): Int = when (this) {
     LeaderboardScope.Global -> LeaderboardVariant.COLLECTION_PUBLIC
@@ -120,29 +118,9 @@ private fun LeaderboardPeriod.googleValue(): Int = when (this) {
 }
 
 private fun GoogleLeaderboardScore.toLeaderboardScore(): LeaderboardScore = LeaderboardScore(
-    player = PlayerIdentity(PlayerId(requireNotNull(scoreHolder).playerId), scoreHolderDisplayName),
+    player = scoreHolder?.let { PlayerIdentity(PlayerId(it.playerId), scoreHolderDisplayName) },
     value = rawScore,
     formattedValue = displayScore,
-    rank = rank.toInt(),
+    rank = rank.takeIf { it > 0 },
+    displayName = scoreHolderDisplayName,
 )
-
-private suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
-    addOnCompleteListener { task ->
-        if (continuation.isActive) {
-            if (task.isSuccessful) continuation.resume(task.result)
-            else continuation.resumeWith(Result.failure(task.exception ?: IllegalStateException("Play Games task failed")))
-        }
-    }
-}
-
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: ApiException) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.statusCode.toString()))
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GooglePlayGames, exception.javaClass.name))
-}

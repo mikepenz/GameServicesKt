@@ -1,9 +1,9 @@
 package com.mikepenz.gameservices.social
 
-import com.mikepenz.gameservices.PlayerId
-import com.mikepenz.gameservices.PlayerIdentity
 import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesPlatform
+import com.mikepenz.gameservices.PlayerId
+import com.mikepenz.gameservices.PlayerIdentity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -60,4 +60,17 @@ internal class UnsupportedSocialClient(
     override suspend fun loadAvatar(playerId: PlayerId): Result<AvatarBytes?> = Result.failure(unsupported)
 
     override suspend fun showPlayerProfile(playerId: PlayerId): Result<Unit> = Result.failure(unsupported)
+}
+
+internal data class FriendPage(val profiles: List<PlayerProfile>, val hasMore: Boolean)
+
+internal suspend fun collectFriends(loadPage: suspend () -> FriendPage): List<PlayerProfile> {
+    val profiles = linkedMapOf<PlayerId, PlayerProfile>()
+    while (true) {
+        val page = loadPage()
+        val previousSize = profiles.size
+        page.profiles.forEach { profiles[it.identity.id] = it }
+        if (!page.hasMore) return profiles.values.toList()
+        check(profiles.size > previousSize) { "Provider friend pagination made no progress" }
+    }
 }

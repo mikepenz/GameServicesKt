@@ -67,6 +67,7 @@ public final class com/mikepenz/gameservices/GameServicesException$PermissionReq
 
 public final class com/mikepenz/gameservices/GameServicesException$ProviderFailure : com/mikepenz/gameservices/GameServicesException {
 	public fun <init> (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;)V
+	public fun <init> (Lcom/mikepenz/gameservices/GameServicesProvider;Ljava/lang/String;Ljava/lang/Throwable;)V
 	public final fun getCode ()Ljava/lang/String;
 	public final fun getProvider ()Lcom/mikepenz/gameservices/GameServicesProvider;
 }
@@ -121,6 +122,9 @@ public final class com/mikepenz/gameservices/GameServices_androidKt {
 	public static final fun createGameServices (Landroidx/activity/ComponentActivity;)Lcom/mikepenz/gameservices/GameServices;
 }
 
+public abstract interface annotation class com/mikepenz/gameservices/InternalGameServicesApi : java/lang/annotation/Annotation {
+}
+
 public final class com/mikepenz/gameservices/PlayerId {
 	public static final synthetic fun box-impl (Ljava/lang/String;)Lcom/mikepenz/gameservices/PlayerId;
 	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
@@ -146,5 +150,19 @@ public final class com/mikepenz/gameservices/PlayerIdentity {
 	public final fun getId-dn8Zjvc ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/ProviderCalls_androidKt {
+	public static final fun awaitGameServices (Lcom/google/android/gms/tasks/Task;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun awaitGameServices$default (Lcom/google/android/gms/tasks/Task;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun gameServicesResult (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun toGameServicesException (Ljava/lang/Throwable;)Lcom/mikepenz/gameservices/GameServicesException;
+}
+
+public final class com/mikepenz/gameservices/ProviderUiRequest {
+	public fun <init> ()V
+	public final fun close ()V
+	public final fun complete (Ljava/lang/Object;)V
+	public final fun launchAndAwait (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

@@ -7,7 +7,11 @@ import kotlin.jvm.JvmInline
 @JvmInline
 public value class SavedGameId public constructor(
     public val value: String,
-)
+) {
+    init {
+        require(value.isNotEmpty()) { "Saved game name must not be empty" }
+    }
+}
 
 @JvmInline
 public value class SavedGameConflictId public constructor(
@@ -117,4 +121,15 @@ internal class UnsupportedSavedGamesClient(
     private fun <T> unsupported(): Result<T> = Result.failure(
         GameServicesException.UnsupportedTarget(target),
     )
+}
+
+internal suspend fun <T> writeAndCommit(write: suspend () -> Boolean, commit: suspend () -> T): T {
+    check(write()) { "Writing saved game bytes to disk failed" }
+    return commit()
+}
+
+internal fun SavedGameId.requirePortableName() {
+    require(value.length in 1..100 && value.all { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it in "-._~" }) {
+        "Android saved game names must contain 1-100 URL-safe ASCII characters"
+    }
 }

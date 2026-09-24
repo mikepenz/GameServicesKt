@@ -106,15 +106,15 @@ public sealed interface AchievementProgress {
 internal fun AchievementProgress.percent(): Int = when (this) {
     AchievementProgress.Unlocked -> 100
     is AchievementProgress.Percent -> value
-    is AchievementProgress.Steps -> current * 100 / total
+    is AchievementProgress.Steps -> (current.toLong() * 100 / total).toInt()
 }
 
 internal fun AchievementProgress.stepsFor(configuredTotal: Int): Int {
     require(configuredTotal > 0)
     return when (this) {
         AchievementProgress.Unlocked -> configuredTotal
-        is AchievementProgress.Percent -> configuredTotal * value / 100
-        is AchievementProgress.Steps -> configuredTotal * current / total
+        is AchievementProgress.Percent -> (configuredTotal.toLong() * value / 100).toInt()
+        is AchievementProgress.Steps -> (configuredTotal.toLong() * current / total).toInt()
     }
 }
 
@@ -123,6 +123,7 @@ public interface AchievementsClient {
 
     public suspend fun loadAchievements(forceReload: Boolean = false): Result<List<Achievement>>
 
+    /** Completes when the provider acknowledges the update; failures remain observable. */
     public suspend fun reportProgress(
         id: AchievementId,
         progress: AchievementProgress,
@@ -148,3 +149,6 @@ internal class UnsupportedAchievementsClient(
 
     override suspend fun showAchievements(): Result<Unit> = Result.failure(unsupported)
 }
+
+internal inline fun configuredSteps(incremental: Boolean, readSteps: () -> Int): Int? =
+    if (incremental) readSteps() else null

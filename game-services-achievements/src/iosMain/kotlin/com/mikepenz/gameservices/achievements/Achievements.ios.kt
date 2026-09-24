@@ -1,19 +1,20 @@
+@file:OptIn(com.mikepenz.gameservices.InternalGameServicesApi::class)
+
 package com.mikepenz.gameservices.achievements
 
-import com.mikepenz.gameservices.GameServicesException
 import com.mikepenz.gameservices.GameServicesProvider
-import kotlinx.coroutines.CancellationException
+import com.mikepenz.gameservices.gameServicesResult
+import com.mikepenz.gameservices.toGameServicesException
+import kotlin.coroutines.resume
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.Foundation.NSError
 import platform.GameKit.GKAchievement
 import platform.GameKit.GKAchievementDescription
 import platform.GameKit.GKGameCenterControllerDelegateProtocol
 import platform.GameKit.GKGameCenterViewController
 import platform.UIKit.UIViewController
-import platform.darwin.dispatch_async
-import platform.darwin.dispatch_get_main_queue
 import platform.darwin.NSObject
-import kotlin.coroutines.resume
 
 public fun createAchievementsClient(
     presentingViewController: () -> UIViewController,
@@ -28,9 +29,13 @@ private class IosAchievementsClient(
 
     private val gameCenterDelegate = AchievementsGameCenterDelegate()
 
-    override suspend fun loadAchievements(forceReload: Boolean): Result<List<Achievement>> = providerResult {
-        val progress = loadProgress().associateBy { it.identifier }
-        loadDescriptions().map { description ->
+    override suspend fun loadAchievements(forceReload: Boolean): Result<List<Achievement>> = gameServicesResult {
+        val (progress, descriptions) = coroutineScope {
+            val progress = async { loadProgress().associateBy { it.identifier } }
+            val descriptions = async { loadDescriptions() }
+            progress.await() to descriptions.await()
+        }
+        descriptions.map { description ->
             val achievement = progress[description.identifier]
             Achievement(
                 id = ids.commonId(GameServicesProvider.GameCenter, AchievementId(requireNotNull(description.identifier))),
@@ -51,14 +56,14 @@ private class IosAchievementsClient(
     override suspend fun reportProgress(
         id: AchievementId,
         progress: AchievementProgress,
-    ): Result<Unit> = providerResult {
+    ): Result<Unit> = gameServicesResult {
         val achievement = GKAchievement(identifier = ids.providerId(GameServicesProvider.GameCenter, id).value)
         achievement.percentComplete = progress.percent().toDouble()
         report(achievement)
     }
 
     @Suppress("DEPRECATION_ERROR")
-    override suspend fun showAchievements(): Result<Unit> = providerResult {
+    override suspend fun showAchievements(): Result<Unit> = gameServicesResult {
         presentAchievementsDashboard(presentingViewController, gameCenterDelegate)
     }
 }
@@ -87,28 +92,13 @@ private suspend fun report(achievement: GKAchievement): Unit = suspendCancellabl
     }
 }
 
-private suspend fun <T> providerResult(block: suspend () -> T): Result<T> = try {
-    Result.success(block())
-} catch (cancellation: CancellationException) {
-    throw cancellation
-} catch (exception: GameServicesException) {
-    Result.failure(exception)
-} catch (exception: Throwable) {
-    Result.failure(GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, exception.toString()))
-}
-
-private fun NSError.toGameServicesException(): GameServicesException = GameServicesException.ProviderFailure(
-    provider = GameServicesProvider.GameCenter,
-    code = "$domain:$code",
-)
-
 private class AchievementsGameCenterDelegate : NSObject(), GKGameCenterControllerDelegateProtocol {
     override fun gameCenterViewControllerDidFinish(gameCenterViewController: GKGameCenterViewController) {
         gameCenterViewController.dismissViewControllerAnimated(true, null)
     }
 }
 
-internal expect fun presentAchievementsDashboard(
+internal expect suspend fun presentAchievementsDashboard(
     presentingViewController: () -> UIViewController,
     delegate: GKGameCenterControllerDelegateProtocol,
 )
