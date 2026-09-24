@@ -13,6 +13,7 @@ import com.google.android.gms.games.GamesClientStatusCodes
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.Snapshot
+import com.google.android.gms.games.snapshot.SnapshotContents
 import com.google.android.gms.games.snapshot.SnapshotMetadata
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange
 import com.mikepenz.gameservices.ProviderUiRequest
@@ -161,8 +162,14 @@ internal class AndroidSavedGamesClient(
         if (isConflict) requireNotNull(conflict).let { listOf(it.snapshot, it.conflictingSnapshot) }
         else listOfNotNull(data)
 
+    private fun Snapshot.hasOpenContents(): Boolean {
+        // SDK 22 annotates this non-null, but SnapshotEntity returns null after close.
+        val contents: SnapshotContents? = snapshotContents
+        return contents?.isClosed == false
+    }
+
     private fun discard(opened: SnapshotsClient.DataOrConflict<Snapshot>) {
-        opened.versions().filterNot { it.snapshotContents.isClosed }.forEach { snapshot ->
+        opened.versions().filter { it.hasOpenContents() }.forEach { snapshot ->
             runCatching { snapshots.discardAndClose(snapshot) }
         }
         runCatching { opened.closeResolutionContents() }
@@ -170,7 +177,7 @@ internal class AndroidSavedGamesClient(
 
     private suspend fun close(opened: SnapshotsClient.DataOrConflict<Snapshot>) = withContext(NonCancellable) {
         var failure: Exception? = null
-        for (snapshot in opened.versions().filterNot { it.snapshotContents.isClosed }) {
+        for (snapshot in opened.versions().filter { it.hasOpenContents() }) {
             try {
                 snapshots.discardAndClose(snapshot).awaitGameServices()
             } catch (error: Exception) {

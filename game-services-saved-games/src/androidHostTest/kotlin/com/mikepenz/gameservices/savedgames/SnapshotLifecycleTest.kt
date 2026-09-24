@@ -226,7 +226,7 @@ class SnapshotLifecycleTest {
         } }
         val value = proxy<Snapshot> { method, _ -> when (method) {
             "getMetadata" -> metadata
-            "getSnapshotContents" -> contents
+            "getSnapshotContents" -> if (closed) null else contents
             else -> error(method)
         } }
     }
