@@ -53,3 +53,7 @@ include(
     ":game-services-game-center-saved-games",
     ":game-services-game-center-social",
 )
+
+include(":game-services-game-center-bridge")
+
+include(":sample-host-desktop")

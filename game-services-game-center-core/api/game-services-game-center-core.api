@@ -1,0 +1,31 @@
+public final class com/mikepenz/gameservices/gamecenter/BridgeCodecKt {
+	public static final fun bridgeError (Ljava/lang/Throwable;)Ljava/lang/String;
+	public static final fun decodeBridgeError (Ljava/lang/String;)Ljava/lang/Exception;
+	public static final fun decodeBridgeRows (Ljava/lang/String;)Ljava/util/List;
+	public static final fun encodeBridgeRows (Ljava/util/List;)Ljava/lang/String;
+}
+
+public final class com/mikepenz/gameservices/gamecenter/CapabilitiesKt {
+	public static final fun gameCenterSupportedOperations (Lcom/mikepenz/gameservices/GameServicesPlatform;JLjava/util/Set;)Ljava/util/Set;
+	public static final fun requireGameCenterOperation (Ljava/util/Set;Lcom/mikepenz/gameservices/GameServicesOperation;)V
+}
+
+public final class com/mikepenz/gameservices/gamecenter/GameCenterBackend : com/mikepenz/gameservices/GameServices, java/lang/AutoCloseable {
+	public fun <init> ()V
+	public fun <init> (Ljava/nio/file/Path;)V
+	public synthetic fun <init> (Ljava/nio/file/Path;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun authenticate-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun close ()V
+	public fun getAuthenticationState ()Lkotlinx/coroutines/flow/StateFlow;
+	public fun getSupport ()Lcom/mikepenz/gameservices/GameServicesSupport;
+	public fun getSupportedOperations ()Ljava/util/Set;
+	public final fun getTransport ()Lcom/mikepenz/gameservices/gamecenter/GameCenterTransport;
+	public fun refreshAuthentication-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/gamecenter/GameCenterTransport : java/lang/AutoCloseable {
+	public fun <init> (Ljava/nio/file/Path;)V
+	public final fun call-0E7RQCE (Ljava/lang/String;[Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun close ()V
+}
+
