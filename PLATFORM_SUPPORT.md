@@ -80,5 +80,27 @@ of extracting the bundled resources. Its sibling Game Center dylib must be prese
 Native requests are owned by the backend session. Cancellation ignores late callbacks and
 `close()` cancels the native session. Account changes arrive from GameKit's authentication flow.
 Do not create competing native and JVM sessions inside the same process.
+
+## Experimental Android Native C SDK
+
+Opt into `ExperimentalGameServicesApi` and depend on `game-services-play-games-native` for
+`androidNativeArm64`, `androidNativeArm32`, `androidNativeX64`, or `androidNativeX86`.
+`NativePlayGamesBackend(javaVm, activity)` takes the host's `JavaVM*` and a retained JNI global
+Activity reference. Create one on the Activity's UI thread and suspend `close()` before releasing
+that reference. The host APK must also include
+`com.google.android.gms:play-services-games-v2-native-c:21.0.0-beta1` and its Java dependencies;
+a Kotlin/Native library alone cannot package those Android classes or initialize an Activity.
+
+The pinned beta SDK provides boolean `signIn()` / `isAuthenticated()`, an `AchievementsClient`,
+and `RecallClient`. It has no player identity API, leaderboard API, save API, or social API in its
+shipped headers. It therefore does not implement the identity-bearing `GameServices` contract.
+Use the existing unsupported feature clients for absent features. Do not mix the Android Java and
+C SDK session owners in one host. C SDK requests finish before cancellation/close releases handles.
+
+The build verifies the SDK archive SHA-256 and binds its actual C ABI. Two C++-only standard-header
+includes are normalized for the C interop parser; declarations remain unchanged. Native linking is
+checked separately on Linux because Kotlin's bundled Android linker is an Intel executable that
+cannot run on this Apple Silicon host without Rosetta. A signed Android host still needs live SDK
+validation for sign-in, achievement acknowledgement/UI, Activity recreation, and process shutdown.
 Default checks run iOS/macOS tests and compile all Apple variants. Install tvOS/watchOS simulator
 runtimes and pass `-PappleExtendedSimulatorTests=true` to execute those additional device tests.

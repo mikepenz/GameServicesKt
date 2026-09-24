@@ -1,0 +1,10 @@
+public abstract interface class com/mikepenz/gameservices/recall/RecallClient {
+	public abstract fun requestRecallAccess-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/mikepenz/gameservices/recall/RecallSession {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getSessionId ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+

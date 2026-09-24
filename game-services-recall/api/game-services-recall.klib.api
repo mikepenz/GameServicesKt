@@ -1,0 +1,20 @@
+// Klib ABI Dump
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.mikepenz:game-services-recall>
+abstract interface com.mikepenz.gameservices.recall/RecallClient { // com.mikepenz.gameservices.recall/RecallClient|null[0]
+    abstract suspend fun requestRecallAccess(): kotlin/Result<com.mikepenz.gameservices.recall/RecallSession> // com.mikepenz.gameservices.recall/RecallClient.requestRecallAccess|requestRecallAccess(){}[0]
+}
+
+final class com.mikepenz.gameservices.recall/RecallSession { // com.mikepenz.gameservices.recall/RecallSession|null[0]
+    constructor <init>(kotlin/String) // com.mikepenz.gameservices.recall/RecallSession.<init>|<init>(kotlin.String){}[0]
+
+    final val sessionId // com.mikepenz.gameservices.recall/RecallSession.sessionId|{}sessionId[0]
+        final fun <get-sessionId>(): kotlin/String // com.mikepenz.gameservices.recall/RecallSession.sessionId.<get-sessionId>|<get-sessionId>(){}[0]
+
+    final fun toString(): kotlin/String // com.mikepenz.gameservices.recall/RecallSession.toString|toString(){}[0]
+}
