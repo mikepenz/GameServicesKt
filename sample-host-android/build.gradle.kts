@@ -18,7 +18,7 @@ val gameServicesProjectId = localProperties.getProperty(
 android {
     namespace = "com.mikepenz.gameservices.sample.host"
     compileSdk = 37
-    ndkVersion = "28.2.13676358"
+    ndkVersion = "30.0.16248370"
 
     buildFeatures {
         resValues = true

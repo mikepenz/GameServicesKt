@@ -24,13 +24,16 @@ val prepareSdk = tasks.register<Sync>("preparePlayGamesSdk") {
 }
 val atomicShim = layout.buildDirectory.dir("pgs-atomic/arm64-v8a")
 val arm64SdkArchive = sdkDirectory.map { it.file("prefab/modules/games_static/libs/android.arm64-v8a/libgames_static.a") }
+val ndkVersion = "30.0.16248370"
 val ndkHost = if (System.getProperty("os.name").startsWith("Mac")) "darwin-x86_64" else "linux-x86_64"
-val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/$ndkHost")
+val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/$ndkVersion/toolchains/llvm/prebuilt/$ndkHost")
 val compileAtomicShim = tasks.register("compilePlayGamesArm64AtomicShim") {
     dependsOn(prepareSdk)
     val source = file("src/atomic/arm64_atomic_shim.c")
     inputs.file(source)
     inputs.file(arm64SdkArchive)
+    inputs.property("ndkVersion", ndkVersion)
+    inputs.property("ndkHost", ndkHost)
     outputs.file(atomicShim.map { it.file("libgames_with_atomic.a") })
     doLast {
         val ndk = ndkToolchain.resolve("bin")
@@ -75,7 +78,7 @@ kotlin {
             baseName = "gs_play_native"
             linkerOpts("-Wl,-z,max-page-size=16384", "-Wl,-z,common-page-size=16384", "-Wl,--no-undefined")
             if (abi == "arm64-v8a") {
-                linkerOpts(ndkToolchain.resolve("lib/clang/19/lib/linux/aarch64/libunwind.a").absolutePath)
+                linkerOpts(ndkToolchain.resolve("lib/clang/21/lib/linux/aarch64/libunwind.a").absolutePath)
             }
         }
     }
