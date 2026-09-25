@@ -4,7 +4,7 @@ import UIKit
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        GameServicesSample_iosKt.MainViewController()
+        GameServicesSample_iosKt.createMainViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
