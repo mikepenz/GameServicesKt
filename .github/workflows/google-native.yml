@@ -14,8 +14,12 @@ jobs:
           distribution: zulu
           java-version: '21'
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+      - name: Install Android NDK
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;30.0.16248370"'
       - name: Link all Android native ABIs
         run: ./gradlew :game-services-play-games-native:linkDebugSharedAndroidNativeArm64 :game-services-play-games-native:linkDebugSharedAndroidNativeX64 :game-services-play-games-native:linkDebugSharedAndroidNativeArm32 :game-services-play-games-native:linkDebugSharedAndroidNativeX86
+      - name: Compile and package the native validation bridge
+        run: ./gradlew :sample-host-android:mergeNativeSdkDebugJniLibFolders :sample-host-android:externalNativeBuildNativeSdkDebug
   windows-recall:
     runs-on: windows-latest
     steps:

@@ -374,10 +374,22 @@ Android setup:
 2. Put the numeric PGS Project ID (not the OAuth client ID) in the ignored root `local.properties`:
    `gameServicesProjectId=123456789012`. If using the local demo keystore, add its password as
    `demoKeystorePassword=...`. This is local, so forks supply their own project and keystore.
-3. Create a PGS credential for the certificate that signs `installDebug`. Also add the Google Play
+3. Create a PGS credential for the certificate that signs the debug APK. Also add the Google Play
    app-signing SHA-1 only when testing an internal-track build. Run
-   `./gradlew :sample-host-android:installDebug` on an API 30+ device; individual PGS testers can
-   use the local build, while an internal track validates the Google Play-signed path.
+   `./gradlew :sample-host-android:installJavaSdkDebug` on an API 30+ device for the Java SDK,
+   or `./gradlew :sample-host-android:installNativeSdkDebug` for the C SDK. Both flavors use the
+   same package, project ID, and signing certificate, so install one at a time with the same PGS
+   tester account. The native flavor needs a Linux build host with Android NDK and CMake; its
+   Kotlin/Native linker cannot run on Apple Silicon without Rosetta. For 16 KB validation, use a
+   `google_apis_playstore_ps16k` system image; the `google_apis_ps16k` image has no Play Store.
+
+The native flavor calls `NativePlayGamesBackend` through JNI. Open the backend, then check
+authentication, sign in, load achievements, report progress with a configured achievement ID,
+show the provider achievements screen, and request a Recall session. The screen confirms that
+Recall returned a session but does not display the token. Close the Activity and reopen it to
+check session cleanup. This exercises the C SDK against a real provider account. The C SDK beta
+does not expose leaderboards, saved games, social features, or player identity, so those actions
+remain in the Java flavor.
 
 Open `sample-host-ios/GameServicesSampleHost.xcodeproj` in Xcode, copy `Config.xcconfig` to the
 ignored `Local.xcconfig`, and set its development team, bundle ID, and iCloud container before
