@@ -1,6 +1,7 @@
 plugins { id("com.mikepenz.convention.kotlin-multiplatform") }
 
-val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64")
+val ndkHost = if (System.getProperty("os.name").startsWith("Mac")) "darwin-x86_64" else "linux-x86_64"
+val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/$ndkHost")
 
 kotlin {
     listOf(androidNativeArm64(), androidNativeX64(), androidNativeArm32(), androidNativeX86()).forEach {

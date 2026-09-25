@@ -24,7 +24,8 @@ val prepareSdk = tasks.register<Sync>("preparePlayGamesSdk") {
 }
 val atomicShim = layout.buildDirectory.dir("pgs-atomic/arm64-v8a")
 val arm64SdkArchive = sdkDirectory.map { it.file("prefab/modules/games_static/libs/android.arm64-v8a/libgames_static.a") }
-val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64")
+val ndkHost = if (System.getProperty("os.name").startsWith("Mac")) "darwin-x86_64" else "linux-x86_64"
+val ndkToolchain = file("${System.getenv("ANDROID_HOME")}/ndk/28.2.13676358/toolchains/llvm/prebuilt/$ndkHost")
 val compileAtomicShim = tasks.register("compilePlayGamesArm64AtomicShim") {
     dependsOn(prepareSdk)
     val source = file("src/atomic/arm64_atomic_shim.c")
