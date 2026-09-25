@@ -13,7 +13,7 @@ kotlin {
             }
         }
     }
-    sourceSets.commonMain.dependencies {
+    sourceSets.androidNativeMain.dependencies {
         implementation(project(":game-services-play-games-native"))
     }
 }
