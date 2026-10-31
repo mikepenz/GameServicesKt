@@ -169,6 +169,8 @@ Backends are selected explicitly at the app edge. Kotlin target and provider are
 a JVM client can use a native backend where one is available. No backend is selected or switched
 automatically. For an intentionally disabled client use `createUnsupportedGameServices(target)`
 and the corresponding `createUnsupported…Client(target)` factories.
+On Android, `PlayGamesBackend` reports `isSupported = false` by itself when Google Play services is
+unavailable (AOSP, Automotive OS without GMS, de-Googled devices); see [Platform support](PLATFORM_SUPPORT.md).
 
 Each client exposes `supportedOperations`. Check the specific operation before displaying a
 control; a backend may support achievement data while lacking provider-owned UI. `isSupported`
