@@ -5,6 +5,8 @@ package com.mikepenz.gameservices.playgames
 import com.mikepenz.gameservices.*
 
 import androidx.activity.ComponentActivity
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.games.GamesSignInClient
 import com.google.android.gms.games.PlayersClient
 import com.google.android.gms.games.PlayGames
@@ -17,14 +19,29 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-/** Own one backend per Activity; create UI feature clients during onCreate. */
+/**
+ * Own one backend per Activity; create UI feature clients during onCreate.
+ *
+ * When Google Play services is missing, disabled or outdated, [support] reports `isSupported = false`,
+ * [authenticationState] is [AuthenticationState.Unsupported], and feature clients created from this backend are unsupported.
+ */
 public class PlayGamesBackend public constructor(
     @property:InternalGameServicesApi public val activity: ComponentActivity,
 ) : GameServices by createAndroidGameServices(activity)
 
 private fun createAndroidGameServices(activity: ComponentActivity): GameServices {
+    val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity.applicationContext)
+    if (status != ConnectionResult.SUCCESS) return UnavailablePlayGamesServices
     PlayGamesSdk.initialize(activity.applicationContext)
     return AndroidGameServices(PlayGames.getGamesSignInClient(activity), PlayGames.getPlayersClient(activity))
+}
+
+/** Used when Google Play services is unavailable; never touches the Play Games SDK. */
+internal object UnavailablePlayGamesServices : GameServices {
+    override val support = GameServicesSupport(GameServicesPlatform.Android, GameServicesProvider.GooglePlayGames, false)
+    override val authenticationState: StateFlow<AuthenticationState> = MutableStateFlow(AuthenticationState.Unsupported)
+    override suspend fun refreshAuthentication(): Result<PlayerIdentity?> = Result.failure(GameServicesException.UnsupportedTarget(support.target))
+    override suspend fun authenticate(): Result<PlayerIdentity> = Result.failure(GameServicesException.UnsupportedTarget(support.target))
 }
 
 internal class AndroidGameServices(

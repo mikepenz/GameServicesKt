@@ -40,6 +40,24 @@ GameKit saved games require an iCloud account and the app's configured iCloud co
 
 ## Android deployment checks
 
+### Devices without Google Play services
+
+AOSP builds, Android Automotive OS images without GMS, and other de-Googled or non-Google
+(e.g. Huawei, Amazon) devices have no Google Play services. `PlayGamesBackend` checks
+`GoogleApiAvailability` on construction. If Play services is missing, disabled, or outdated it
+reports `support.isSupported = false`, empty `supportedOperations`, and
+`AuthenticationState.Unsupported`; `authenticate()` fails with `GameServicesException.UnsupportedTarget`.
+The Play Games SDK is not initialized, and the achievements, leaderboards, saved-games and social
+factories return unsupported clients. Gate UI on `services.support.isSupported`; no app-side
+`GoogleApiAvailability` check or `play-services-base` dependency is needed. The result does not say
+*why* it is unsupported, and Play services that is present but lacks Play Games is not detected up
+front (calls fail with `ProviderFailure`).
+
+`NativePlayGamesBackend` (Android Native) has no such check: it is not a `GameServices`, its
+constructor throws if SDK initialization fails, and its achievements client always reports
+`isSupported = true`. Guard its construction yourself on devices that may lack Play services.
+
+
 ChromeOS and Google Play Games on PC run the Android artifact. They do not use the JVM backend.
 Consumer games must support keyboard/mouse or appropriate controller input, window resizing,
 and their destination's required native ABIs. Check that optional phone hardware is not marked
