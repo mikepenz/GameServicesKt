@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import com.google.android.gms.games.AchievementsClient as GoogleAchievementsClient
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.achievement.Achievement as GoogleAchievement
+import com.mikepenz.gameservices.GameServicesPlatform
 import com.mikepenz.gameservices.GameServicesProvider
 import com.mikepenz.gameservices.playgames.awaitGameServices
 import com.mikepenz.gameservices.playgames.gameServicesResult
@@ -18,9 +19,10 @@ import kotlinx.coroutines.withContext
 
 public fun PlayGamesBackend.createAchievementsClient(
     ids: AchievementIdMappings = AchievementIdMappings.Empty,
-): AchievementsClient = AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), { intent ->
-    activity.startActivity(intent)
-}, ids)
+): AchievementsClient = if (!support.isSupported) createUnsupportedAchievementsClient(GameServicesPlatform.Android) else
+    AndroidAchievementsClient(PlayGames.getAchievementsClient(activity), { intent ->
+        activity.startActivity(intent)
+    }, ids)
 
 internal class AndroidAchievementsClient(
     private val achievements: GoogleAchievementsClient,

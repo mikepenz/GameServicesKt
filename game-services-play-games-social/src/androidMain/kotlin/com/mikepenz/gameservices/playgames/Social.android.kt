@@ -39,6 +39,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 public fun PlayGamesBackend.createSocialClient(): SocialClient {
+    if (!support.isSupported) return createUnsupportedSocialClient(com.mikepenz.gameservices.GameServicesPlatform.Android)
     val consentResults = ProviderUiRequest<ActivityResult>()
     val consentLauncher = activity.registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
         consentResults.complete(it)

@@ -24,11 +24,12 @@ import kotlinx.coroutines.withContext
 
 public fun PlayGamesBackend.createLeaderboardsClient(
     ids: LeaderboardIdMappings = LeaderboardIdMappings.Empty,
-): LeaderboardsClient = AndroidLeaderboardsClient(
-    leaderboards = PlayGames.getLeaderboardsClient(activity),
-    launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {},
-    ids = ids,
-)
+): LeaderboardsClient = if (!support.isSupported) createUnsupportedLeaderboardsClient(com.mikepenz.gameservices.GameServicesPlatform.Android) else
+    AndroidLeaderboardsClient(
+        leaderboards = PlayGames.getLeaderboardsClient(activity),
+        launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {},
+        ids = ids,
+    )
 
 private class AndroidLeaderboardsClient(
     private val leaderboards: GoogleLeaderboardsClient,

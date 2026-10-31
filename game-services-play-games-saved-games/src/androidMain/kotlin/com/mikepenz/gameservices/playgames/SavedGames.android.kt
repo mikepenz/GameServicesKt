@@ -28,6 +28,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 public fun PlayGamesBackend.createSavedGamesClient(): SavedGamesClient {
+    if (!support.isSupported) return createUnsupportedSavedGamesClient(
+        com.mikepenz.gameservices.GameServicesPlatform.Android,
+        com.mikepenz.gameservices.GameServicesProvider.GooglePlayGames,
+    )
     val selection = ProviderUiRequest<ActivityResult>()
     activity.lifecycle.addObserver(LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_DESTROY) selection.close()
