@@ -63,6 +63,8 @@ class AuthenticationAdapterTest {
             GKErrorNotAuthenticated to GameServicesException.AuthenticationRequired,
             GKErrorNotAuthorized to GameServicesException.PermissionRequired,
             GKErrorGameUnrecognized to GameServicesException.ConfigurationMissing,
+            35L to GameServicesException.CloudUnavailable,
+            27L to GameServicesException.CloudUnavailable,
         )
         for ((code, expected) in cases) {
             assertSame(expected, NSError.errorWithDomain(GKErrorDomain, code, null).toGameServicesException())

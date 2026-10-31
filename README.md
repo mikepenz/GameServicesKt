@@ -326,8 +326,8 @@ and requested background synchronization on Android; they do not confirm remote 
 Cancelling a save cannot undo a commit that has already started. Native save commit and cleanup finish
 before releasing the operation's resources.
 
-`AuthenticationRequired`, `PermissionRequired`, `ConfigurationMissing`, and `UserCancelled` represent
-recognized provider failures. Other failures carry a provider and code. JVM provider exceptions retain
+`AuthenticationRequired`, `PermissionRequired`, `ConfigurationMissing`, `CloudUnavailable` (Game Center:
+iCloud signed out or iCloud Drive off), and `UserCancelled` represent recognized provider failures. Other failures carry a provider and code. JVM provider exceptions retain
 the original cause for diagnostics. `InternalGameServicesApi` marks implementation helpers shared by
 the published modules; applications should use the service interfaces instead.
 
