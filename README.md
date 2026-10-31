@@ -214,7 +214,7 @@ than storing it as an application-wide identifier.
 
 ## Android setup
 
-Set the consumer app's `minSdk` to 30. Configure the game in Play Console, add its Games services
+Set the consumer app's `minSdk` to 24. Configure the game in Play Console, add its Games services
 project ID to app resources, and reference it from the consumer app manifest:
 
 ```xml
@@ -376,7 +376,7 @@ Android setup:
    `demoKeystorePassword=...`. This is local, so forks supply their own project and keystore.
 3. Create a PGS credential for the certificate that signs the debug APK. Also add the Google Play
    app-signing SHA-1 only when testing an internal-track build. Run
-   `./gradlew :sample-host-android:installJavaSdkDebug` on an API 30+ device for the Java SDK,
+   `./gradlew :sample-host-android:installJavaSdkDebug` on an API 24+ device for the Java SDK,
    or `./gradlew :sample-host-android:installNativeSdkDebug` for the C SDK. Both flavors use the
    same package, project ID, and signing certificate, so install one at a time with the same PGS
    tester account. The native flavor needs a Linux build host with Android NDK and CMake; its

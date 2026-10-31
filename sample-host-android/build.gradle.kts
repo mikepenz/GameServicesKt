@@ -38,7 +38,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mikepenz.gameservices.sample.host"
-        minSdk = 30
+        minSdk = 24
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"

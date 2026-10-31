@@ -20,8 +20,8 @@ allprojects {
 
 tasks.register("verifyAndroidMinSdk") {
     doLast {
-        check(providers.gradleProperty("com.mikepenz.android.minSdk").orNull == "30") {
-            "Android libraries must declare com.mikepenz.android.minSdk=30."
+        check(providers.gradleProperty("com.mikepenz.android.minSdk").orNull == "24") {
+            "Android libraries must declare com.mikepenz.android.minSdk=24."
         }
     }
 }
@@ -52,8 +52,8 @@ tasks.register("verifyPublishedAndroidMinSdk") {
                     String(input.readBytes())
                 }
             }
-            check("android:minSdkVersion=\"30\"" in manifest) {
-                "$artifact Android manifest must declare minSdkVersion=30."
+            check("android:minSdkVersion=\"24\"" in manifest) {
+                "$artifact Android manifest must declare minSdkVersion=24."
             }
         }
     }
