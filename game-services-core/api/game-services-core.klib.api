@@ -216,6 +216,12 @@ sealed class com.mikepenz.gameservices/GameServicesException : kotlin/Exception 
         final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.AuthenticationRequired.toString|toString(){}[0]
     }
 
+    final object CloudUnavailable : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.CloudUnavailable|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.CloudUnavailable.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.CloudUnavailable.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.mikepenz.gameservices/GameServicesException.CloudUnavailable.toString|toString(){}[0]
+    }
+
     final object ConfigurationMissing : com.mikepenz.gameservices/GameServicesException { // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // com.mikepenz.gameservices/GameServicesException.ConfigurationMissing.hashCode|hashCode(){}[0]

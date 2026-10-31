@@ -103,6 +103,9 @@ public sealed class GameServicesException protected constructor(
 
     public data object PermissionRequired : GameServicesException("Game services permission is required")
 
+    /** The cloud backing store (iCloud on Apple) is unavailable, e.g. not signed in or iCloud Drive is off. */
+    public data object CloudUnavailable : GameServicesException("Cloud storage is unavailable")
+
     public data object UserCancelled : GameServicesException("The user cancelled game services")
 
     public class ProviderFailure public constructor(

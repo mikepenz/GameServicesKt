@@ -22,6 +22,7 @@ public fun bridgeError(error: Throwable): String = encodeBridgeRows(listOf(when 
     GameServicesException.PermissionRequired -> listOf("permission")
     GameServicesException.ConfigurationMissing -> listOf("configuration")
     GameServicesException.UserCancelled -> listOf("cancelled")
+    GameServicesException.CloudUnavailable -> listOf("cloud")
     is GameServicesException.UnsupportedOperation -> listOf("unsupported", error.operation.name)
     is GameServicesException.ProviderFailure -> listOf("provider", error.code)
     is IllegalArgumentException -> listOf("argument", error.message.orEmpty())
@@ -36,6 +37,7 @@ public fun decodeBridgeError(value: String): Exception {
         "permission" -> GameServicesException.PermissionRequired
         "configuration" -> GameServicesException.ConfigurationMissing
         "cancelled" -> GameServicesException.UserCancelled
+        "cloud" -> GameServicesException.CloudUnavailable
         "unsupported" -> GameServicesException.UnsupportedOperation(GameServicesProvider.GameCenter, GameServicesOperation.valueOf(row[1]))
         "argument" -> IllegalArgumentException(row[1])
         "provider" -> GameServicesException.ProviderFailure(GameServicesProvider.GameCenter, row[1])

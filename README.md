@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/mikepenz/GameServicesKt/actions/workflows/ci.yml"><img src="https://github.com/mikepenz/GameServicesKt/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI status"></a>
-  <a href="#modules"><img src="https://img.shields.io/badge/version-0.3.1--SNAPSHOT-6750A4" alt="Version 0.3.1-SNAPSHOT"></a>
+  <a href="#modules"><img src="https://img.shields.io/badge/version-0.3.2--SNAPSHOT-6750A4" alt="Version 0.3.2-SNAPSHOT"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-6750A4" alt="Apache 2.0 license"></a>
 </p>
 
@@ -46,13 +46,13 @@ Add the [snapshot repository](#modules) to dependency resolution, then declare c
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.mikepenz:game-services-achievements:0.3.1-SNAPSHOT")
+            implementation("com.mikepenz:game-services-achievements:0.3.2-SNAPSHOT")
         }
         androidMain.dependencies {
-            implementation("com.mikepenz:game-services-play-games-achievements:0.3.1-SNAPSHOT")
+            implementation("com.mikepenz:game-services-play-games-achievements:0.3.2-SNAPSHOT")
         }
         iosMain.dependencies {
-            implementation("com.mikepenz:game-services-game-center-achievements:0.3.1-SNAPSHOT")
+            implementation("com.mikepenz:game-services-game-center-achievements:0.3.2-SNAPSHOT")
         }
     }
 }
@@ -141,11 +141,11 @@ CI checks it with `./gradlew :sample-host-android:verifyPaparazziDebug`.
 ## Modules
 
 ```kotlin
-implementation("com.mikepenz:game-services-core:0.3.1-SNAPSHOT")
-implementation("com.mikepenz:game-services-achievements:0.3.1-SNAPSHOT")
-implementation("com.mikepenz:game-services-leaderboards:0.3.1-SNAPSHOT")
-implementation("com.mikepenz:game-services-saved-games:0.3.1-SNAPSHOT")
-implementation("com.mikepenz:game-services-social:0.3.1-SNAPSHOT")
+implementation("com.mikepenz:game-services-core:0.3.2-SNAPSHOT")
+implementation("com.mikepenz:game-services-achievements:0.3.2-SNAPSHOT")
+implementation("com.mikepenz:game-services-leaderboards:0.3.2-SNAPSHOT")
+implementation("com.mikepenz:game-services-saved-games:0.3.2-SNAPSHOT")
+implementation("com.mikepenz:game-services-social:0.3.2-SNAPSHOT")
 ```
 
 Snapshot builds require the Central Portal snapshot repository:
@@ -163,7 +163,7 @@ The five modules above contain provider-neutral contracts. Add the backend featu
 for the features your app uses. For example, Android achievements require
 `game-services-play-games-core` and `game-services-play-games-achievements`; Game Center uses
 `game-services-game-center-core` and `game-services-game-center-achievements`.
-Use the same `0.3.1-SNAPSHOT` version for all artifacts.
+Use the same `0.3.2-SNAPSHOT` version for all artifacts.
 
 Backends are selected explicitly at the app edge. Kotlin target and provider are separate:
 a JVM client can use a native backend where one is available. No backend is selected or switched
@@ -326,8 +326,8 @@ and requested background synchronization on Android; they do not confirm remote 
 Cancelling a save cannot undo a commit that has already started. Native save commit and cleanup finish
 before releasing the operation's resources.
 
-`AuthenticationRequired`, `PermissionRequired`, `ConfigurationMissing`, and `UserCancelled` represent
-recognized provider failures. Other failures carry a provider and code. JVM provider exceptions retain
+`AuthenticationRequired`, `PermissionRequired`, `ConfigurationMissing`, `CloudUnavailable` (Game Center:
+iCloud signed out or iCloud Drive off), and `UserCancelled` represent recognized provider failures. Other failures carry a provider and code. JVM provider exceptions retain
 the original cause for diagnostics. `InternalGameServicesApi` marks implementation helpers shared by
 the published modules; applications should use the service interfaces instead.
 

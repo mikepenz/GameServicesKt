@@ -4,6 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+- Add `GameServicesException.CloudUnavailable`, mapped from `GKErrorICloudUnavailable` and `GKErrorUbiquityContainerUnavailable`, so apps can tell users to sign in to iCloud / enable iCloud Drive.
 - Lower Android `minSdk` from 30 to 24 (matches the Play Games SDK requirement); native shim now targets API 24.
 - Fix standard Android achievement updates and overflow in step/percentage conversion.
 - Keep Game Center authentication state current after account changes and coordinate concurrent initialization.
