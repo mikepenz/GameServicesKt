@@ -9,7 +9,7 @@ or `dependencies`. The release workflow uses that label to place the change in i
 ## Releases
 
 Set `VERSION_NAME` in `gradle.properties`, then push a matching `v` tag. For example, version
-`0.1.0` uses `v0.1.0`; version `0.2.0-SNAPSHOT` uses `v0.2.0-SNAPSHOT`. Stable tags publish to
+`0.1.0` uses `v0.1.0`; version `0.3.0-SNAPSHOT` uses `v0.3.0-SNAPSHOT`. Stable tags publish to
 Maven Central, while `-SNAPSHOT` tags publish to the Central Portal snapshot repository. Both create
 a GitHub release after publication succeeds.
 

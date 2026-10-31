@@ -41,7 +41,7 @@ val compileAtomicShim = tasks.register("compilePlayGamesArm64AtomicShim") {
         val archive = atomicShim.get().file("libgames_with_atomic.a").asFile
         objectFile.parentFile.mkdirs()
         providers.exec {
-            commandLine(ndk.resolve("clang"), "--target=aarch64-linux-android30", "-mno-outline-atomics", "-c", source, "-o", objectFile)
+            commandLine(ndk.resolve("clang"), "--target=aarch64-linux-android24", "-mno-outline-atomics", "-c", source, "-o", objectFile)
         }.result.get().assertNormalExitValue()
         arm64SdkArchive.get().asFile.copyTo(archive, overwrite = true)
         providers.exec { commandLine(ndk.resolve("llvm-ar"), "rcs", archive, objectFile) }.result.get().assertNormalExitValue()

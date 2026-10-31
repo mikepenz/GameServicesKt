@@ -4,7 +4,7 @@ Backends are selected explicitly. Contract artifacts do not install provider SDK
 
 | Runtime | Backend | Available operations | Validation |
 | --- | --- | --- | --- |
-| Android API 30+ | PlayGamesBackend | Authentication, achievements, leaderboards, saves, social | Local adapter regression tests |
+| Android API 24+ | PlayGamesBackend | Authentication, achievements, leaderboards, saves, social | Local adapter regression tests |
 | Android on ChromeOS | PlayGamesBackend | Same Android API | Device validation pending |
 | Android on Google Play Games for Windows | PlayGamesBackend | Same Android API | PC runtime validation pending |
 | iOS | GameCenterBackend | Authentication, achievements, leaderboards, saves, social | Compile and simulator regression tests |
